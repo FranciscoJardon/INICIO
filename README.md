@@ -92,7 +92,7 @@ Detalle completo en [skill/SKILL.md](skill/SKILL.md) § "Botón Agregar al carri
 
 ## Pendientes
 
-- [ ] `git init` aquí + push a remote. Sustituir `<URL_REPO_AMATORA>` en los tres prompts por la URL real una vez publicado.
+- [x] ~~`git init` + push a remote~~ — publicado en https://github.com/FranciscoJardon/INICIO. Los tres prompts ya tienen las URLs reales (repo + raw base).
 - [ ] Probar `prompts/init.md` en un theme Dawn limpio.
 - [ ] Probar `prompts/implement.md` en un theme custom de un cliente actual.
 - [ ] Drawer de variantes para activar `show_variants_inline`.

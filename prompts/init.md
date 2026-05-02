@@ -2,13 +2,19 @@
 
 **Cuándo usar:** theme Shopify limpio (Dawn u otro) descargado fresh, sin Amatora previo y sin código del cliente que pueda chocar. Si el theme ya está en producción con código custom, usar `implement.md` en su lugar.
 
-**Cómo usar:** parate en la raíz del theme (con `assets/`, `config/`, `layout/`, etc), reemplazá `<URL_REPO_AMATORA>` por la URL real del repo Amatora, y pegá todo el bloque debajo en Claude Code.
+**Cómo usar:** parate en la raíz del theme (con `assets/`, `config/`, `layout/`, etc) y pegá todo el bloque debajo en Claude Code.
 
 ---
 
 ```
-Inicializa este proyecto Shopify con el sistema de diseño Amatora desde el repo:
-<URL_REPO_AMATORA>
+Inicializa este proyecto Shopify con el sistema de diseño Amatora desde:
+  Repo:     https://github.com/FranciscoJardon/INICIO
+  Raw base: https://raw.githubusercontent.com/FranciscoJardon/INICIO/main/
+
+Cuando el prompt diga "descargá del repo <archivo>", construí la URL así:
+  <Raw base> + <path en el repo>
+Ejemplo: system/amatora.css
+  → https://raw.githubusercontent.com/FranciscoJardon/INICIO/main/system/amatora.css
 
 Asume que estoy parado en la raíz del theme descargado (con assets/, config/,
 layout/, sections/, snippets/, templates/). Hacé exactamente estos pasos en

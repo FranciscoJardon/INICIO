@@ -4,13 +4,19 @@
 
 **Diferencia con `init.md` e `implement.md`:** este lee `assets/AMATORA_VERSION` para saber desde qué versión venís, baja `MIGRATIONS.md` del repo, y aplica los renames + cambios de estructura entre tu versión y la target — find/replace en `sections/*.liquid` y `snippets/*.liquid`.
 
-**Cómo usar:** parate en la raíz del theme, reemplazá `<URL_REPO_AMATORA>` por la URL real, pegá el bloque debajo.
+**Cómo usar:** parate en la raíz del theme y pegá el bloque debajo.
 
 ---
 
 ```
 Actualizá este proyecto Shopify a la última versión del sistema Amatora desde:
-<URL_REPO_AMATORA>
+  Repo:     https://github.com/FranciscoJardon/INICIO
+  Raw base: https://raw.githubusercontent.com/FranciscoJardon/INICIO/main/
+
+Cuando el prompt diga "descargá del repo <archivo>", construí la URL así:
+  <Raw base> + <path en el repo>
+Ejemplo: system/AMATORA_VERSION
+  → https://raw.githubusercontent.com/FranciscoJardon/INICIO/main/system/AMATORA_VERSION
 
 Asume que estoy parado en la raíz del theme y que Amatora ya está instalado
 en alguna versión previa (0.1.x, 0.2.x, etc.). Hacé exactamente estos pasos.

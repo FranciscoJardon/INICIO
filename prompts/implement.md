@@ -4,13 +4,19 @@
 
 **Diferencia con `init.md`:** init asume theme limpio y ejecuta directo. Implement nunca toca nada hasta que vos confirmes que el reporte de auditoría se ve bien.
 
-**Cómo usar:** parate en la raíz del theme, reemplazá `<URL_REPO_AMATORA>` por la URL real, y pegá todo el bloque debajo.
+**Cómo usar:** parate en la raíz del theme y pegá todo el bloque debajo.
 
 ---
 
 ```
-Implementá Amatora en este theme Shopify custom desde el repo:
-<URL_REPO_AMATORA>
+Implementá Amatora en este theme Shopify custom desde:
+  Repo:     https://github.com/FranciscoJardon/INICIO
+  Raw base: https://raw.githubusercontent.com/FranciscoJardon/INICIO/main/
+
+Cuando el prompt diga "descargá del repo <archivo>", construí la URL así:
+  <Raw base> + <path en el repo>
+Ejemplo: system/amatora.css
+  → https://raw.githubusercontent.com/FranciscoJardon/INICIO/main/system/amatora.css
 
 Este theme ya está en producción y NO tiene Amatora. Hay código del cliente
 que NO se debe pisar. Trabajá en modo dry-run primero, reportá conflictos,
