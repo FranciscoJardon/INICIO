@@ -1,0 +1,292 @@
+{%- if section.blocks.size > 0 -%}
+{%- liquid
+  assign sid       = 'banner-' | append: section.id
+  assign autoplay  = section.settings.autoplay | times: 1000
+  assign first     = section.blocks.first
+  assign is_single = false
+  if section.blocks.size == 1
+    assign is_single = true
+  endif
+-%}
+
+{%- comment -%}
+  LCP preload: imagesrcset+imagesizes para que el browser elija el width óptimo
+  según el viewport (móvil 750w, desktop 1920w) en vez de forzar 1920 a todos.
+{%- endcomment -%}
+{%- if first.settings.img != blank -%}
+  <link rel="preload" as="image" fetchpriority="high"
+        imagesrcset="{{ first.settings.img | image_url: width: 750,  format: 'webp' }} 750w,
+                     {{ first.settings.img | image_url: width: 1100, format: 'webp' }} 1100w,
+                     {{ first.settings.img | image_url: width: 1500, format: 'webp' }} 1500w,
+                     {{ first.settings.img | image_url: width: 1920, format: 'webp' }} 1920w"
+        imagesizes="100vw">
+{%- endif -%}
+
+<div id="{{ sid }}" class="banner-am{% if is_single %} banner-am--single{% endif %}" aria-label="{{ section.settings.aria_label | default: 'Banner' | escape }}">
+
+  <div class="banner-am__track-wrap"
+    {%- unless is_single -%}
+       data-amatora-slider
+       data-variant="banner"
+       data-peek="0"
+       data-gap="0"
+       data-arrows="{{ section.settings.show_arrows }}"
+       data-arrows-pos="sides"
+       data-dots="{{ section.settings.show_dots }}"
+       data-dots-style="{{ section.settings.dots_style }}"
+       data-accent="{{ section.settings.accent_color }}"
+       data-autoplay="{{ autoplay }}"
+       data-loop="true"
+    {%- endunless -%}>
+
+    {%- for block in section.blocks -%}
+      <div class="banner-am__slide" {{ block.shopify_attributes }}>
+
+        {%- if block.settings.url != blank and block.settings.cta_text == blank -%}
+          {%- assign wrap_in_link = true -%}
+          <a href="{{ block.settings.url }}" class="banner-am__link" aria-label="{{ block.settings.alt_text | default: 'Banner' | escape }}">
+        {%- else -%}
+          {%- assign wrap_in_link = false -%}
+        {%- endif -%}
+
+        {%- if block.settings.formato == 'video' -%}
+
+          {%- comment -%}
+            Para video, una sola etiqueta condicional según viewport.
+            (No replicamos el patrón <picture> con <source media> porque <video>
+             no lo soporta nativo; usamos viewport-side check + autoplay attrs.)
+          {%- endcomment -%}
+          {%- if block.settings.video != blank -%}
+            <video class="banner-am__media"
+                   autoplay muted loop playsinline
+                   {% if forloop.first %}preload="metadata"{% else %}preload="none"{% endif %}
+                   {% if block.settings.poster != blank %}poster="{{ block.settings.poster | image_url: width: 1600, format: 'webp' }}"{% endif %}>
+              {%- for src in block.settings.video.sources -%}
+                <source src="{{ src.url }}" type="{{ src.mime_type }}">
+              {%- endfor -%}
+            </video>
+          {%- endif -%}
+
+        {%- else -%}
+
+          {%- if block.settings.img != blank -%}
+            <picture>
+              {%- if block.settings.img2 != blank -%}
+                <source media="(max-width: 767px)"
+                        srcset="{{ block.settings.img2 | image_url: width: 480,  format: 'webp' }} 480w,
+                                {{ block.settings.img2 | image_url: width: 750,  format: 'webp' }} 750w,
+                                {{ block.settings.img2 | image_url: width: 1080, format: 'webp' }} 1080w"
+                        sizes="100vw"
+                        width="{{ block.settings.img2.width }}"
+                        height="{{ block.settings.img2.height }}">
+              {%- endif -%}
+              <img src="{{ block.settings.img | image_url: width: 1500, format: 'webp' }}"
+                   srcset="{{ block.settings.img | image_url: width: 750,  format: 'webp' }} 750w,
+                           {{ block.settings.img | image_url: width: 1100, format: 'webp' }} 1100w,
+                           {{ block.settings.img | image_url: width: 1500, format: 'webp' }} 1500w,
+                           {{ block.settings.img | image_url: width: 1920, format: 'webp' }} 1920w"
+                   sizes="100vw"
+                   alt="{{ block.settings.alt_text | default: 'Banner' | escape }}"
+                   class="banner-am__media"
+                   width="{{ block.settings.img.width }}"
+                   height="{{ block.settings.img.height }}"
+                   loading="eager"
+                   {% if forloop.first %}fetchpriority="high"{% endif %}
+                   decoding="async">
+            </picture>
+          {%- endif -%}
+
+        {%- endif -%}
+
+        {%- if wrap_in_link -%}
+          </a>
+        {%- endif -%}
+
+        {%- comment -%}
+          CTA opcional sobre el banner. Cuando hay cta_text, NO envolvemos el media
+          en <a> (sería un link dentro de otro link); el botón es el único navegable.
+        {%- endcomment -%}
+        {%- if block.settings.cta_text != blank -%}
+          <div class="banner-am__cta-wrap flex-amatora justify-center-amatora">
+            <a href="{{ block.settings.url | default: '#' }}" class="btn-primary-amatora btn-block-amatora">
+              <span class="btn-label">{{ block.settings.cta_text }}</span>
+            </a>
+          </div>
+        {%- endif -%}
+
+      </div>
+    {%- endfor -%}
+  </div>
+</div>
+
+<style>
+  #{{ sid }} .slider-amatora {
+    --sl-radius: 0;
+    --sl-peek: 0px;
+    --sl-gap: 0px;
+  }
+  #{{ sid }} .slider-amatora__viewport { border-radius: 0; }
+  #{{ sid }} .slider-amatora[data-variant="banner"] .slider-amatora__slide { width: 100%; }
+
+  #{{ sid }} .banner-am__slide {
+    position: relative;
+    width: 100%;
+  }
+  #{{ sid }} .banner-am__link {
+    display: block;
+    width: 100%;
+    color: inherit;
+    text-decoration: none;
+  }
+  #{{ sid }} .banner-am__media {
+    display: block;
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+  }
+
+  #{{ sid }} .banner-am__cta-wrap {
+    position: absolute;
+    left: 0; right: 0;
+    bottom: 48px;
+    z-index: 2;
+    padding: 0 16px;
+  }
+
+  /* Dots flotantes al pie del banner */
+  #{{ sid }} .slider-amatora__dots {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 32px);
+    max-width: 400px;
+    z-index: 3;
+    margin-top: 0;
+  }
+
+  /* Fallback antes de que cargue el JS */
+  #{{ sid }} .banner-am__track-wrap:not(.slider-amatora) .banner-am__slide ~ .banner-am__slide {
+    display: none;
+  }
+
+  /* Cuando solo hay 1 slide: ocultar controles */
+  #{{ sid }}.banner-am--single .slider-amatora__arrows,
+  #{{ sid }}.banner-am--single .slider-amatora__dots {
+    display: none !important;
+  }
+
+  {%- unless section.settings.show_arrows_mobile -%}
+    @media (max-width: 767px) {
+      #{{ sid }} .slider-amatora[data-arrows-pos="sides"] .slider-amatora__arrows {
+        display: none;
+      }
+    }
+  {%- endunless -%}
+
+  @media (prefers-reduced-motion: reduce) {
+    #{{ sid }} .slider-amatora__track { transition: none !important; }
+  }
+</style>
+
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Banner Amatora",
+  "class": "section-banner-amatora",
+  "tag": "section",
+  "settings": [
+    { "type": "header", "content": "General" },
+    {
+      "type": "text",
+      "id": "aria_label",
+      "label": "Aria label",
+      "default": "Banner principal"
+    },
+
+    { "type": "header", "content": "Autoplay y navegación" },
+    {
+      "type": "range",
+      "id": "autoplay",
+      "label": "Autoplay (segundos)",
+      "min": 0, "max": 15, "step": 1, "default": 5,
+      "info": "0 = desactivado"
+    },
+    { "type": "checkbox", "id": "show_arrows",        "label": "Mostrar flechas",          "default": true  },
+    { "type": "checkbox", "id": "show_arrows_mobile", "label": "Mostrar flechas en móvil", "default": false },
+    { "type": "checkbox", "id": "show_dots",          "label": "Mostrar indicadores",      "default": true  },
+    {
+      "type": "select",
+      "id": "dots_style",
+      "label": "Estilo de indicadores",
+      "options": [
+        { "value": "bar",                "label": "Barras" },
+        { "value": "circle",             "label": "Círculos" },
+        { "value": "progress",           "label": "Progress (se llena)" },
+        { "value": "progress-segmented", "label": "Progress segmentado" }
+      ],
+      "default": "progress-segmented"
+    },
+
+    { "type": "color", "id": "accent_color", "label": "Acento (dots/flechas)", "default": "#FFFFFF" }
+  ],
+  "blocks": [
+    {
+      "type": "slide",
+      "name": "Slide",
+      "settings": [
+        { "type": "header", "content": "Media" },
+        {
+          "type": "select",
+          "id": "formato",
+          "label": "Formato",
+          "options": [
+            { "value": "image", "label": "Imagen" },
+            { "value": "video", "label": "Video" }
+          ],
+          "default": "image"
+        },
+        {
+          "type": "image_picker",
+          "id": "img",
+          "label": "Imagen desktop",
+          "info": "Recomendado: 1920×800px",
+          "visible_if": "{{ block.settings.formato == 'image' }}"
+        },
+        {
+          "type": "image_picker",
+          "id": "img2",
+          "label": "Imagen móvil",
+          "info": "Recomendado: 1080×1400px",
+          "visible_if": "{{ block.settings.formato == 'image' }}"
+        },
+        {
+          "type": "text",
+          "id": "alt_text",
+          "label": "Texto alternativo (SEO)"
+        },
+        {
+          "type": "video",
+          "id": "video",
+          "label": "Video",
+          "visible_if": "{{ block.settings.formato == 'video' }}"
+        },
+        {
+          "type": "image_picker",
+          "id": "poster",
+          "label": "Poster del video",
+          "visible_if": "{{ block.settings.formato == 'video' }}"
+        },
+
+        { "type": "header", "content": "Llamado a la acción (opcional)" },
+        { "type": "text", "id": "cta_text", "label": "Texto del botón", "info": "Si está vacío, el banner entero linkea a la URL." },
+        { "type": "url",  "id": "url",      "label": "Enlace" }
+      ]
+    }
+  ],
+  "presets": [
+    { "name": "Banner Amatora", "category": "Amatora", "blocks": [{ "type": "slide" }] }
+  ]
+}
+{% endschema %}

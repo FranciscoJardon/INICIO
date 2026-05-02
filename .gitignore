@@ -1,0 +1,19 @@
+# Backups creados por los prompts de update/implement
+*.bak
+*.bak.*
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*~
+
+# Build artifacts (por si algún día se agrega tooling)
+node_modules/
+dist/
+.cache/

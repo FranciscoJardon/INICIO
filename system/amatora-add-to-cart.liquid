@@ -1,0 +1,87 @@
+{%- comment -%}
+  amatora-add-to-cart.liquid
+  ----------------------------------------------------------------------
+  Lógica del botón "Agregar al carrito" — un listener delegado para toda
+  la página. amatora.js queda intacto.
+
+  Renderiza UNA sola vez en layout/theme.liquid, antes de </body>:
+    {% render 'amatora-add-to-cart' %}
+
+  Contrato del HTML:
+    <button class="btn-primary-amatora"
+            data-add-to-cart
+            data-variant-id="{{ variant.id }}"
+            data-quantity="1">      {# opcional, default 1 #}
+      <span class="btn-label">Agregar al carrito</span>
+    </button>
+
+  El snippet:
+    - intercepta clicks en cualquier [data-add-to-cart] del documento
+    - setea data-state="loading" ANTES del fetch a /cart/add.js
+    - en éxito → data-state="success" por SUCCESS_HOLD_MS, vuelve a idle
+    - en error → data-state="error", se limpia en el siguiente click
+    - dispatcha eventos en `document` para que el cart drawer del theme
+      reaccione: amatora:cart:added | amatora:cart:error
+
+  Los estados visuales (spinner, checkmark, error) los pinta amatora.css.
+  Aquí solo controlamos el atributo data-state — cero manipulación de
+  style.* o classList.add().
+{%- endcomment -%}
+<script>
+(() => {
+  if (window.__amatoraAddToCartReady) return;
+  window.__amatoraAddToCartReady = true;
+
+  const SUCCESS_HOLD_MS = 1500;
+
+  document.addEventListener('click', async (e) => {
+    const btn = e.target.closest('[data-add-to-cart]');
+    if (!btn) return;
+
+    const variantId = btn.dataset.variantId;
+    if (!variantId) return;
+
+    e.preventDefault();
+    if (btn.dataset.state === 'loading') return;
+
+    btn.dataset.state = 'loading';
+
+    try {
+      const res = await fetch('/cart/add.js', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          id: Number(variantId),
+          quantity: Number(btn.dataset.quantity || 1)
+        })
+      });
+
+      if (!res.ok) {
+        const body = await res.text();
+        throw new Error('cart/add.js ' + res.status + ' — ' + body);
+      }
+
+      const item = await res.json();
+
+      btn.dataset.state = 'success';
+      document.dispatchEvent(new CustomEvent('amatora:cart:added', {
+        detail: { item, button: btn }
+      }));
+
+      setTimeout(() => {
+        if (btn.dataset.state === 'success') btn.dataset.state = 'idle';
+      }, SUCCESS_HOLD_MS);
+
+    } catch (err) {
+      btn.dataset.state = 'error';
+      document.dispatchEvent(new CustomEvent('amatora:cart:error', {
+        detail: { error: err, button: btn }
+      }));
+      console.warn('[amatora-add-to-cart]', err);
+    }
+  });
+})();
+</script>

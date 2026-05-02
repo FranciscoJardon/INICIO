@@ -1,0 +1,1722 @@
+/* ============================================================
+   AMATORA CSS — Sistema de utility classes
+   ============================================================
+   Orden:
+   1. Reset
+   2. CONFIGURACIÓN DEL PROYECTO (editar en cada proyecto nuevo)
+   3. Tipografía base (fija, no editar)
+   4. Colores — utility classes
+   5. Contenedor
+   6-26. Utilities (display, flex, grid, spacing, etc.)
+   27. Componentes compuestos (btn, card)
+   28. Slider Amatora (base, variantes, arrows, dots)
+   29-30. Responsive (md, lg)
+   ============================================================ */
+
+/* ============================================================
+   1. RESET MÍNIMO
+   ============================================================ */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    line-height: 1.5;
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+    margin: 0;
+    overflow-x: hidden;
+}
+
+img,
+video {
+    max-width: 100%;
+    height: auto;
+}
+
+h6 { font-style: normal; }
+
+h2, h3 {
+    font-optical-sizing: auto;
+    font-style: normal;
+}
+
+h4, p, a, button { font-style: normal; }
+
+button {
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.product-form__submit {
+    padding: 20px 0;
+    border-radius: 30px;
+    font-weight: 800;
+    width: 100%;
+}
+
+
+.cart-totals__tax-note, .cart-totals__tax-note {
+    display: none !important;
+}
+
+
+.dialog-modal[open].search-modal__content {
+  left: 50%;
+  transform: translateX(-50%) !important;
+}
+
+/* ============================================================
+   2. CONFIGURACIÓN DEL PROYECTO
+   ============================================================
+   ⚠️ EDITAR ESTA SECCIÓN AL INICIAR UN PROYECTO NUEVO.
+   El resto del CSS no debe modificarse.
+   ============================================================ */
+
+
+/* ---------- FUENTES (opcional) ----------
+   Si tu proyecto usa fuentes custom:
+   1. Descomenta el @import y ajusta la URL
+   2. Asigna las familias reales en --am-font-heading y --am-font-body
+------------------------------------------- */
+
+/* @import url('https://fonts.googleapis.com/css2?family=NOMBRE_FUENTE&display=swap'); */
+
+
+:root {
+
+    /* ---------- FUENTES ---------- */
+    /* Por defecto usa fallbacks del sistema. Reemplazar con las fuentes del proyecto. */
+    --am-font-heading: ;
+    --am-font-body:  ;
+
+
+    /* ---------- COLORES ---------- */
+
+    /* Marca (principal y secundario) */
+    --am-color-primary:         #004a3b;
+    --am-color-primary-hover:   #004a3b;
+    --am-color-secondary:       #7db38e;
+    --am-color-secondary-hover: #7db38e;
+
+    /* Base (siempre fijos, rara vez cambian) */
+    --am-color-black:  #000000;
+    --am-color-white:  #ffffff;
+    --am-color-danger: #dc2626;
+
+    /* Texto (grises semánticos) */
+    --am-text-primary:   #004a3b;
+    --am-text-secondary: #004a3b;
+
+    /* Fondos auxiliares */
+    --am-bg-light: #D1E0EF;
+    --am-bg-warm:  #F6F4F1;
+
+    /* Bordes */
+    --am-border: #D0D0D0;
+
+
+    /* ---------- ESPACIADO (universales, rara vez se modifican) ---------- */
+    --am-space-0:  0px;
+    --am-space-1:  4px;
+    --am-space-2:  8px;
+    --am-space-3:  12px;
+    --am-space-4:  16px;
+    --am-space-6:  24px;
+    --am-space-8:  32px;
+    --am-space-10: 40px;
+    --am-space-12: 48px;
+    --am-space-14: 56px;
+    --am-space-16: 64px;
+    --am-space-20: 80px;
+    --am-space-25: 112px;
+
+
+    /* ---------- LEADING ---------- */
+    --am-leading-none:    1;
+    --am-leading-tight:   1.25;
+    --am-leading-normal:  1.5;
+    --am-leading-relaxed: 1.75;
+}
+
+/* ============================================================
+   FIN DE CONFIGURACIÓN DEL PROYECTO
+   ============================================================ */
+
+
+/* ============================================================
+   3. TIPOGRAFÍA BASE — No editar
+   ============================================================
+   Las reglas usan las variables --am-font-heading y --am-font-body.
+   Para cambiar fuentes, edita las variables en la sección 2.
+   ============================================================ */
+
+h1, h2 {
+    font-family: var(--am-font-heading);
+}
+
+h3, h4, h5, h6 {
+    font-family: var(--am-font-body);
+}
+
+p, a, button, input, select, textarea, label, span, li {
+    font-family: var(--am-font-body);
+}
+
+p {
+    font-style: normal;
+    font-weight: 400;
+    line-height: 120%;
+    color: var(--am-text-primary);
+}
+
+
+/* ============================================================
+   4. COLORES — UTILITY CLASSES
+   ============================================================ */
+
+/* ---------- Texto ---------- */
+.text-primary-amatora     { color: var(--am-color-primary); }
+.text-secondary-amatora   { color: var(--am-color-secondary); }
+.text-black-amatora       { color: var(--am-color-black); }
+.text-white-amatora       { color: var(--am-color-white); }
+.text-danger-amatora      { color: var(--am-color-danger); }
+.text-muted-amatora       { color: var(--am-text-primary); }
+.text-muted-light-amatora { color: var(--am-text-secondary); }
+
+/* ---------- Fondos ---------- */
+.bg-primary-amatora     { background: var(--am-color-primary); }
+.bg-secondary-amatora   { background: var(--am-color-secondary); }
+.bg-black-amatora       { background: var(--am-color-black); }
+.bg-white-amatora       { background: var(--am-color-white); }
+.bg-light-amatora       { background: var(--am-bg-light); }
+.bg-warm-amatora        { background: var(--am-bg-warm); }
+.bg-transparent-amatora { background: transparent; }
+
+/* ---------- Bordes de color ---------- */
+.border-primary-amatora   { border: 2px solid var(--am-color-primary); }
+.border-secondary-amatora { border: 2px solid var(--am-color-secondary); }
+.border-white-amatora     { border: 1px solid var(--am-color-white); }
+.border-black-amatora     { border: 1px solid var(--am-color-black); }
+
+/* Borde por defecto (gris) */
+.border-amatora           { border: 1px solid var(--am-border); }
+
+
+/* ============================================================
+   5. CONTENEDOR
+   ============================================================ */
+.container-amatora {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+@media (min-width: 640px)  { .container-amatora { max-width: 640px; } }
+@media (min-width: 768px)  { .container-amatora { max-width: 968px; } }
+@media (min-width: 1024px) { .container-amatora { max-width: 1024px; } }
+@media (min-width: 1280px) { .container-amatora { max-width: 1200px; } }
+
+
+/* ============================================================
+   6. DISPLAY
+   ============================================================ */
+.block-amatora        { display: block; }
+.inline-block-amatora { display: inline-block; }
+.inline-amatora       { display: inline; }
+.flex-amatora         { display: flex; }
+.inline-flex-amatora  { display: inline-flex; }
+.grid-amatora         { display: grid; }
+.hidden-amatora       { display: none; }
+
+
+/* ============================================================
+   7. FLEXBOX
+   ============================================================ */
+.flex-row-amatora    { flex-direction: row; }
+.flex-col-amatora    { flex-direction: column; }
+.flex-wrap-amatora   { flex-wrap: wrap; }
+.flex-nowrap-amatora { flex-wrap: nowrap; }
+.flex-1-amatora      { flex: 1 1 0%; }
+.grow-amatora        { flex-grow: 1; }
+.grow-0-amatora      { flex-grow: 0; }
+.shrink-amatora      { flex-shrink: 1; }
+.shrink-0-amatora    { flex-shrink: 0; }
+
+.items-start-amatora    { align-items: flex-start; }
+.items-center-amatora   { align-items: center; }
+.items-end-amatora      { align-items: flex-end; }
+.items-stretch-amatora  { align-items: stretch; }
+.items-baseline-amatora { align-items: baseline; }
+
+.justify-start-amatora   { justify-content: flex-start; }
+.justify-center-amatora  { justify-content: center; }
+.justify-between-amatora { justify-content: space-between; }
+.justify-around-amatora  { justify-content: space-around; }
+.justify-evenly-amatora  { justify-content: space-evenly; }
+.justify-end-amatora     { justify-content: flex-end; }
+
+.self-start-amatora   { align-self: flex-start; }
+.self-center-amatora  { align-self: center; }
+.self-end-amatora     { align-self: flex-end; }
+.self-stretch-amatora { align-self: stretch; }
+
+.justify-items-center-amatora { justify-items: center; }
+.justify-self-center-amatora  { justify-self: center; }
+.justify-self-start-amatora   { justify-self: start; }
+.justify-self-end-amatora     { justify-self: end; }
+
+.gap-1-amatora  { gap: var(--am-space-1); }
+.gap-2-amatora  { gap: var(--am-space-2); }
+.gap-3-amatora  { gap: var(--am-space-3); }
+.gap-4-amatora  { gap: var(--am-space-4); }
+.gap-6-amatora  { gap: var(--am-space-6); }
+.gap-8-amatora  { gap: var(--am-space-8); }
+.gap-10-amatora { gap: var(--am-space-10); }
+.gap-12-amatora { gap: var(--am-space-12); }
+.gap-14-amatora { gap: var(--am-space-14); }
+
+.gap-x-1-amatora { column-gap: var(--am-space-1); }
+.gap-x-2-amatora { column-gap: var(--am-space-2); }
+.gap-x-3-amatora { column-gap: var(--am-space-3); }
+.gap-x-4-amatora { column-gap: var(--am-space-4); }
+.gap-x-6-amatora { column-gap: var(--am-space-6); }
+.gap-x-8-amatora { column-gap: var(--am-space-8); }
+
+.gap-y-1-amatora { row-gap: var(--am-space-1); }
+.gap-y-2-amatora { row-gap: var(--am-space-2); }
+.gap-y-3-amatora { row-gap: var(--am-space-3); }
+.gap-y-4-amatora { row-gap: var(--am-space-4); }
+.gap-y-6-amatora { row-gap: var(--am-space-6); }
+.gap-y-8-amatora { row-gap: var(--am-space-8); }
+
+
+/* ============================================================
+   8. GRID
+   ============================================================ */
+.grid-cols-1-amatora  { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+.grid-cols-2-amatora  { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.grid-cols-3-amatora  { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.grid-cols-4-amatora  { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.grid-cols-5-amatora  { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.grid-cols-6-amatora  { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+.grid-cols-7-amatora  { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+.grid-cols-8-amatora  { grid-template-columns: repeat(8, minmax(0, 1fr)); }
+.grid-cols-9-amatora  { grid-template-columns: repeat(9, minmax(0, 1fr)); }
+.grid-cols-10-amatora { grid-template-columns: repeat(10, minmax(0, 1fr)); }
+.grid-cols-11-amatora { grid-template-columns: repeat(11, minmax(0, 1fr)); }
+.grid-cols-12-amatora { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+
+.col-span-1-amatora    { grid-column: span 1 / span 1; }
+.col-span-2-amatora    { grid-column: span 2 / span 2; }
+.col-span-3-amatora    { grid-column: span 3 / span 3; }
+.col-span-4-amatora    { grid-column: span 4 / span 4; }
+.col-span-5-amatora    { grid-column: span 5 / span 5; }
+.col-span-6-amatora    { grid-column: span 6 / span 6; }
+.col-span-7-amatora    { grid-column: span 7 / span 7; }
+.col-span-8-amatora    { grid-column: span 8 / span 8; }
+.col-span-9-amatora    { grid-column: span 9 / span 9; }
+.col-span-10-amatora   { grid-column: span 10 / span 10; }
+.col-span-11-amatora   { grid-column: span 11 / span 11; }
+.col-span-12-amatora   { grid-column: span 12 / span 12; }
+.col-span-full-amatora { grid-column: 1 / -1; }
+
+.col-start-1-amatora { grid-column-start: 1; }
+.col-start-2-amatora { grid-column-start: 2; }
+.col-start-3-amatora { grid-column-start: 3; }
+.col-start-4-amatora { grid-column-start: 4; }
+.col-start-5-amatora { grid-column-start: 5; }
+.col-start-6-amatora { grid-column-start: 6; }
+.col-start-7-amatora { grid-column-start: 7; }
+
+.row-span-1-amatora { grid-row: span 1 / span 1; }
+.row-span-2-amatora { grid-row: span 2 / span 2; }
+.row-span-3-amatora { grid-row: span 3 / span 3; }
+
+
+/* ============================================================
+   9. MARGIN
+   ============================================================ */
+.m-0-amatora { margin: var(--am-space-0); }
+.m-1-amatora { margin: var(--am-space-1); }
+.m-2-amatora { margin: var(--am-space-2); }
+.m-3-amatora { margin: var(--am-space-3); }
+.m-4-amatora { margin: var(--am-space-4); }
+.m-6-amatora { margin: var(--am-space-6); }
+.m-8-amatora { margin: var(--am-space-8); }
+
+.-mt-2-amatora { margin-top: -8px; }
+.mt-0-amatora  { margin-top: var(--am-space-0); }
+.mt-1-amatora  { margin-top: var(--am-space-1); }
+.mt-2-amatora  { margin-top: var(--am-space-2); }
+.mt-3-amatora  { margin-top: var(--am-space-3); }
+.mt-4-amatora  { margin-top: var(--am-space-4); }
+.mt-6-amatora  { margin-top: var(--am-space-6); }
+.mt-8-amatora  { margin-top: var(--am-space-8); }
+.mt-12-amatora { margin-top: var(--am-space-12); }
+
+.mb-0-amatora { margin-bottom: var(--am-space-0); }
+.mb-1-amatora { margin-bottom: var(--am-space-1); }
+.mb-2-amatora { margin-bottom: var(--am-space-2); }
+.mb-3-amatora { margin-bottom: var(--am-space-3); }
+.mb-4-amatora { margin-bottom: var(--am-space-4); }
+.mb-6-amatora { margin-bottom: var(--am-space-6); }
+.mb-8-amatora { margin-bottom: var(--am-space-8); }
+
+.ml-0-amatora    { margin-left: var(--am-space-0); }
+.ml-1-amatora    { margin-left: var(--am-space-1); }
+.ml-2-amatora    { margin-left: var(--am-space-2); }
+.ml-3-amatora    { margin-left: var(--am-space-3); }
+.ml-4-amatora    { margin-left: var(--am-space-4); }
+.ml-6-amatora    { margin-left: var(--am-space-6); }
+.ml-8-amatora    { margin-left: var(--am-space-8); }
+.ml-auto-amatora { margin-left: auto; }
+
+.mr-0-amatora    { margin-right: var(--am-space-0); }
+.mr-1-amatora    { margin-right: var(--am-space-1); }
+.mr-2-amatora    { margin-right: var(--am-space-2); }
+.mr-3-amatora    { margin-right: var(--am-space-3); }
+.mr-4-amatora    { margin-right: var(--am-space-4); }
+.mr-6-amatora    { margin-right: var(--am-space-6); }
+.mr-8-amatora    { margin-right: var(--am-space-8); }
+.mr-auto-amatora { margin-right: auto; }
+
+.mx-auto-amatora { margin-left: auto; margin-right: auto; }
+.mx-1-amatora    { margin-left: var(--am-space-1); margin-right: var(--am-space-1); }
+.mx-2-amatora    { margin-left: var(--am-space-2); margin-right: var(--am-space-2); }
+.mx-4-amatora    { margin-left: var(--am-space-4); margin-right: var(--am-space-4); }
+
+.my-1-amatora { margin-top: var(--am-space-1); margin-bottom: var(--am-space-1); }
+.my-2-amatora { margin-top: var(--am-space-2); margin-bottom: var(--am-space-2); }
+.my-4-amatora { margin-top: var(--am-space-4); margin-bottom: var(--am-space-4); }
+.my-6-amatora { margin-top: var(--am-space-6); margin-bottom: var(--am-space-6); }
+.my-8-amatora { margin-top: var(--am-space-8); margin-bottom: var(--am-space-8); }
+
+
+/* ============================================================
+   10. PADDING
+   ============================================================ */
+.p-0-amatora { padding: var(--am-space-0); }
+.p-1-amatora { padding: var(--am-space-1); }
+.p-2-amatora { padding: var(--am-space-2); }
+.p-3-amatora { padding: var(--am-space-3); }
+.p-4-amatora { padding: var(--am-space-4); }
+.p-6-amatora { padding: var(--am-space-6); }
+.p-8-amatora { padding: var(--am-space-8); }
+
+.px-0-amatora { padding-left: var(--am-space-0); padding-right: var(--am-space-0); }
+.px-1-amatora { padding-left: var(--am-space-1); padding-right: var(--am-space-1); }
+.px-2-amatora { padding-left: var(--am-space-2); padding-right: var(--am-space-2); }
+.px-3-amatora { padding-left: var(--am-space-3); padding-right: var(--am-space-3); }
+.px-4-amatora { padding-left: var(--am-space-4); padding-right: var(--am-space-4); }
+.px-6-amatora { padding-left: var(--am-space-6); padding-right: var(--am-space-6); }
+.px-8-amatora { padding-left: var(--am-space-8); padding-right: var(--am-space-8); }
+
+.py-1-amatora  { padding-top: var(--am-space-1);  padding-bottom: var(--am-space-1); }
+.py-2-amatora  { padding-top: var(--am-space-2);  padding-bottom: var(--am-space-2); }
+.py-3-amatora  { padding-top: var(--am-space-3);  padding-bottom: var(--am-space-3); }
+.py-4-amatora  { padding-top: var(--am-space-4);  padding-bottom: var(--am-space-4); }
+.py-6-amatora  { padding-top: var(--am-space-6);  padding-bottom: var(--am-space-6); }
+.py-8-amatora  { padding-top: var(--am-space-8);  padding-bottom: var(--am-space-8); }
+.py-10-amatora { padding-top: var(--am-space-10); padding-bottom: var(--am-space-10); }
+.py-12-amatora { padding-top: var(--am-space-12); padding-bottom: var(--am-space-12); }
+.py-14-amatora { padding-top: var(--am-space-14); padding-bottom: var(--am-space-14); }
+.py-16-amatora { padding-top: var(--am-space-16); padding-bottom: var(--am-space-16); }
+.py-20-amatora { padding-top: var(--am-space-20); padding-bottom: var(--am-space-20); }
+
+.pt-4-amatora  { padding-top: var(--am-space-4); }
+.pt-12-amatora { padding-top: var(--am-space-12); }
+.pt-20-amatora { padding-top: var(--am-space-20); }
+.pt-25-amatora { padding-top: var(--am-space-25); }
+.pr-4-amatora  { padding-right: var(--am-space-4); }
+.pb-4-amatora  { padding-bottom: var(--am-space-4); }
+.pb-6-amatora  { padding-bottom: var(--am-space-6); }
+.pb-8-amatora  { padding-bottom: var(--am-space-8); }
+.pb-12-amatora { padding-bottom: var(--am-space-12); }
+.pl-4-amatora  { padding-left: var(--am-space-4); }
+
+
+/* ============================================================
+   11. TAMAÑOS (Width / Height)
+   ============================================================ */
+
+/* Width */
+.w-full-amatora   { width: 100%; }
+.w-auto-amatora   { width: auto; }
+.w-1\/2-amatora   { width: 50%; }
+.w-1\/3-amatora   { width: 33.333333%; }
+.w-2\/3-amatora   { width: 66.666667%; }
+.w-1\/4-amatora   { width: 25%; }
+.w-3\/4-amatora   { width: 75%; }
+.w-screen-amatora { width: 100vw; }
+.w-fit-amatora    { width: fit-content; }
+.w-min-amatora    { width: min-content; }
+.w-max-amatora    { width: max-content; }
+
+.w-10-amatora  { width: 10px; }
+.w-20-amatora  { width: 20px; }
+.w-30-amatora  { width: 30px; }
+.w-40-amatora  { width: 40px; }
+.w-50-amatora  { width: 50px; }
+.w-60-amatora  { width: 60px; }
+.w-70-amatora  { width: 70px; }
+.w-80-amatora  { width: 80px; }
+.w-100-amatora { width: 100px; }
+.w-300-amatora { width: 300px; }
+
+.min-w-0-amatora    { min-width: 0; }
+.min-w-full-amatora { min-width: 100%; }
+
+.max-w-xs-amatora   { max-width: 240px; }
+.max-w-100-amatora  { max-width: 100px; }
+.max-w-200-amatora  { max-width: 200px; }
+.max-w-250-amatora  { max-width: 250px; }
+.max-w-300-amatora  { max-width: 300px; }
+.max-w-350-amatora  { max-width: 350px; }
+.max-w-400-amatora  { max-width: 400px; }
+.max-w-500-amatora  { max-width: 500px; }
+.max-w-600-amatora  { max-width: 600px; }
+.max-w-700-amatora  { max-width: 700px; }
+.max-w-800-amatora  { max-width: 800px; }
+.max-w-900-amatora  { max-width: 900px; }
+.max-w-full-amatora { max-width: 100%; }
+.max-w-none-amatora { max-width: none; }
+
+/* Height */
+.h-full-amatora   { height: 100%; }
+.h-auto-amatora   { height: auto; }
+.h-screen-amatora { height: 100vh; }
+.h-fit-amatora    { height: fit-content; }
+
+.min-h-0-amatora      { min-height: 0; }
+.min-h-screen-amatora { min-height: 100vh; }
+.min-h-full-amatora   { min-height: 100%; }
+
+.h-40-amatora  { height: 40px; }
+.h-50-amatora  { height: 50px; }
+.h-70-amatora  { height: 70px; }
+.h-100-amatora { height: 100px; }
+.h-300-amatora { height: 300px; }
+.h-400-amatora { height: 400px; }
+.h-500-amatora { height: 500px; }
+.h-600-amatora { height: 600px; }
+.h-700-amatora { height: 700px; }
+.h-800-amatora { height: 800px; }
+
+.max-h-300-amatora    { max-height: 300px; }
+.max-h-400-amatora    { max-height: 400px; }
+.max-h-500-amatora    { max-height: 500px; }
+.max-h-screen-amatora { max-height: 100vh; }
+.max-h-full-amatora   { max-height: 100%; }
+.max-h-none-amatora   { max-height: none; }
+
+/* Aspect ratio */
+.aspect-ratio-amatora { aspect-ratio: 1; width: 100%; object-fit: cover; height: auto; }
+.aspect-9-amatora     { aspect-ratio: 9/11; width: 100%; object-fit: cover; height: auto; }
+.aspect-video-amatora { aspect-ratio: 16/9; }
+.aspect-auto-amatora  { aspect-ratio: auto; }
+
+
+/* ============================================================
+   12. POSICIONAMIENTO
+   ============================================================ */
+.relative-amatora { position: relative; }
+.absolute-amatora { position: absolute; }
+.fixed-amatora    { position: fixed; }
+.sticky-amatora   { position: sticky; }
+.static-amatora   { position: static; }
+
+.inset-0-amatora   { top: 0; right: 0; bottom: 0; left: 0; }
+.top-0-amatora     { top: 0; }
+.right-0-amatora   { right: 0; }
+.bottom-0-amatora  { bottom: 0; }
+.bottom-4-amatora  { bottom: 4px; }
+.bottom-10-amatora { bottom: 10px; }
+.left-0-amatora    { left: 0; }
+
+/* ---------- Z-INDEX (escala lógica completa) ---------- */
+.z-0-amatora   { z-index: 0;   }
+.z-1-amatora   { z-index: 1;   }
+.z-10-amatora  { z-index: 10;  }
+.z-20-amatora  { z-index: 20;  }
+.z-30-amatora  { z-index: 30;  }
+.z-40-amatora  { z-index: 40;  }
+.z-50-amatora  { z-index: 50;  }
+.z-100-amatora { z-index: 100; }
+
+/* Centrados absolutos */
+.top-50-amatora  { top: 50%; transform: translateY(-50%); }
+.left-50-amatora { left: 50%; transform: translateX(-50%); }
+.center-amatora  { left: 50%; top: 50%; transform: translate(-50%, -50%); }
+
+
+/* ============================================================
+   13. TIPOGRAFÍA (utilities)
+   ============================================================ */
+
+/* Alineación */
+.text-left-amatora    { text-align: left; }
+.text-center-amatora  { text-align: center; }
+.text-right-amatora   { text-align: right; }
+.text-justify-amatora { text-align: justify; }
+
+/* Tamaños */
+.text-xs-amatora  { font-size: 10px; line-height: 16px; }
+.text-sm-amatora  { font-size: 14px; line-height: 20px; }
+.text-base-amatora{ font-size: 16px; line-height: 24px; }
+.text-lg-amatora  { font-size: 18px; line-height: 28px; }
+.text-xl-amatora  { font-size: 20px; line-height: 28px; }
+.text-2xl-amatora { font-size: 24px; line-height: 32px; }
+.text-3xl-amatora { font-size: 30px; line-height: 36px; }
+.text-4xl-amatora { font-size: 36px; line-height: 40px; }
+.text-5xl-amatora { font-size: 48px; line-height: 52px; }
+.text-6xl-amatora { font-size: 60px; line-height: 64px; }
+.text-7xl-amatora { font-size: 72px; line-height: 76px; }
+
+/* Weights */
+.font-thin-amatora     { font-weight: 100; }
+.font-light-amatora    { font-weight: 300; }
+.font-normal-amatora   { font-weight: 400; }
+.font-medium-amatora   { font-weight: 500; }
+.font-semibold-amatora { font-weight: 600; }
+.font-bold-amatora     { font-weight: 700; }
+.font-black-amatora    { font-weight: 900; }
+
+/* Leading */
+.leading-none-amatora    { line-height: var(--am-leading-none); }
+.leading-tight-amatora   { line-height: var(--am-leading-tight); }
+.leading-normal-amatora  { line-height: var(--am-leading-normal); }
+.leading-relaxed-amatora { line-height: var(--am-leading-relaxed); }
+
+/* Tracking */
+.tracking-tight-amatora  { letter-spacing: -0.5px; }
+.tracking-normal-amatora { letter-spacing: 0; }
+.tracking-wide-amatora   { letter-spacing: 0.5px; }
+.tracking-wider-amatora  { letter-spacing: 1px; }
+.tracking-widest-amatora { letter-spacing: 2px; }
+
+/* Decoration */
+.text-decoration-amatora   { text-decoration: none; }
+.text-underline-amatora    { text-decoration: underline; }
+.text-line-through-amatora { text-decoration: line-through; }
+
+/* Estilo */
+.italic-amatora     { font-style: italic; }
+.not-italic-amatora { font-style: normal; }
+
+/* Case */
+.uppercase-amatora  { text-transform: uppercase; }
+.lowercase-amatora  { text-transform: lowercase; }
+.capitalize-amatora { text-transform: capitalize; }
+.normal-case-amatora{ text-transform: none; }
+
+/* Whitespace */
+.whitespace-nowrap-amatora { white-space: nowrap; }
+.whitespace-normal-amatora { white-space: normal; }
+.whitespace-pre-amatora    { white-space: pre; }
+
+/* Overflow texto */
+.truncate-amatora     { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.line-clamp-1-amatora { display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+.line-clamp-2-amatora { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.line-clamp-3-amatora { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.break-words-amatora  { overflow-wrap: break-word; }
+
+
+/* ============================================================
+   14. BORDES
+   ============================================================ */
+.border-none-amatora { border: none; }
+.border-0-amatora    { border-width: 0; }
+.border-2-amatora    { border-width: 2px; }
+.border-4-amatora    { border-width: 4px; }
+
+.border-t-amatora { border-top: 1px solid var(--am-border); }
+.border-b-amatora { border-bottom: 1px solid var(--am-border); }
+.border-l-amatora { border-left: 1px solid var(--am-border); }
+.border-r-amatora { border-right: 1px solid var(--am-border); }
+
+.border-t-0-amatora { border-top-width: 0; }
+.border-b-0-amatora { border-bottom-width: 0; }
+.border-l-0-amatora { border-left-width: 0; }
+.border-r-0-amatora { border-right-width: 0; }
+
+
+/* ============================================================
+   15. BORDES REDONDEADOS
+   ============================================================ */
+.rounded-none-amatora { border-radius: 0; }
+.rounded-amatora      { border-radius: 4px; }
+.rounded-md-amatora   { border-radius: 6px; }
+.rounded-lg-amatora   { border-radius: 8px; }
+.rounded-xl-amatora   { border-radius: 12px; }
+.rounded-2xl-amatora  { border-radius: 16px; }
+.rounded-full-amatora { border-radius: 9999px; }
+
+.rounded-t-amatora    { border-top-left-radius: 4px;  border-top-right-radius: 4px; }
+.rounded-t-lg-amatora { border-top-left-radius: 8px;  border-top-right-radius: 8px; }
+.rounded-t-xl-amatora { border-top-left-radius: 12px; border-top-right-radius: 12px; }
+.rounded-b-amatora    { border-bottom-left-radius: 4px;  border-bottom-right-radius: 4px; }
+.rounded-b-lg-amatora { border-bottom-left-radius: 8px;  border-bottom-right-radius: 8px; }
+.rounded-b-xl-amatora { border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; }
+
+
+/* ============================================================
+   16. SOMBRAS
+   ============================================================ */
+.shadow-none-amatora { box-shadow: none; }
+.shadow-sm-amatora   { box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); }
+.shadow-md-amatora   { box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); }
+.shadow-lg-amatora   { box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1); }
+.shadow-xl-amatora   { box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1); }
+
+
+/* ============================================================
+   17. OPACIDAD
+   ============================================================ */
+.opacity-0-amatora   { opacity: 0; }
+.opacity-25-amatora  { opacity: .25; }
+.opacity-50-amatora  { opacity: .5; }
+.opacity-75-amatora  { opacity: .75; }
+.opacity-100-amatora { opacity: 1; }
+
+
+/* ============================================================
+   18. OVERFLOW
+   ============================================================ */
+.overflow-hidden-amatora   { overflow: hidden; }
+.overflow-auto-amatora     { overflow: auto; }
+.overflow-scroll-amatora   { overflow: scroll; }
+.overflow-visible-amatora  { overflow: visible; }
+.overflow-x-auto-amatora   { overflow-x: auto; }
+.overflow-x-hidden-amatora { overflow-x: hidden; }
+.overflow-y-auto-amatora   { overflow-y: auto; }
+.overflow-y-hidden-amatora { overflow-y: hidden; }
+
+
+/* ============================================================
+   19. OBJECT-FIT
+   ============================================================ */
+.object-cover-amatora   { object-fit: cover; }
+.object-contain-amatora { object-fit: contain; }
+.object-fill-amatora    { object-fit: fill; }
+.object-none-amatora    { object-fit: none; }
+
+
+/* ============================================================
+   20. INTERACTIVIDAD
+   ============================================================ */
+.cursor-pointer-amatora     { cursor: pointer; }
+.cursor-default-amatora     { cursor: default; }
+.cursor-not-allowed-amatora { cursor: not-allowed; }
+
+.pointer-events-none-amatora { pointer-events: none; }
+.pointer-events-auto-amatora { pointer-events: auto; }
+
+.select-none-amatora { user-select: none; -webkit-user-select: none; }
+.select-text-amatora { user-select: text; }
+.select-all-amatora  { user-select: all; }
+
+
+/* ============================================================
+   21. ACCESIBILIDAD
+   ============================================================ */
+.sr-only-amatora {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
+
+
+/* ============================================================
+   22. LISTAS
+   ============================================================ */
+.list-none-amatora    { list-style: none; }
+.list-disc-amatora    { list-style-type: disc; }
+.list-decimal-amatora { list-style-type: decimal; }
+
+
+/* ============================================================
+   23. TRANSICIONES
+   ============================================================ */
+.transition-amatora {
+    transition-property: color, background-color, border-color, fill, stroke, opacity, box-shadow, transform, filter;
+    transition-duration: 150ms;
+    transition-timing-function: ease-in-out;
+}
+.transition-all-amatora       { transition: all 150ms ease-in-out; }
+.transition-colors-amatora    { transition-property: color, background-color, border-color; transition-duration: 150ms; transition-timing-function: ease-in-out; }
+.transition-opacity-amatora   { transition-property: opacity; transition-duration: 150ms; transition-timing-function: ease-in-out; }
+.transition-transform-amatora { transition-property: transform; transition-duration: 150ms; transition-timing-function: ease-in-out; }
+
+.duration-100-amatora { transition-duration: 100ms; }
+.duration-150-amatora { transition-duration: 150ms; }
+.duration-200-amatora { transition-duration: 200ms; }
+.duration-300-amatora { transition-duration: 300ms; }
+.duration-500-amatora { transition-duration: 500ms; }
+
+.ease-in-out-amatora { transition-timing-function: ease-in-out; }
+.ease-in-amatora     { transition-timing-function: ease-in; }
+.ease-out-amatora    { transition-timing-function: ease-out; }
+
+
+/* ============================================================
+   24. TRANSFORMS
+   ============================================================ */
+.scale-95-amatora  { transform: scale(.95); }
+.scale-100-amatora { transform: scale(1); }
+.scale-105-amatora { transform: scale(1.05); }
+.scale-110-amatora { transform: scale(1.1); }
+
+.rotate-45-amatora  { transform: rotate(45deg); }
+.rotate-90-amatora  { transform: rotate(90deg); }
+.rotate-180-amatora { transform: rotate(180deg); }
+.-rotate-90-amatora { transform: rotate(-90deg); }
+
+
+/* ============================================================
+   25. HOVER STATES
+   ============================================================ */
+.hover\:opacity-80-amatora:hover  { opacity: .8; }
+.hover\:opacity-100-amatora:hover { opacity: 1; }
+.hover\:shadow-lg-amatora:hover   { box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1); }
+.hover\:scale-105-amatora:hover   { transform: scale(1.05); }
+.hover\:underline-amatora:hover   { text-decoration: underline; }
+
+
+/* ============================================================
+   26. ORDER (flex/grid)
+   ============================================================ */
+.order-1-amatora     { order: 1; }
+.order-2-amatora     { order: 2; }
+.order-3-amatora     { order: 3; }
+.order-first-amatora { order: -9999; }
+.order-last-amatora  { order: 9999; }
+.order-none-amatora  { order: 0; }
+
+
+/* ============================================================
+   27. COMPONENTES COMPUESTOS
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   Botones — primary y secondary, configurables vía --btn-*
+
+   API:
+     .btn-primary-amatora    → acción principal
+     .btn-secondary-amatora  → acción alternativa
+
+   Modificadores combinables:
+     .btn-block-amatora      → ancho completo + esquina signature
+     .btn-outline-amatora    → fondo transparente + borde
+
+   Override por instancia/sección/global:
+     --btn-bg, --btn-fg, --btn-border, --btn-radius,
+     --btn-py, --btn-px, --btn-fs, --btn-fw, --btn-w, --btn-max,
+     --btn-bg-hover
+
+   Estados (set por amatora-add-to-cart.liquid, render por CSS):
+     [data-state="loading"]  → spinner reemplaza label
+     [data-state="success"]  → check + "Agregado" (1.5s)
+     [data-state="error"]    → ⚠ + "Intenta de nuevo"
+   ------------------------------------------------------------ */
+
+/* Base compartida */
+.btn-primary-amatora,
+.btn-secondary-amatora {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    position: relative;
+    cursor: pointer;
+    font-family: var(--am-font-body);
+    font-weight:    var(--btn-fw,     700);
+    font-size:      var(--btn-fs,     16px);
+    text-align: center;
+    text-decoration: none;
+    border:         var(--btn-border, none);
+    border-radius:  var(--btn-radius, 30px);
+    padding:        var(--btn-py,     12px) var(--btn-px, 24px);
+    width:          var(--btn-w,      auto);
+    max-width:      var(--btn-max,    none);
+    transition: background 200ms ease, color 200ms ease, border-color 200ms ease;
+}
+
+/* Primary */
+.btn-primary-amatora {
+    background: var(--btn-bg, var(--am-color-primary));
+    color:      var(--btn-fg, var(--am-color-white));
+}
+.btn-primary-amatora:hover {
+    background: var(--btn-bg-hover, var(--am-color-primary-hover));
+}
+.btn-primary-amatora:disabled,
+.btn-primary-amatora[aria-disabled="true"] {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+/* Secondary */
+.btn-secondary-amatora {
+    background: var(--btn-bg, var(--am-color-secondary));
+    color:      var(--btn-fg, var(--am-color-white));
+}
+.btn-secondary-amatora:hover {
+    background: var(--btn-bg-hover, var(--am-color-secondary-hover));
+}
+.btn-secondary-amatora:disabled,
+.btn-secondary-amatora[aria-disabled="true"] {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+/* Modificador: bloque ancho con esquina signature */
+.btn-block-amatora {
+    --btn-w:      100%;
+    --btn-max:    450px;
+    --btn-radius: 0 0 30px 0;
+    --btn-py:     16px;
+    --btn-px:     20px;
+    --btn-fs:     18px;
+}
+
+/* Modificador: outline (combina con primary o secondary) */
+.btn-outline-amatora.btn-primary-amatora {
+    --btn-bg:       transparent;
+    --btn-fg:       var(--am-color-primary);
+    --btn-border:   2px solid var(--am-color-primary);
+    --btn-bg-hover: var(--am-color-primary);
+}
+.btn-outline-amatora.btn-primary-amatora:hover {
+    color: var(--am-color-white);
+}
+.btn-outline-amatora.btn-secondary-amatora {
+    --btn-bg:       transparent;
+    --btn-fg:       var(--am-color-secondary);
+    --btn-border:   2px solid var(--am-color-secondary);
+    --btn-bg-hover: var(--am-color-secondary);
+}
+.btn-outline-amatora.btn-secondary-amatora:hover {
+    color: var(--am-color-white);
+}
+
+/* Estado: loading */
+.btn-primary-amatora[data-state="loading"],
+.btn-secondary-amatora[data-state="loading"] {
+    pointer-events: none;
+}
+.btn-primary-amatora[data-state="loading"] > .btn-label,
+.btn-secondary-amatora[data-state="loading"] > .btn-label {
+    visibility: hidden;
+}
+.btn-primary-amatora[data-state="loading"]::after,
+.btn-secondary-amatora[data-state="loading"]::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 18px;
+    height: 18px;
+    margin: -9px 0 0 -9px;
+    border: 2px solid var(--btn-loader-color, currentColor);
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: am-btn-spin 700ms linear infinite;
+}
+@keyframes am-btn-spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Estado: success */
+.btn-primary-amatora[data-state="success"],
+.btn-secondary-amatora[data-state="success"] {
+    pointer-events: none;
+    background: var(--am-color-success, #2c8a5b);
+}
+.btn-primary-amatora[data-state="success"] > .btn-label,
+.btn-secondary-amatora[data-state="success"] > .btn-label {
+    visibility: hidden;
+}
+.btn-primary-amatora[data-state="success"]::after,
+.btn-secondary-amatora[data-state="success"]::after {
+    content: "✓ Agregado";
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--am-color-white);
+    font-weight: var(--btn-fw, 700);
+    font-size:   var(--btn-fs, 16px);
+}
+
+/* Estado: error */
+.btn-primary-amatora[data-state="error"],
+.btn-secondary-amatora[data-state="error"] {
+    background: #c0392b;
+}
+.btn-primary-amatora[data-state="error"] > .btn-label,
+.btn-secondary-amatora[data-state="error"] > .btn-label {
+    visibility: hidden;
+}
+.btn-primary-amatora[data-state="error"]::after,
+.btn-secondary-amatora[data-state="error"]::after {
+    content: "⚠ Intenta de nuevo";
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--am-color-white);
+    font-weight: var(--btn-fw, 700);
+    font-size:   var(--btn-fs, 16px);
+}
+
+/* Card */
+.card-amatora {
+    background: var(--am-color-white);
+    border: 1px solid var(--am-border);
+    border-radius: 12px;
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.05);
+    padding: 16px;
+}
+
+
+/* ============================================================
+   28. SLIDER AMATORA
+   ============================================================
+   Componente de carousel/slider reutilizable.
+   Uso HTML mínimo:
+
+   <div data-amatora-slider
+        data-visible-desktop="3"
+        data-visible-tablet="2"
+        data-visible-mobile="1.2">
+     <div>Slide 1</div>
+     <div>Slide 2</div>
+   </div>
+
+   El JS (amatora.js) se encarga de envolver cada slide,
+   construir header, arrows, dots y aplicar drag+touch+resize.
+
+   Todos los atributos data-* disponibles:
+     data-visible-desktop  → número decimal (ej: 3, 3.2)
+     data-visible-tablet   → número decimal (ej: 2, 2.1)
+     data-visible-mobile   → número decimal (ej: 1.2, 1.1)
+     data-gap              → px entre slides (default 16)
+     data-peek             → px del asomo en variant banner (default 48)
+     data-variant          → "default" | "banner"
+     data-arrows-pos       → "header" | "sides"
+     data-dots-style       → "bar" | "circle" | "progress" | "progress-segmented"
+     data-arrows           → "true" | "false"   (default true)
+     data-dots             → "true" | "false"   (default true)
+     data-counter          → "true" | "false"   (default false)
+     data-label            → texto del header
+     data-loop             → "true" | "false"   (default false)
+     data-autoplay         → ms (0 = off)
+     data-accent           → hex color (ej: "#FF6B00")
+
+   Opciones del progress (solo cuando dots-style="progress" o "progress-segmented"):
+     data-dots-align       → "left" | "center" | "right" (default center)
+     data-progress-width   → "100%" | "240px" | "50%" (default 100%)
+     data-progress-height  → "3px" | "6px" | "2px" (default 3px)
+     data-progress-radius  → "9999px" (pill) | "0" (rectangular) | "4px"
+     data-progress-gap     → "6px" | "2px" (solo segmented, default 6px)
+     data-progress-bg      → color track (default --am-border)
+   ============================================================ */
+
+
+/* ---------- 28.0 FOUC fix — ocultar el slider mientras el JS no lo ha inicializado ---------- */
+/* Antes del init, los slides aún no están envueltos en .slider-amatora__slide y se verían
+   en su ancho natural ("slide gigante"). Esto previene ese flash. */
+[data-amatora-slider]:not(.slider-amatora) {
+    opacity: 0;
+    visibility: hidden;
+}
+
+/* ---------- 28.1 Variables del componente ---------- */
+.slider-amatora {
+    --sl-gap:          var(--am-space-4);
+    /* mobile-first: el default usa el valor móvil;
+       md y lg lo overrean vía media queries (ver sección 28.9) */
+    --sl-visible:      var(--sl-visible-sm, 1.2);
+    --sl-radius:       12px;
+    --sl-accent:       var(--am-color-primary);
+    --sl-arrow-bg:     var(--am-color-white);
+    --sl-arrow-color:  var(--am-color-primary);
+    --sl-arrow-size:   44px;
+    --sl-dot-inactive: var(--am-border);
+    --sl-dot-active:   var(--am-color-primary);
+    /* Transition más suave (antes 0.48s — sentía "duro") */
+    --sl-transition:   0.65s cubic-bezier(0.22, 1, 0.36, 1);
+    --sl-peek:         48px;
+
+    /* Fade-in al inicializar */
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.25s ease;
+
+    /* Variables específicas del progress (dots-style="progress" / "progress-segmented") */
+    --sl-progress-width:   100%;
+    --sl-progress-height:  3px;
+    --sl-progress-radius:  9999px;
+    --sl-progress-gap:     6px;
+    --sl-progress-bg:      var(--am-border);
+
+    position: relative;
+    width: 100%;
+}
+
+
+/* ---------- 28.2 Header (label + controls) ---------- */
+.slider-amatora__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--am-space-4);
+    gap: var(--am-space-4);
+    flex-wrap: wrap;
+}
+
+.slider-amatora__label {
+    font-family: var(--am-font-body);
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    color: var(--am-text-secondary);
+}
+
+.slider-amatora__controls {
+    display: flex;
+    align-items: center;
+    gap: var(--am-space-3);
+}
+
+.slider-amatora__counter {
+    font-family: var(--am-font-body);
+    font-size: 13px;
+    color: var(--am-text-secondary);
+}
+.slider-amatora__counter strong {
+    color: var(--am-text-primary);
+    font-weight: 600;
+}
+
+
+/* ---------- 28.3 Arrows (por defecto en header) ---------- */
+.slider-amatora__arrows {
+    display: flex;
+    gap: var(--am-space-2);
+}
+
+.slider-amatora__arrow {
+    width: var(--sl-arrow-size);
+    height: var(--sl-arrow-size);
+    border-radius: 9999px;
+    border: 1px solid var(--am-border);
+    background: var(--sl-arrow-bg);
+    color: var(--sl-arrow-color);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 200ms ease;
+    flex-shrink: 0;
+    padding: 0;
+}
+.slider-amatora__arrow:hover:not(:disabled) {
+    background: var(--sl-accent);
+    color: var(--am-color-white);
+    border-color: var(--sl-accent);
+}
+.slider-amatora__arrow:active:not(:disabled) {
+    transform: scale(0.94);
+}
+.slider-amatora__arrow:disabled {
+    opacity: 0.3;
+    cursor: default;
+}
+.slider-amatora__arrow svg {
+    width: 18px;
+    height: 18px;
+    display: block;
+}
+
+
+/* ---------- 28.4 Stage + Viewport + Track ---------- */
+.slider-amatora__stage {
+    position: relative;
+    width: 100%;
+}
+
+.slider-amatora__viewport {
+    overflow: hidden;
+    cursor: grab;
+    user-select: none;
+    -webkit-user-select: none;
+    width: 100%;
+   
+}
+.slider-amatora__viewport.is-dragging {
+    cursor: grabbing;
+}
+
+.slider-amatora__track {
+    display: flex;
+    gap: var(--sl-gap);
+    transition: transform var(--sl-transition);
+    will-change: transform;
+}
+.slider-amatora__track.no-anim {
+    transition: none;
+}
+.slider-amatora__viewport.is-dragging .slider-amatora__track > * {
+    pointer-events: none;
+}
+
+
+/* ---------- 28.5 Slide (ancho dinámico via --sl-visible) ---------- */
+.slider-amatora__slide {
+    flex-shrink: 0;
+    width: calc(
+        (100% - var(--sl-gap) * (var(--sl-visible) - 1))
+        / var(--sl-visible)
+    );
+    min-width: 0;
+}
+
+
+/* ---------- 28.6 Variante: Banner (1 slide con peek) ---------- */
+.slider-amatora[data-variant="banner"] {
+    --sl-visible: 1;
+}
+.slider-amatora[data-variant="banner"] .slider-amatora__slide {
+    width: calc(100% - var(--sl-peek));
+}
+
+
+/* ---------- 28.7 Arrows flotantes a los lados ---------- */
+.slider-amatora[data-arrows-pos="sides"] .slider-amatora__header {
+    margin-bottom: var(--am-space-3);
+}
+.slider-amatora[data-arrows-pos="sides"] .slider-amatora__arrows {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    transform: translateY(-50%);
+    justify-content: space-between;
+    pointer-events: none;
+    padding: 0 var(--am-space-4);
+    z-index: 5;
+}
+.slider-amatora[data-arrows-pos="sides"] .slider-amatora__arrow {
+    pointer-events: all;
+    background: rgba(0, 0, 0, 0.35);
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+}
+.slider-amatora[data-arrows-pos="sides"] .slider-amatora__arrow:hover:not(:disabled) {
+    background: rgba(0, 0, 0, 0.55);
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: scale(1.05);
+}
+
+
+/* ---------- 28.8 Dots (bullets) ---------- */
+.slider-amatora__dots {
+    display: flex;
+    gap: var(--am-space-2);
+    justify-content: center;
+    align-items: center;
+    margin-top: var(--am-space-4);
+    flex-wrap: wrap;
+}
+
+.slider-amatora__dot {
+    height: 4px;
+    width: 24px;
+    border-radius: 9999px;
+    background: var(--sl-dot-inactive);
+    cursor: pointer;
+    border: none;
+    padding: 0;
+    transition: width 300ms ease, background 300ms ease, transform 300ms ease;
+}
+.slider-amatora__dot.is-active {
+    width: 36px;
+    background: var(--sl-dot-active);
+}
+
+/* Variante: dots circulares */
+.slider-amatora[data-dots-style="circle"] .slider-amatora__dot {
+    width: 8px;
+    height: 8px;
+}
+.slider-amatora[data-dots-style="circle"] .slider-amatora__dot.is-active {
+    width: 10px;
+    height: 10px;
+    transform: scale(1.1);
+}
+
+/* ---------- 28.8.1 Alineación del contenedor de dots ---------- */
+.slider-amatora[data-dots-align="left"] .slider-amatora__dots {
+    margin-left: 0;
+    margin-right: auto;
+}
+.slider-amatora[data-dots-align="right"] .slider-amatora__dots {
+    margin-left: auto;
+    margin-right: 0;
+}
+.slider-amatora[data-dots-align="center"] .slider-amatora__dots {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* ---------- 28.8.2 Variante: Progress (barra continua que se llena) ---------- */
+.slider-amatora[data-dots-style="progress"] .slider-amatora__dots {
+    display: block;
+    width: var(--sl-progress-width);
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    height: var(--sl-progress-height);
+    background: var(--sl-progress-bg);
+    border-radius: var(--sl-progress-radius);
+    overflow: hidden;
+    position: relative;
+    padding: 0;
+    gap: 0;
+}
+.slider-amatora[data-dots-style="progress"] .slider-amatora__dot {
+    display: none;
+}
+.slider-amatora[data-dots-style="progress"] .slider-amatora__progress {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background: var(--sl-dot-active);
+    border-radius: var(--sl-progress-radius);
+    transition: width 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    width: 0%;
+}
+
+/* Por defecto .slider-amatora__progress está oculta — solo aparece en variante progress */
+.slider-amatora__progress {
+    display: none;
+}
+
+/* ---------- 28.8.3 Variante: Progress segmentado (tipo stories) ---------- */
+.slider-amatora[data-dots-style="progress-segmented"] .slider-amatora__dots {
+    width: var(--sl-progress-width);
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    gap: var(--sl-progress-gap);
+}
+.slider-amatora[data-dots-style="progress-segmented"] .slider-amatora__dot {
+    flex: 1;
+    width: auto;
+    min-width: 0;
+    height: var(--sl-progress-height);
+    border-radius: var(--sl-progress-radius);
+    background: var(--sl-progress-bg);
+}
+.slider-amatora[data-dots-style="progress-segmented"] .slider-amatora__dot.is-active {
+    width: auto;
+    background: var(--sl-dot-active);
+}
+
+
+/* ---------- 28.9 Responsive del slider (mobile-first) ---------- */
+/* Base (mobile, <768px): --sl-visible ya = var(--sl-visible-sm, 1.2) en 28.1 */
+/* Tablet — ≥768px */
+@media (min-width: 768px) {
+    .slider-amatora {
+        --sl-visible: var(--sl-visible-md, 2);
+    }
+}
+/* Desktop — ≥1024px */
+@media (min-width: 1024px) {
+    .slider-amatora {
+        --sl-visible: var(--sl-visible-lg, 3);
+    }
+}
+/* Overrides móvil específicos (no tocan --sl-visible) */
+@media (max-width: 767px) {
+    .slider-amatora {
+        --sl-arrow-size: 38px;
+    }
+    .slider-amatora[data-variant="banner"] {
+        --sl-peek: 24px;
+    }
+    .slider-amatora[data-arrows-pos="sides"] .slider-amatora__arrows {
+        padding: 0 var(--am-space-2);
+    }
+}
+
+
+/* ============================================================
+   29. RESPONSIVE: MD (≥768px)
+   ============================================================ */
+@media (min-width: 768px) {
+
+    /* Colores */
+    .md\:text-black-amatora     { color: var(--am-color-black); }
+    .md\:text-white-amatora     { color: var(--am-color-white); }
+    .md\:text-primary-amatora   { color: var(--am-color-primary); }
+    .md\:text-secondary-amatora { color: var(--am-color-secondary); }
+
+    /* Display */
+    .md\:block-amatora        { display: block; }
+    .md\:inline-block-amatora { display: inline-block; }
+    .md\:inline-amatora       { display: inline; }
+    .md\:flex-amatora         { display: flex; }
+    .md\:grid-amatora         { display: grid; }
+    .md\:hidden-amatora       { display: none; }
+
+    /* Flex direction */
+    .md\:flex-row-amatora { flex-direction: row; }
+    .md\:flex-col-amatora { flex-direction: column; }
+
+    /* Grid */
+    .md\:grid-cols-1-amatora  { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+    .md\:grid-cols-2-amatora  { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .md\:grid-cols-3-amatora  { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .md\:grid-cols-4-amatora  { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .md\:grid-cols-5-amatora  { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+    .md\:grid-cols-6-amatora  { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+    .md\:grid-cols-12-amatora { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+
+    .md\:col-span-1-amatora  { grid-column: span 1 / span 1; }
+    .md\:col-span-2-amatora  { grid-column: span 2 / span 2; }
+    .md\:col-span-3-amatora  { grid-column: span 3 / span 3; }
+    .md\:col-span-4-amatora  { grid-column: span 4 / span 4; }
+    .md\:col-span-5-amatora  { grid-column: span 5 / span 5; }
+    .md\:col-span-6-amatora  { grid-column: span 6 / span 6; }
+    .md\:col-span-7-amatora  { grid-column: span 7 / span 7; }
+    .md\:col-span-8-amatora  { grid-column: span 8 / span 8; }
+    .md\:col-span-9-amatora  { grid-column: span 9 / span 9; }
+    .md\:col-span-10-amatora { grid-column: span 10 / span 10; }
+    .md\:col-span-11-amatora { grid-column: span 11 / span 11; }
+    .md\:col-span-12-amatora { grid-column: span 12 / span 12; }
+
+    /* Gap */
+    .md\:gap-1-amatora  { gap: var(--am-space-1); }
+    .md\:gap-2-amatora  { gap: var(--am-space-2); }
+    .md\:gap-3-amatora  { gap: var(--am-space-3); }
+    .md\:gap-4-amatora  { gap: var(--am-space-4); }
+    .md\:gap-6-amatora  { gap: var(--am-space-6); }
+    .md\:gap-8-amatora  { gap: var(--am-space-8); }
+    .md\:gap-10-amatora { gap: var(--am-space-10); }
+    .md\:gap-12-amatora { gap: var(--am-space-12); }
+    .md\:gap-14-amatora { gap: var(--am-space-14); }
+
+    /* Padding */
+    .md\:p-0-amatora { padding: var(--am-space-0); }
+    .md\:p-1-amatora { padding: var(--am-space-1); }
+    .md\:p-2-amatora { padding: var(--am-space-2); }
+    .md\:p-3-amatora { padding: var(--am-space-3); }
+    .md\:p-4-amatora { padding: var(--am-space-4); }
+    .md\:p-6-amatora { padding: var(--am-space-6); }
+    .md\:p-8-amatora { padding: var(--am-space-8); }
+
+    .md\:px-0-amatora { padding-left: var(--am-space-0); padding-right: var(--am-space-0); }
+    .md\:px-1-amatora { padding-left: var(--am-space-1); padding-right: var(--am-space-1); }
+    .md\:px-2-amatora { padding-left: var(--am-space-2); padding-right: var(--am-space-2); }
+    .md\:px-4-amatora { padding-left: var(--am-space-4); padding-right: var(--am-space-4); }
+    .md\:py-1-amatora { padding-top: var(--am-space-1); padding-bottom: var(--am-space-1); }
+    .md\:py-2-amatora { padding-top: var(--am-space-2); padding-bottom: var(--am-space-2); }
+    .md\:py-4-amatora { padding-top: var(--am-space-4); padding-bottom: var(--am-space-4); }
+    .md\:py-6-amatora { padding-top: var(--am-space-6); padding-bottom: var(--am-space-6); }
+    .md\:py-8-amatora { padding-top: var(--am-space-8); padding-bottom: var(--am-space-8); }
+
+    .md\:pt-4-amatora  { padding-top: var(--am-space-4); }
+    .md\:pt-25-amatora { padding-top: var(--am-space-25); }
+    .md\:pr-4-amatora  { padding-right: var(--am-space-4); }
+    .md\:pb-4-amatora  { padding-bottom: var(--am-space-4); }
+    .md\:pl-4-amatora  { padding-left: var(--am-space-4); }
+    .md\:pl-8-amatora  { padding-left: var(--am-space-8); }
+    .md\:pl-12-amatora { padding-left: var(--am-space-12); }
+
+    /* Margin */
+    .md\:m-0-amatora { margin: var(--am-space-0); }
+    .md\:m-1-amatora { margin: var(--am-space-1); }
+    .md\:m-2-amatora { margin: var(--am-space-2); }
+    .md\:m-3-amatora { margin: var(--am-space-3); }
+    .md\:m-4-amatora { margin: var(--am-space-4); }
+    .md\:m-6-amatora { margin: var(--am-space-6); }
+    .md\:m-8-amatora { margin: var(--am-space-8); }
+    .md\:mx-auto-amatora { margin-left: auto; margin-right: auto; }
+    .md\:mx-1-amatora    { margin-left: var(--am-space-1); margin-right: var(--am-space-1); }
+    .md\:mx-2-amatora    { margin-left: var(--am-space-2); margin-right: var(--am-space-2); }
+    .md\:mx-4-amatora    { margin-left: var(--am-space-4); margin-right: var(--am-space-4); }
+    .md\:my-1-amatora    { margin-top: var(--am-space-1); margin-bottom: var(--am-space-1); }
+    .md\:my-2-amatora    { margin-top: var(--am-space-2); margin-bottom: var(--am-space-2); }
+    .md\:my-4-amatora    { margin-top: var(--am-space-4); margin-bottom: var(--am-space-4); }
+    .md\:mt-0-amatora    { margin-top: var(--am-space-0); }
+    .md\:mt-1-amatora    { margin-top: var(--am-space-1); }
+    .md\:mt-2-amatora    { margin-top: var(--am-space-2); }
+    .md\:mt-3-amatora    { margin-top: var(--am-space-3); }
+    .md\:mt-4-amatora    { margin-top: var(--am-space-4); }
+    .md\:mt-6-amatora    { margin-top: var(--am-space-6); }
+    .md\:mt-8-amatora    { margin-top: var(--am-space-8); }
+    .md\:mt-12-amatora   { margin-top: var(--am-space-12); }
+    .md\:mr-4-amatora    { margin-right: var(--am-space-4); }
+    .md\:mb-4-amatora    { margin-bottom: var(--am-space-4); }
+    .md\:ml-4-amatora    { margin-left: var(--am-space-4); }
+
+    /* Tipografía */
+    .md\:text-sm-amatora   { font-size: 14px; line-height: 20px; }
+    .md\:text-base-amatora { font-size: 16px; line-height: 24px; }
+    .md\:text-lg-amatora   { font-size: 18px; line-height: 28px; }
+    .md\:text-xl-amatora   { font-size: 20px; line-height: 28px; }
+    .md\:text-2xl-amatora  { font-size: 24px; line-height: 32px; }
+    .md\:text-3xl-amatora  { font-size: 30px; line-height: 36px; }
+    .md\:text-4xl-amatora  { font-size: 36px; line-height: 40px; }
+    .md\:text-5xl-amatora  { font-size: 48px; line-height: 52px; }
+
+    .md\:text-left-amatora   { text-align: left; }
+    .md\:text-center-amatora { text-align: center; }
+    .md\:text-right-amatora  { text-align: right; }
+
+    /* Width */
+    .md\:w-full-amatora   { width: 100%; }
+    .md\:w-auto-amatora   { width: auto; }
+    .md\:w-1\/2-amatora   { width: 50%; }
+    .md\:w-1\/3-amatora   { width: 33.333333%; }
+    .md\:w-img-amatora    { width: 60%; }
+    .md\:w-2\/3-amatora   { width: 66.666667%; }
+    .md\:w-1\/4-amatora   { width: 25%; }
+    .md\:w-3\/4-amatora   { width: 75%; }
+    .md\:w-10-amatora     { width: 10px; }
+    .md\:w-20-amatora     { width: 20px; }
+    .md\:w-30-amatora     { width: 30px; }
+    .md\:w-80-amatora     { width: 80px; }
+    .md\:w-100-amatora    { width: 100px; }
+    .md\:w-300-amatora    { width: 300px; }
+
+    .md\:max-w-xs-amatora  { max-width: 240px; }
+    .md\:max-w-100-amatora { max-width: 100px; }
+    .md\:max-w-200-amatora { max-width: 200px; }
+    .md\:max-w-300-amatora { max-width: 300px; }
+    .md\:max-w-400-amatora { max-width: 400px; }
+
+    /* Height */
+    .md\:h-auto-amatora { height: auto; }
+    .md\:h-full-amatora { height: 100%; }
+    .md\:h-100-amatora  { height: 100px; }
+    .md\:h-200-amatora  { height: 200px; }
+    .md\:h-300-amatora  { height: 300px; }
+    .md\:h-400-amatora  { height: 400px; }
+    .md\:h-500-amatora  { height: 500px; }
+    .md\:h-600-amatora  { height: 600px; }
+    .md\:h-700-amatora  { height: 700px; }
+    .md\:h-800-amatora  { height: 800px; }
+
+    /* Align / Justify */
+    .md\:items-start-amatora    { align-items: flex-start; }
+    .md\:items-center-amatora   { align-items: center; }
+    .md\:items-end-amatora      { align-items: flex-end; }
+    .md\:justify-start-amatora  { justify-content: flex-start; }
+    .md\:justify-center-amatora { justify-content: center; }
+    .md\:justify-between-amatora{ justify-content: space-between; }
+    .md\:justify-end-amatora    { justify-content: flex-end; }
+
+    .md\:self-end-amatora          { align-self: flex-end; }
+    .md\:self-start-amatora        { align-self: flex-start; }
+    .md\:justify-self-end-amatora  { justify-self: end; }
+    .md\:justify-self-start-amatora{ justify-self: start; }
+
+    /* Position */
+    .md\:relative-amatora { position: relative; }
+    .md\:absolute-amatora { position: absolute; }
+    .md\:fixed-amatora    { position: fixed; }
+    .md\:sticky-amatora   { position: sticky; }
+    .md\:inset-0-amatora  { top: 0; right: 0; bottom: 0; left: 0; }
+    .md\:top-0-amatora    { top: 0; }
+    .md\:right-0-amatora  { right: 0; }
+    .md\:bottom-0-amatora { bottom: 0; }
+    .md\:bottom-4-amatora { bottom: 4px; }
+    .md\:left-0-amatora   { left: 0; }
+
+    /* Z-index responsive */
+    .md\:z-1-amatora   { z-index: 1; }
+    .md\:z-10-amatora  { z-index: 10; }
+    .md\:z-20-amatora  { z-index: 20; }
+    .md\:z-30-amatora  { z-index: 30; }
+    .md\:z-40-amatora  { z-index: 40; }
+    .md\:z-50-amatora  { z-index: 50; }
+    .md\:z-100-amatora { z-index: 100; }
+
+    .md\:top-50-amatora  { top: 50%; transform: translateY(-50%); }
+    .md\:left-50-amatora { left: 50%; transform: translateX(-50%); }
+    .md\:center-amatora  { left: 50%; top: 50%; transform: translate(-50%, -50%); }
+
+    /* Order */
+    .md\:order-1-amatora { order: 1; }
+    .md\:order-2-amatora { order: 2; }
+    .md\:order-3-amatora { order: 3; }
+
+    /* Transform */
+    .md\:scale-2-amatora { transform: scale(1.2); }
+}
+
+
+/* ============================================================
+   30. RESPONSIVE: LG (≥1024px)
+   ============================================================ */
+@media (min-width: 1024px) {
+
+    /* Colores */
+    .lg\:text-black-amatora     { color: var(--am-color-black); }
+    .lg\:text-white-amatora     { color: var(--am-color-white); }
+    .lg\:text-primary-amatora   { color: var(--am-color-primary); }
+    .lg\:text-secondary-amatora { color: var(--am-color-secondary); }
+
+    /* Display */
+    .lg\:block-amatora        { display: block; }
+    .lg\:inline-block-amatora { display: inline-block; }
+    .lg\:inline-amatora       { display: inline; }
+    .lg\:flex-amatora         { display: flex; }
+    .lg\:grid-amatora         { display: grid; }
+    .lg\:hidden-amatora       { display: none; }
+
+    .lg\:flex-row-amatora { flex-direction: row; }
+    .lg\:flex-col-amatora { flex-direction: column; }
+
+    /* Grid */
+    .lg\:grid-cols-1-amatora  { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+    .lg\:grid-cols-2-amatora  { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .lg\:grid-cols-3-amatora  { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .lg\:grid-cols-4-amatora  { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .lg\:grid-cols-5-amatora  { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+    .lg\:grid-cols-6-amatora  { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+    .lg\:grid-cols-12-amatora { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+
+    .lg\:col-span-1-amatora  { grid-column: span 1 / span 1; }
+    .lg\:col-span-2-amatora  { grid-column: span 2 / span 2; }
+    .lg\:col-span-3-amatora  { grid-column: span 3 / span 3; }
+    .lg\:col-span-4-amatora  { grid-column: span 4 / span 4; }
+    .lg\:col-span-5-amatora  { grid-column: span 5 / span 5; }
+    .lg\:col-span-6-amatora  { grid-column: span 6 / span 6; }
+    .lg\:col-span-7-amatora  { grid-column: span 7 / span 7; }
+    .lg\:col-span-8-amatora  { grid-column: span 8 / span 8; }
+    .lg\:col-span-9-amatora  { grid-column: span 9 / span 9; }
+    .lg\:col-span-10-amatora { grid-column: span 10 / span 10; }
+    .lg\:col-span-11-amatora { grid-column: span 11 / span 11; }
+    .lg\:col-span-12-amatora { grid-column: span 12 / span 12; }
+
+    /* Gap */
+    .lg\:gap-1-amatora { gap: var(--am-space-1); }
+    .lg\:gap-2-amatora { gap: var(--am-space-2); }
+    .lg\:gap-3-amatora { gap: var(--am-space-3); }
+    .lg\:gap-4-amatora { gap: var(--am-space-4); }
+    .lg\:gap-6-amatora { gap: var(--am-space-6); }
+    .lg\:gap-8-amatora { gap: var(--am-space-8); }
+
+    /* Padding */
+    .lg\:p-0-amatora { padding: var(--am-space-0); }
+    .lg\:p-1-amatora { padding: var(--am-space-1); }
+    .lg\:p-2-amatora { padding: var(--am-space-2); }
+    .lg\:p-3-amatora { padding: var(--am-space-3); }
+    .lg\:p-4-amatora { padding: var(--am-space-4); }
+    .lg\:p-6-amatora { padding: var(--am-space-6); }
+    .lg\:p-8-amatora { padding: var(--am-space-8); }
+    .lg\:px-1-amatora { padding-left: var(--am-space-1); padding-right: var(--am-space-1); }
+    .lg\:px-2-amatora { padding-left: var(--am-space-2); padding-right: var(--am-space-2); }
+    .lg\:px-4-amatora { padding-left: var(--am-space-4); padding-right: var(--am-space-4); }
+    .lg\:py-1-amatora { padding-top: var(--am-space-1); padding-bottom: var(--am-space-1); }
+    .lg\:py-2-amatora { padding-top: var(--am-space-2); padding-bottom: var(--am-space-2); }
+    .lg\:py-4-amatora { padding-top: var(--am-space-4); padding-bottom: var(--am-space-4); }
+    .lg\:pt-4-amatora { padding-top: var(--am-space-4); }
+    .lg\:pr-4-amatora { padding-right: var(--am-space-4); }
+    .lg\:pb-4-amatora { padding-bottom: var(--am-space-4); }
+    .lg\:pl-4-amatora { padding-left: var(--am-space-4); }
+
+    /* Margin */
+    .lg\:m-0-amatora { margin: var(--am-space-0); }
+    .lg\:m-1-amatora { margin: var(--am-space-1); }
+    .lg\:m-2-amatora { margin: var(--am-space-2); }
+    .lg\:m-3-amatora { margin: var(--am-space-3); }
+    .lg\:m-4-amatora { margin: var(--am-space-4); }
+    .lg\:m-6-amatora { margin: var(--am-space-6); }
+    .lg\:m-8-amatora { margin: var(--am-space-8); }
+    .lg\:mx-auto-amatora { margin-left: auto; margin-right: auto; }
+    .lg\:mx-1-amatora    { margin-left: var(--am-space-1); margin-right: var(--am-space-1); }
+    .lg\:mx-2-amatora    { margin-left: var(--am-space-2); margin-right: var(--am-space-2); }
+    .lg\:mx-4-amatora    { margin-left: var(--am-space-4); margin-right: var(--am-space-4); }
+    .lg\:my-1-amatora    { margin-top: var(--am-space-1); margin-bottom: var(--am-space-1); }
+    .lg\:my-2-amatora    { margin-top: var(--am-space-2); margin-bottom: var(--am-space-2); }
+    .lg\:my-4-amatora    { margin-top: var(--am-space-4); margin-bottom: var(--am-space-4); }
+    .lg\:mt-4-amatora    { margin-top: var(--am-space-4); }
+    .lg\:mr-4-amatora    { margin-right: var(--am-space-4); }
+    .lg\:mb-4-amatora    { margin-bottom: var(--am-space-4); }
+    .lg\:ml-4-amatora    { margin-left: var(--am-space-4); }
+
+    /* Tipografía */
+    .lg\:text-sm-amatora   { font-size: 14px; line-height: 20px; }
+    .lg\:text-base-amatora { font-size: 16px; line-height: 24px; }
+    .lg\:text-lg-amatora   { font-size: 18px; line-height: 28px; }
+    .lg\:text-xl-amatora   { font-size: 20px; line-height: 28px; }
+    .lg\:text-2xl-amatora  { font-size: 24px; line-height: 32px; }
+    .lg\:text-3xl-amatora  { font-size: 30px; line-height: 36px; }
+    .lg\:text-4xl-amatora  { font-size: 36px; line-height: 40px; }
+    .lg\:text-5xl-amatora  { font-size: 48px; line-height: 52px; }
+
+    /* Width / Height */
+    .lg\:w-full-amatora { width: 100%; }
+    .lg\:w-auto-amatora { width: auto; }
+    .lg\:w-1\/2-amatora { width: 50%; }
+    .lg\:w-1\/3-amatora { width: 33.333333%; }
+    .lg\:w-2\/3-amatora { width: 66.666667%; }
+    .lg\:w-1\/4-amatora { width: 25%; }
+    .lg\:w-3\/4-amatora { width: 75%; }
+    .lg\:h-auto-amatora { height: auto; }
+    .lg\:h-full-amatora { height: 100%; }
+
+    /* Align / Justify */
+    .lg\:items-start-amatora     { align-items: flex-start; }
+    .lg\:items-center-amatora    { align-items: center; }
+    .lg\:items-end-amatora       { align-items: flex-end; }
+    .lg\:justify-start-amatora   { justify-content: flex-start; }
+    .lg\:justify-center-amatora  { justify-content: center; }
+    .lg\:justify-between-amatora { justify-content: space-between; }
+    .lg\:justify-end-amatora     { justify-content: flex-end; }
+
+    /* Z-index responsive */
+    .lg\:z-1-amatora   { z-index: 1; }
+    .lg\:z-10-amatora  { z-index: 10; }
+    .lg\:z-20-amatora  { z-index: 20; }
+    .lg\:z-30-amatora  { z-index: 30; }
+    .lg\:z-40-amatora  { z-index: 40; }
+    .lg\:z-50-amatora  { z-index: 50; }
+    .lg\:z-100-amatora { z-index: 100; }
+
+    /* Order */
+    .lg\:order-1-amatora { order: 1; }
+    .lg\:order-2-amatora { order: 2; }
+    .lg\:order-3-amatora { order: 3; }
+
+    /* Transform */
+    .lg\:scale-3-amatora { transform: scale(1.35); }
+}
