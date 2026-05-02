@@ -287,8 +287,8 @@ Solo dos clases base + dos modificadores. Todo lo demás se configura por CSS va
 **Estados (set por `amatora-add-to-cart.liquid`, render por CSS):**
 
 - `data-state="loading"` → spinner reemplaza el `.btn-label`
-- `data-state="success"` → "✓ Agregado" por 1.5s
-- `data-state="error"` → "⚠ Intenta de nuevo"
+- `data-state="success"` → "Agregado" por 1.5s
+- `data-state="error"` → "Intenta de nuevo"
 
 ```liquid
 <button class="btn-primary-amatora" data-add-to-cart data-variant-id="{{ variant.id }}">

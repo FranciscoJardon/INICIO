@@ -81,8 +81,8 @@ Variables: `--btn-bg`, `--btn-fg`, `--btn-border`, `--btn-radius`, `--btn-py`, `
 
 Estados (set por `amatora-add-to-cart.liquid`, render por `amatora.css`):
 - `data-state="loading"` — spinner real (refleja `/cart/add.js`).
-- `data-state="success"` — "✓ Agregado" por 1.5s.
-- `data-state="error"` — "⚠ Intenta de nuevo".
+- `data-state="success"` — "Agregado" por 1.5s.
+- `data-state="error"` — "Intenta de nuevo".
 
 Variantes: `settings.add_to_cart_with_variants`:
 - `link_to_product` (default) — manda al PDP, texto cambia a "Ver opciones".

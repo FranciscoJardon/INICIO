@@ -953,7 +953,7 @@ p {
 }
 .btn-primary-amatora[data-state="success"]::after,
 .btn-secondary-amatora[data-state="success"]::after {
-    content: "✓ Agregado";
+    content: "Agregado";
     position: absolute;
     inset: 0;
     display: flex;
@@ -975,7 +975,7 @@ p {
 }
 .btn-primary-amatora[data-state="error"]::after,
 .btn-secondary-amatora[data-state="error"]::after {
-    content: "⚠ Intenta de nuevo";
+    content: "Intenta de nuevo";
     position: absolute;
     inset: 0;
     display: flex;
