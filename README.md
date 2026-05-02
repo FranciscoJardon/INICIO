@@ -38,13 +38,29 @@ AMATORA-PROCESO/
 
 ## Cómo se consume desde un proyecto Shopify
 
-Hay **tres prompts**. Todos arrancan revisando el template antes de tocar nada. El usuario elige el que aplica según el estado del theme.
+### Setup de máquina — UNA vez por operador
+
+Antes de correr cualquier prompt, clonar este repo a una ruta local conocida:
+
+```powershell
+git clone https://github.com/FranciscoJardon/INICIO.git "$env:USERPROFILE\amatora-system"
+```
+
+(En Mac/Linux: `git clone https://github.com/FranciscoJardon/INICIO.git ~/amatora-system`.)
+
+Para actualizar a la última versión: `git -C ~/amatora-system pull`.
+
+> **Por qué clone local en vez de descarga vía `curl` desde el prompt:** el sandbox de Claude Code clasifica `curl` desde un repo arbitrario hacia `assets/`/`snippets/`/`sections/` como "integración de código externo no confiable" y lo bloquea por seguridad. Los prompts copian desde tu carpeta local autorizada, no desde la red.
+
+### Los tres prompts
+
+Todos arrancan verificando que `~/amatora-system` exista y que el template esté en buen estado antes de tocar nada.
 
 | Prompt | Cuándo usarlo | Comportamiento |
 |---|---|---|
 | [`prompts/init.md`](prompts/init.md) | Theme limpio recién descargado de Shopify, sin Amatora y sin código custom que pueda chocar. | Instala todo directo + sección banner como smoke-test. |
 | [`prompts/implement.md`](prompts/implement.md) | Theme custom en producción sin Amatora. Hay código del cliente que NO se puede pisar. | Audita primero, reporta conflictos, espera confirmación humana, después instala respetando lo del cliente. |
-| [`prompts/update.md`](prompts/update.md) | Theme que YA tiene Amatora en una versión previa (lee `assets/AMATORA_VERSION`). | Baja `MIGRATIONS.md`, aplica renames y cambios de estructura entre la versión actual y la target. Backups automáticos. |
+| [`prompts/update.md`](prompts/update.md) | Theme que YA tiene Amatora en una versión previa (lee `assets/AMATORA_VERSION`). | Lee `MIGRATIONS.md` del clone local, aplica renames y cambios de estructura entre la versión actual y la target. Backups automáticos. |
 
 > El banner instalado por `init.md` es **smoke test**: si entra al customizer y "Banner Amatora" aparece en la lista de secciones, la instalación funcionó.
 

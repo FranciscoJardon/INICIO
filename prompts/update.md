@@ -2,34 +2,50 @@
 
 **Cuándo usar:** theme que YA tiene Amatora instalado en alguna versión previa (0.1.x, 0.2.x, etc.) y querés llevarlo a la versión más nueva del repo.
 
-**Diferencia con `init.md` e `implement.md`:** este lee `assets/AMATORA_VERSION` para saber desde qué versión venís, baja `MIGRATIONS.md` del repo, y aplica los renames + cambios de estructura entre tu versión y la target — find/replace en `sections/*.liquid` y `snippets/*.liquid`.
+**Diferencia con `init.md` e `implement.md`:** este lee `assets/AMATORA_VERSION` para saber desde qué versión venís, lee `MIGRATIONS.md` del clone local, y aplica los renames + cambios de estructura entre tu versión y la target — find/replace en `sections/*.liquid` y `snippets/*.liquid`.
 
-**Cómo usar:** parate en la raíz del theme y pegá el bloque debajo.
+## Paso previo — actualizar el clone local primero
+
+Antes de correr el prompt, asegurate de tener la última versión del sistema Amatora:
+
+```powershell
+git -C "$env:USERPROFILE\amatora-system" pull
+```
+
+Si nunca lo clonaste:
+
+```powershell
+git clone https://github.com/FranciscoJardon/INICIO.git "$env:USERPROFILE\amatora-system"
+```
+
+## Cómo usar
+
+Parate en la raíz del theme y pegá el bloque debajo.
 
 ---
 
 ```
-Actualizá este proyecto Shopify a la última versión del sistema Amatora desde:
-  Repo:     https://github.com/FranciscoJardon/INICIO
-  Raw base: https://raw.githubusercontent.com/FranciscoJardon/INICIO/main/
+Actualizá este proyecto Shopify a la última versión del sistema Amatora.
 
-Cuando el prompt diga "descargá del repo <archivo>", construí la URL así:
-  <Raw base> + <path en el repo>
-Ejemplo: system/AMATORA_VERSION
-  → https://raw.githubusercontent.com/FranciscoJardon/INICIO/main/system/AMATORA_VERSION
+El sistema Amatora actualizado está en:
+  ~/amatora-system
+(Si lo tengo en otra ruta, sustituilo en cada PASO.)
 
 Asume que estoy parado en la raíz del theme y que Amatora ya está instalado
-en alguna versión previa (0.1.x, 0.2.x, etc.). Hacé exactamente estos pasos.
+en alguna versión previa (0.1.x, 0.2.x, etc.).
 
 ═══════════════════════════════════════════════════════════════
 PASO 1 — DETECCIÓN DE VERSIÓN
 ═══════════════════════════════════════════════════════════════
-  a) Leé `assets/AMATORA_VERSION`. Si no existe, asumí "0.1.0" (legacy
+  a) Confirmá que existe `~/amatora-system/system/AMATORA_VERSION` y
+     `~/amatora-system/MIGRATIONS.md`. Si no, parate y avisame: necesito
+     clonar/actualizar el repo Amatora primero.
+  b) Leé `assets/AMATORA_VERSION`. Si no existe, asumí "0.1.0" (legacy
      pre-versionado) y avisame que estoy en ese estado.
-  b) Bajá del repo `system/AMATORA_VERSION` para saber la target.
-  c) Si versión actual == target → no hay nada que actualizar. Reportá y
+  c) Leé `~/amatora-system/system/AMATORA_VERSION` para saber la target.
+  d) Si versión actual == target → no hay nada que actualizar. Reportá y
      salí.
-  d) Si `assets/amatora.css` y `assets/amatora.js` no existen, parate:
+  e) Si `assets/amatora.css` y `assets/amatora.js` no existen, parate:
      este es un caso de inicialización, no de actualización. Avisame que
      use el prompt init.md.
 
@@ -48,9 +64,9 @@ también justo antes de tocarlo:
 ═══════════════════════════════════════════════════════════════
 PASO 3 — LEER CHANGELOG
 ═══════════════════════════════════════════════════════════════
-Bajá del repo `MIGRATIONS.md`. Identificá las entradas entre la versión
-actual (exclusive) y la target (inclusive). Estas son "las migraciones
-aplicables".
+Leé `~/amatora-system/MIGRATIONS.md`. Identificá las entradas entre la
+versión actual (exclusive) y la target (inclusive). Estas son "las
+migraciones aplicables".
 
 Mostrame en el reporte qué versiones vas a aplicar y qué hace cada una
 en una línea.
@@ -58,13 +74,13 @@ en una línea.
 ═══════════════════════════════════════════════════════════════
 PASO 4 — REEMPLAZAR ASSETS DEL SISTEMA
 ═══════════════════════════════════════════════════════════════
-Bajá del repo y sobrescribí:
+Copiá desde `~/amatora-system/system/` y sobrescribí:
   - assets/amatora.css
   - assets/amatora.js
   - assets/AMATORA_VERSION
 
 Si la migración aplicable lista snippets/secciones nuevos del sistema
-(como amatora-add-to-cart.liquid en v0.2.0), bajalos también:
+(como amatora-add-to-cart.liquid en v0.2.0), copialos también:
   - snippets/amatora-tokens.liquid (si la migración lo lista)
   - snippets/amatora-add-to-cart.liquid (si la migración lo lista)
   - sections/banner-amatora.liquid (solo si se pidió explícitamente —
@@ -120,8 +136,9 @@ de </body>).
 ═══════════════════════════════════════════════════════════════
 PASO 10 — SINCRONIZAR EL SKILL
 ═══════════════════════════════════════════════════════════════
-Sincronizá `skill/SKILL.md` y `skill/reference/*` del repo a:
-  ~/.claude/skills/amatora-theme-builder/
+Sincronizá:
+  ~/amatora-system/skill/SKILL.md          → ~/.claude/skills/amatora-theme-builder/SKILL.md
+  ~/amatora-system/skill/reference/*       → ~/.claude/skills/amatora-theme-builder/reference/
 
 Backup previo a:
   ~/.claude/skills/amatora-theme-builder.bak.<timestamp>

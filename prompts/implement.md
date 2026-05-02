@@ -4,19 +4,30 @@
 
 **Diferencia con `init.md`:** init asume theme limpio y ejecuta directo. Implement nunca toca nada hasta que vos confirmes que el reporte de auditoría se ve bien.
 
-**Cómo usar:** parate en la raíz del theme y pegá todo el bloque debajo.
+## Paso previo — UNA SOLA VEZ por máquina del operador
+
+Igual que en `init.md`. Clonar el sistema Amatora a una ruta local conocida:
+
+```powershell
+git clone https://github.com/FranciscoJardon/INICIO.git "$env:USERPROFILE\amatora-system"
+```
+
+(En Mac/Linux: `git clone https://github.com/FranciscoJardon/INICIO.git ~/amatora-system`.)
+
+Si ya lo tenés, actualizá: `git -C ~/amatora-system pull`.
+
+## Cómo usar
+
+Parate en la raíz del theme y pegá el bloque debajo en Claude Code.
 
 ---
 
 ```
-Implementá Amatora en este theme Shopify custom desde:
-  Repo:     https://github.com/FranciscoJardon/INICIO
-  Raw base: https://raw.githubusercontent.com/FranciscoJardon/INICIO/main/
+Implementá Amatora en este theme Shopify custom.
 
-Cuando el prompt diga "descargá del repo <archivo>", construí la URL así:
-  <Raw base> + <path en el repo>
-Ejemplo: system/amatora.css
-  → https://raw.githubusercontent.com/FranciscoJardon/INICIO/main/system/amatora.css
+El sistema Amatora ya está clonado localmente en:
+  ~/amatora-system
+(Si lo tengo en otra ruta, sustituilo en cada PASO.)
 
 Este theme ya está en producción y NO tiene Amatora. Hay código del cliente
 que NO se debe pisar. Trabajá en modo dry-run primero, reportá conflictos,
@@ -60,8 +71,12 @@ Recorré el theme y reportá:
      de implementar Amatora, esos slider deberían migrar a
      [data-amatora-slider], pero esa migración es manual y posterior.)
 
+  8. ¿Existe `~/amatora-system/` con la estructura esperada (system/*.css,
+     system/*.liquid, system/AMATORA_VERSION, skill/SKILL.md)? Si no,
+     parate y avisame: necesito clonar el repo Amatora primero.
+
 Mostrame TODO lo anterior como reporte estructurado y PARATE.
-NO descargues archivos del repo todavía. NO edites nada.
+NO copies archivos del clone local todavía. NO edites nada del theme.
 
 ═══════════════════════════════════════════════════════════════
 FASE 2 — ESPERAR CONFIRMACIÓN
@@ -74,7 +89,7 @@ reemplazar.
 FASE 3 — INSTALACIÓN (cuando yo apruebe)
 ═══════════════════════════════════════════════════════════════
 Solo si te dije "procedé". Hacé los mismos pasos del prompt INIT (2-7),
-con dos diferencias críticas:
+copiando desde `~/amatora-system/`, con tres diferencias críticas:
 
   - PASO 5 (schema): para CADA setting con id en conflicto, NO sobreescribas.
     Conservá el del cliente. Reportá cuál se conservó vs cuál se agregó.
