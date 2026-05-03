@@ -18,6 +18,8 @@ AMATORA-PROCESO/
 │   ├── init.md                         ← theme limpio sin Amatora (instala + smoke-test)
 │   ├── implement.md                    ← theme custom existente sin Amatora (auditoría primero)
 │   └── update.md                       ← theme con Amatora vieja → versión nueva
+├── scripts/
+│   └── new-amatora-project.ps1         ← un comando: clona Dawn + abre VS Code + prompt al clipboard
 ├── skill/
 │   ├── SKILL.md                        ← spec canónico (español, single source of truth)
 │   └── reference/
@@ -49,6 +51,41 @@ git clone https://github.com/FranciscoJardon/INICIO.git "$env:USERPROFILE\amator
 (En Mac/Linux: `git clone https://github.com/FranciscoJardon/INICIO.git ~/amatora-system`.)
 
 Para actualizar a la última versión: `git -C ~/amatora-system pull`.
+
+#### Atajo recomendado — alias de PowerShell
+
+Para crear proyectos nuevos con un solo comando, agregá esto a tu `$PROFILE` de PowerShell (`notepad $PROFILE` para abrirlo):
+
+```powershell
+function New-AmatoraProject {
+  & "$env:USERPROFILE\amatora-system\scripts\new-amatora-project.ps1" @args
+}
+```
+
+Recargá la sesión (`. $PROFILE`) y a partir de ahí podés crear un proyecto nuevo desde cualquier lado con:
+
+```powershell
+New-AmatoraProject -Name cliente-zapatos
+```
+
+El script hace todo el setup mecánico (ver "Crear un proyecto nuevo" abajo).
+
+### Crear un proyecto nuevo — flujo recomendado
+
+```powershell
+New-AmatoraProject -Name <nombre-cliente>
+```
+
+El script `scripts/new-amatora-project.ps1`:
+
+1. Actualiza tu clone local de Amatora (`~/amatora-system`) — si no existe, lo crea.
+2. Clona Dawn limpio a `~/Desktop/<nombre-cliente>/` (sin el `.git` del upstream, así arranca como TU repo).
+3. Copia el bloque del prompt de `init.md` directamente al portapapeles.
+4. Abre VS Code en la carpeta del proyecto.
+
+Después, en la nueva ventana de VS Code: abrís Claude Code, pegás (Ctrl+V) en el chat, y Claude termina de instalar Amatora copiando desde `~/amatora-system` al theme. Cero hits a la red durante el install.
+
+Si necesitás un theme base distinto a Dawn, pasalo con `-ThemeRepo <url>`.
 
 > **Por qué clone local en vez de descarga vía `curl` desde el prompt:** el sandbox de Claude Code clasifica `curl` desde un repo arbitrario hacia `assets/`/`snippets/`/`sections/` como "integración de código externo no confiable" y lo bloquea por seguridad. Los prompts copian desde tu carpeta local autorizada, no desde la red.
 
