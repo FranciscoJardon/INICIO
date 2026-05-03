@@ -19,7 +19,8 @@ AMATORA-PROCESO/
 │   ├── implement.md                    ← theme custom existente sin Amatora (auditoría primero)
 │   └── update.md                       ← theme con Amatora vieja → versión nueva
 ├── scripts/
-│   └── new-amatora-project.ps1         ← un comando: clona Dawn + abre VS Code + prompt al clipboard
+│   ├── new-amatora-project.ps1         ← proyecto nuevo: clona Dawn + abre VS Code + prompt al clipboard
+│   └── sync-amatora-skill.ps1          ← solo skill: instala/actualiza la skill al Claude Code CLI
 ├── skill/
 │   ├── SKILL.md                        ← spec canónico (español, single source of truth)
 │   └── reference/
@@ -52,23 +53,43 @@ git clone https://github.com/FranciscoJardon/INICIO.git "$env:USERPROFILE\amator
 
 Para actualizar a la última versión: `git -C ~/amatora-system pull`.
 
-#### Atajo recomendado — alias de PowerShell
+#### Atajos recomendados — alias de PowerShell
 
-Para crear proyectos nuevos con un solo comando, agregá esto a tu `$PROFILE` de PowerShell (`notepad $PROFILE` para abrirlo):
+Agregá esto a tu `$PROFILE` de PowerShell (`notepad $PROFILE` para abrirlo):
 
 ```powershell
 function New-AmatoraProject {
   & "$env:USERPROFILE\amatora-system\scripts\new-amatora-project.ps1" @args
 }
+
+function Sync-AmatoraSkill {
+  & "$env:USERPROFILE\amatora-system\scripts\sync-amatora-skill.ps1"
+}
 ```
 
-Recargá la sesión (`. $PROFILE`) y a partir de ahí podés crear un proyecto nuevo desde cualquier lado con:
+Recargá (`. $PROFILE`) y a partir de ahí tenés dos comandos:
+
+| Comando | Cuándo usarlo |
+|---|---|
+| `New-AmatoraProject -Name cliente` | Proyecto NUEVO desde cero — clona Dawn + abre VS Code + prompt al clipboard. |
+| `Sync-AmatoraSkill` | Solo querés la skill activa en Claude Code (sin tocar ningún theme). Una vez por máquina, después actualizás cuando quieras. |
+
+### Solo querés la skill — sin tocar el theme
+
+Si ya tenés un proyecto Shopify conectado a tu propio repo y NO querés instalar el sistema Amatora completo (ni el CSS, ni el JS, ni los snippets, ni el banner de prueba) — solo querés que Claude Code sepa de las convenciones Amatora — corré:
 
 ```powershell
-New-AmatoraProject -Name cliente-zapatos
+Sync-AmatoraSkill
 ```
 
-El script hace todo el setup mecánico (ver "Crear un proyecto nuevo" abajo).
+Esto:
+1. Actualiza tu clone local de Amatora.
+2. Copia `skill/SKILL.md` y `skill/reference/*` a `~/.claude/skills/amatora-theme-builder/`.
+3. Backup del skill anterior si ya existía.
+
+Una vez instalado, la skill está **activa en cualquier proyecto** donde abras Claude Code — no está vinculada a una carpeta. Cuando edites un `.liquid`, abras un schema, o menciones "slider"/"banner"/"Amatora", Claude la carga automáticamente.
+
+> Si después de un tiempo querés actualizar a la última versión de la skill, volvé a correr `Sync-AmatoraSkill` y listo — hace `git pull` y reinstala.
 
 ### Crear un proyecto nuevo — flujo recomendado
 
