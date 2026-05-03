@@ -51,11 +51,27 @@ if (Test-Path $skillTarget) {
   Rename-Item $skillTarget $bak
 }
 
-# 4. Crear destino y copiar
+# 4. Crear destino y copiar (forzando LF — el parser YAML del frontmatter
+#    de SKILL.md falla con CRLF, lo que deja la skill cargada sin descripción)
 New-Item -ItemType Directory -Force -Path $skillTarget | Out-Null
-Copy-Item "$skillSource\SKILL.md" $skillTarget -Force
-Copy-Item "$skillSource\reference" $skillTarget -Recurse -Force
-Write-Host "==> Skill instalado en $skillTarget"
+
+function Copy-AsLF {
+  param([string]$Source, [string]$Dest)
+  $content = [System.IO.File]::ReadAllText($Source)
+  $contentLF = $content -replace "`r`n", "`n" -replace "`r", "`n"
+  $utf8NoBom = New-Object System.Text.UTF8Encoding $false
+  [System.IO.File]::WriteAllText($Dest, $contentLF, $utf8NoBom)
+}
+
+Copy-AsLF "$skillSource\SKILL.md" "$skillTarget\SKILL.md"
+
+$refTarget = Join-Path $skillTarget "reference"
+New-Item -ItemType Directory -Force -Path $refTarget | Out-Null
+Get-ChildItem "$skillSource\reference" -File | ForEach-Object {
+  Copy-AsLF $_.FullName (Join-Path $refTarget $_.Name)
+}
+
+Write-Host "==> Skill instalado (con LF endings) en $skillTarget"
 
 # 5. Verificación
 $installedSkill = Join-Path $skillTarget "SKILL.md"

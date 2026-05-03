@@ -1,0 +1,24 @@
+# Forzar LF en todos los archivos de texto, incluso en clones desde Windows.
+# Necesario porque el parser YAML del frontmatter de SKILL.md falla con CRLF
+# y porque Liquid/CSS/JS se leen igual con LF en cualquier OS.
+*.md       text eol=lf
+*.liquid   text eol=lf
+*.css      text eol=lf
+*.js       text eol=lf
+*.json     text eol=lf
+*.txt      text eol=lf
+
+# PowerShell scripts mantienen CRLF (es lo nativo en Windows).
+*.ps1      text eol=crlf
+
+# AMATORA_VERSION es un archivo de texto plano, LF.
+AMATORA_VERSION text eol=lf
+
+# Binarios — no tocar.
+*.png      binary
+*.jpg      binary
+*.jpeg     binary
+*.gif      binary
+*.webp     binary
+*.woff     binary
+*.woff2    binary
