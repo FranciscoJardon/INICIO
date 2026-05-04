@@ -7,10 +7,12 @@ Sistema de diseño para themes Shopify, distribuido como **skill de Claude Code*
 Parate en la raíz de tu proyecto Shopify (donde están `assets/`, `config/`, `layout/`, etc.) y corré en PowerShell:
 
 ```powershell
-iwr "https://raw.githubusercontent.com/FranciscoJardon/INICIO/main/scripts/install-skill.ps1" | iex
+iex (iwr "https://raw.githubusercontent.com/FranciscoJardon/INICIO/main/scripts/install-skill.ps1" -UseBasicParsing).Content
 ```
 
 Eso descarga la skill y la deja en `.claude/skills/amatora-theme-builder/` de tu proyecto. Cuando abras Claude Code en esa carpeta, la skill se carga automáticamente al editar `.liquid` o pedir un slider/banner.
+
+> El flag `-UseBasicParsing` evita un warning de PowerShell sobre análisis de contenido HTML. Funciona idéntico, solo más limpio.
 
 > **Tip:** hacé commit de `.claude/skills/` al repo de tu proyecto. Cualquier dev que clone va a recibir la skill incluida.
 
