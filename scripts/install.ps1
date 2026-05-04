@@ -169,7 +169,8 @@ if (-not $hasJs)     { $headBlock += "  <script src=`"{{ 'amatora.js' | asset_ur
 
 if ($headBlock -ne "") {
   if ($themeContent -notmatch "</head>") { throw "layout/theme.liquid no tiene </head>. ¿Theme corrupto?" }
-  $themeContent = $themeContent -replace "(\s*)</head>", "`n$headBlock" + '$1</head>'
+  $headReplacement = "`n" + $headBlock + '$1</head>'
+  $themeContent = $themeContent -replace "(\s*)</head>", $headReplacement
   Write-Host "==> Insertados tags antes de </head>"
 } else {
   Write-Host "==> </head> ya tenía los tags Amatora — sin cambios"
@@ -178,7 +179,8 @@ if ($headBlock -ne "") {
 # Bloque para </body>
 if (-not $hasAtc) {
   if ($themeContent -notmatch "</body>") { throw "layout/theme.liquid no tiene </body>. ¿Theme corrupto?" }
-  $themeContent = $themeContent -replace "(\s*)</body>", "`n  {% render 'amatora-add-to-cart' %}`n" + '$1</body>'
+  $bodyReplacement = "`n  {% render 'amatora-add-to-cart' %}`n" + '$1</body>'
+  $themeContent = $themeContent -replace "(\s*)</body>", $bodyReplacement
   Write-Host "==> Insertado amatora-add-to-cart antes de </body>"
 } else {
   Write-Host "==> </body> ya tenía amatora-add-to-cart — sin cambios"
