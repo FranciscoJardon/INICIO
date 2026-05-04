@@ -10,6 +10,22 @@ Formato por release:
 
 ---
 
+## v0.2.1 → desde v0.2.0
+
+### Bugfix — `amatora-tokens.liquid` deja `@font-face` colgando en `<body>`
+
+**Bug:** los `font_face` filters estaban FUERA del bloque `<style>` en `snippets/amatora-tokens.liquid`. El filtro `font_face` de Shopify devuelve `@font-face { ... }` como texto crudo (sin `<style>`); fuera del `<style>` el HTML parser lo escupe al inicio del `<body>` como texto visible.
+
+**Fix:** mover los `font_face` DENTRO del bloque `<style>` que ya existe.
+
+**Migración para themes que ya tienen v0.2.0 instalado:**
+
+Reemplazar todo `snippets/amatora-tokens.liquid` por la versión nueva del repo. No hay cambios de naming, no hay otros archivos afectados, no hay settings nuevos. El prompt `update.md` lo hace automáticamente al copiar el snippet desde `~/amatora-system/system/`.
+
+> Verificación: después de aplicar el fix, abrir devtools en la home y confirmar que el `<head>` tiene UN solo `<style>` con los `@font-face` y los `:root` adentro, y que el `<body>` no tiene texto crudo de `@font-face` colgando.
+
+---
+
 ## v0.2.0 → desde cualquier 0.1.x
 
 ### Botones — API simplificada (BREAKING)

@@ -17,14 +17,19 @@
       sigue ganando porque CSS variables tienen mayor especificidad de scope.
 {%- endcomment -%}
 
-{%- if settings.am_font_heading != blank -%}
-  {{ settings.am_font_heading | font_face: font_display: 'swap' }}
-{%- endif -%}
-{%- if settings.am_font_body != blank -%}
-  {{ settings.am_font_body | font_face: font_display: 'swap' }}
-{%- endif -%}
-
 <style>
+  {%- comment -%}
+    font_face devuelve @font-face { ... } como texto crudo, NO envuelto
+    en <style>. Tiene que vivir dentro de este mismo bloque <style>; si lo
+    dejás suelto en el head, el parser lo empuja al <body> como texto.
+  {%- endcomment -%}
+  {%- if settings.am_font_heading != blank %}
+  {{ settings.am_font_heading | font_face: font_display: 'swap' }}
+  {%- endif %}
+  {%- if settings.am_font_body != blank %}
+  {{ settings.am_font_body | font_face: font_display: 'swap' }}
+  {%- endif %}
+
   :root {
     {%- if settings.am_primary != blank %}
     --am-color-primary:        {{ settings.am_primary }};
