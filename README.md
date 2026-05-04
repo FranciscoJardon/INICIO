@@ -1,8 +1,20 @@
 # Amatora — sistema de diseño Shopify
 
-Repositorio fuente del sistema de diseño Amatora. Este repo contiene **lo que se publica** y se inyecta en cualquier theme Shopify para usar Amatora.
+Sistema de diseño para themes Shopify, distribuido como **skill de Claude Code**. Cualquier persona puede instalarlo en su proyecto con un solo comando.
 
-> Este NO es un theme. Es un sistema de diseño que se instala dentro de un theme.
+## 🚀 Instalación rápida — un solo comando
+
+Parate en la raíz de tu proyecto Shopify (donde están `assets/`, `config/`, `layout/`, etc.) y corré en PowerShell:
+
+```powershell
+iwr "https://raw.githubusercontent.com/FranciscoJardon/INICIO/main/scripts/install-skill.ps1" | iex
+```
+
+Eso descarga la skill y la deja en `.claude/skills/amatora-theme-builder/` de tu proyecto. Cuando abras Claude Code en esa carpeta, la skill se carga automáticamente al editar `.liquid` o pedir un slider/banner.
+
+> **Tip:** hacé commit de `.claude/skills/` al repo de tu proyecto. Cualquier dev que clone va a recibir la skill incluida.
+
+> **Mac/Linux:** próximamente, un equivalente en bash. Por ahora, podés clonar el repo y copiar `skill/` manualmente a `.claude/skills/amatora-theme-builder/`.
 
 ## Versión
 
@@ -19,8 +31,9 @@ AMATORA-PROCESO/
 │   ├── implement.md                    ← theme custom existente sin Amatora (auditoría primero)
 │   └── update.md                       ← theme con Amatora vieja → versión nueva
 ├── scripts/
+│   ├── install-skill.ps1               ← ★ one-liner público: descarga + instala la skill en .claude/skills/ del proyecto actual
 │   ├── new-amatora-project.ps1         ← proyecto nuevo: clona Dawn + abre VS Code + prompt al clipboard
-│   └── sync-amatora-skill.ps1          ← solo skill: instala/actualiza la skill al Claude Code CLI
+│   └── sync-amatora-skill.ps1          ← (operador agencia) sync desde clone local con modo -Global o per-proyecto
 ├── skill/
 │   ├── SKILL.md                        ← spec canónico (español, single source of truth)
 │   └── reference/
