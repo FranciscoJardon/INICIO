@@ -123,14 +123,21 @@ En `layout/theme.liquid`, agregá lo siguiente, en este orden EXACTO:
        {% render 'amatora-add-to-cart' %}
 
 ═══════════════════════════════════════════════════════════════
-PASO 7 — INSTALAR EL SKILL EN MI CLI
+PASO 7 — INSTALAR EL SKILL EN EL PROYECTO
 ═══════════════════════════════════════════════════════════════
-Copiá:
-  ~/amatora-system/skill/SKILL.md          → ~/.claude/skills/amatora-theme-builder/SKILL.md
-  ~/amatora-system/skill/reference/*       → ~/.claude/skills/amatora-theme-builder/reference/
+Instalá la skill DENTRO del proyecto (no globalmente). Así viaja con
+el repo: cualquier dev que clone este theme va a recibir la skill.
 
-Si esa carpeta ya existe, hacé backup en
-  ~/.claude/skills/amatora-theme-builder.bak.<timestamp>
+Copiá a `.claude/skills/amatora-theme-builder/` del proyecto:
+  ~/amatora-system/skill/SKILL.md          → .claude/skills/amatora-theme-builder/SKILL.md
+  ~/amatora-system/skill/reference/*       → .claude/skills/amatora-theme-builder/reference/
+
+🚨 CRÍTICO: convertí line endings a LF al copiar. Si copiás con CRLF
+(default de Windows), el parser YAML del frontmatter de SKILL.md no
+lee el campo `description:` y la skill se carga SIN sus triggers.
+
+Si la carpeta `.claude/skills/amatora-theme-builder/` ya existe en el
+proyecto, hacé backup en `.claude/skills/amatora-theme-builder.bak.<timestamp>`
 antes de pisar.
 
 ═══════════════════════════════════════════════════════════════
@@ -146,7 +153,7 @@ Mostrame en este formato:
   Archivos modificados:
     - layout/theme.liquid (con resumen de los 4 inserts)
     - config/settings_schema.json (panel "Amatora — Diseño base" agregado)
-  Skill sincronizado en ~/.claude/skills/amatora-theme-builder/
+  Skill sincronizado en .claude/skills/amatora-theme-builder/ del proyecto
   Smoke-test:
     1. Abrir customizer
     2. Ir a "Personalizar tema"

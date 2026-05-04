@@ -1,27 +1,56 @@
 <#
 .SYNOPSIS
-  Instala/actualiza el skill amatora-theme-builder en tu Claude Code CLI.
+  Instala/actualiza el skill amatora-theme-builder en Claude Code.
 
 .DESCRIPTION
-  Pensado para cuando NO querés instalar el sistema Amatora completo en un
-  theme (el cliente tiene su propio repo/framework y no querés tocarlo),
-  pero sí querés que Claude Code tenga las convenciones de Amatora
-  cargadas como skill.
+  Por default instala la skill EN EL PROYECTO actual (en `.claude/skills/`
+  de la carpeta donde estés parado). Eso hace que la skill viaje con el
+  repo del proyecto — al clonar en otra máquina, la skill viene incluida.
 
-  Hace tres cosas:
+  Si pasás -Global, instala globalmente en ~/.claude/skills/ y queda
+  activa en CUALQUIER proyecto donde abras Claude Code.
+
+  Si pasás -ProjectPath <ruta>, instala en .claude/skills/ de esa ruta
+  específica (útil para instalar en otro proyecto sin estar parado ahí).
+
+  Hace siempre:
     1. Verifica/actualiza ~/amatora-system (clone local del sistema).
-    2. Backup del skill anterior si ya existe.
-    3. Copia skill/SKILL.md y skill/reference/* a
-       ~/.claude/skills/amatora-theme-builder/.
-
-  Una vez instalado, la skill está activa en CUALQUIER proyecto donde
-  abras Claude Code. No está vinculada a una carpeta — es global del CLI.
+    2. Backup del skill anterior si existe.
+    3. Copia skill/SKILL.md y skill/reference/* al destino, convirtiendo
+       line endings a LF (necesario para que el parser YAML del frontmatter
+       lea bien el campo description).
 
 .EXAMPLE
   .\sync-amatora-skill.ps1
 
-  Sin argumentos. Hace todo automático.
+  Sin argumentos: instala en .claude/skills/ del directorio actual
+  (modo por-proyecto, default).
+
+.EXAMPLE
+  .\sync-amatora-skill.ps1 -Global
+
+  Instala globalmente en ~/.claude/skills/ — la skill queda activa
+  en cualquier proyecto.
+
+.EXAMPLE
+  .\sync-amatora-skill.ps1 -ProjectPath "C:\Users\javie\Desktop\olaa"
+
+  Instala en C:\Users\javie\Desktop\olaa\.claude\skills\ aunque no
+  estés parado en esa carpeta.
+
+.PARAMETER Global
+  Si está presente, instala globalmente en ~/.claude/skills/ en vez
+  de en el proyecto.
+
+.PARAMETER ProjectPath
+  Ruta del proyecto donde instalar (override del directorio actual).
+  Si NO se pasa y -Global no está activo, usa el directorio actual.
 #>
+param(
+  [switch]$Global,
+  [string]$ProjectPath
+)
+
 $ErrorActionPreference = "Stop"
 
 # 1. Sistema Amatora local
@@ -42,8 +71,22 @@ if (-not (Test-Path "$skillSource\SKILL.md")) {
   throw "No encontré $skillSource\SKILL.md. ¿Está bien clonado el repo?"
 }
 
-# 3. Backup del skill instalado si existe
-$skillTarget = "$env:USERPROFILE\.claude\skills\amatora-theme-builder"
+# 3. Determinar destino
+if ($Global) {
+  $skillTarget = "$env:USERPROFILE\.claude\skills\amatora-theme-builder"
+  $modeLabel = "GLOBAL ($env:USERPROFILE\.claude\skills\)"
+} else {
+  if ($ProjectPath) {
+    $base = (Resolve-Path $ProjectPath -ErrorAction Stop).Path
+  } else {
+    $base = (Get-Location).Path
+  }
+  $skillTarget = Join-Path $base ".claude\skills\amatora-theme-builder"
+  $modeLabel = "PROYECTO ($base\.claude\skills\)"
+}
+Write-Host "==> Modo: $modeLabel"
+
+# 4. Backup del skill instalado si existe
 if (Test-Path $skillTarget) {
   $stamp = Get-Date -Format 'yyyyMMdd-HHmmss'
   $bak = "$skillTarget.bak.$stamp"
@@ -51,8 +94,8 @@ if (Test-Path $skillTarget) {
   Rename-Item $skillTarget $bak
 }
 
-# 4. Crear destino y copiar (forzando LF — el parser YAML del frontmatter
-#    de SKILL.md falla con CRLF, lo que deja la skill cargada sin descripción)
+# 5. Copiar (forzando LF — el parser YAML del frontmatter de SKILL.md
+#    falla con CRLF, lo que deja la skill cargada sin descripción)
 New-Item -ItemType Directory -Force -Path $skillTarget | Out-Null
 
 function Copy-AsLF {
@@ -73,7 +116,7 @@ Get-ChildItem "$skillSource\reference" -File | ForEach-Object {
 
 Write-Host "==> Skill instalado (con LF endings) en $skillTarget"
 
-# 5. Verificación
+# 6. Verificación
 $installedSkill = Join-Path $skillTarget "SKILL.md"
 $sourceSize = (Get-Item "$skillSource\SKILL.md").Length
 $installedSize = (Get-Item $installedSkill).Length
@@ -85,7 +128,11 @@ if ($sourceSize -ne $installedSize) {
 
 Write-Host ""
 Write-Host "==> LISTO"
-Write-Host "    La skill 'amatora-theme-builder' está activa en CUALQUIER"
-Write-Host "    proyecto donde abras Claude Code. No hace falta hacer nada"
-Write-Host "    más — Claude la cargará automáticamente al detectar archivos"
-Write-Host "    .liquid, schemas de Shopify, o menciones a Amatora."
+if ($Global) {
+  Write-Host "    Skill activa en CUALQUIER proyecto donde abras Claude Code."
+} else {
+  Write-Host "    Skill activa SOLO cuando abrás Claude Code en:"
+  Write-Host "      $base"
+  Write-Host "    Si commiteás .claude/skills/ al repo del proyecto, otros"
+  Write-Host "    devs reciben la skill al clonar."
+}

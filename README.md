@@ -2,21 +2,45 @@
 
 Sistema de diseño para themes Shopify, distribuido como **skill de Claude Code**. Cualquier persona puede instalarlo en su proyecto con un solo comando.
 
-## 🚀 Instalación rápida — un solo comando
+## 🚀 Instalación — un solo comando
 
 Parate en la raíz de tu proyecto Shopify (donde están `assets/`, `config/`, `layout/`, etc.) y corré en PowerShell:
 
 ```powershell
-iex (iwr "https://raw.githubusercontent.com/FranciscoJardon/INICIO/main/scripts/install-skill.ps1" -UseBasicParsing).Content
+iex (iwr "https://raw.githubusercontent.com/FranciscoJardon/INICIO/main/scripts/install.ps1" -UseBasicParsing).Content
 ```
 
-Eso descarga la skill y la deja en `.claude/skills/amatora-theme-builder/` de tu proyecto. Cuando abras Claude Code en esa carpeta, la skill se carga automáticamente al editar `.liquid` o pedir un slider/banner.
+Eso instala **todo lo necesario** en tu theme:
 
-> El flag `-UseBasicParsing` evita un warning de PowerShell sobre análisis de contenido HTML. Funciona idéntico, solo más limpio.
+1. **Skill** en `.claude/skills/amatora-theme-builder/` — Claude Code aprende las convenciones de Amatora (3 mandatos, clases utility, optimización de imágenes).
+2. **Sistema** en el theme:
+   - `assets/amatora.css`, `amatora.js`, `AMATORA_VERSION`
+   - `snippets/amatora-tokens.liquid`, `amatora-add-to-cart.liquid`
+   - `sections/banner-amatora.liquid` (sección de prueba)
+   - Panel "Amatora — Diseño base" agregado a `config/settings_schema.json`
+   - Tags insertados en `layout/theme.liquid` (CSS, JS, snippets)
 
-> **Tip:** hacé commit de `.claude/skills/` al repo de tu proyecto. Cualquier dev que clone va a recibir la skill incluida.
+Es **idempotente**: si ya hay tags Amatora, no los duplica. Hace **backups con timestamp** antes de modificar `theme.liquid` y `settings_schema.json`.
 
-> **Mac/Linux:** próximamente, un equivalente en bash. Por ahora, podés clonar el repo y copiar `skill/` manualmente a `.claude/skills/amatora-theme-builder/`.
+### Solo querés la skill (sin tocar el theme)
+
+Si tu cliente tiene su propio framework CSS/JS y solo querés que Claude Code conozca las convenciones de Amatora:
+
+```powershell
+& ([scriptblock]::Create((iwr "https://raw.githubusercontent.com/FranciscoJardon/INICIO/main/scripts/install.ps1" -UseBasicParsing).Content)) -SkillOnly
+```
+
+### Reinstalar sobre un theme que ya tiene Amatora
+
+Si el script detecta `assets/AMATORA_VERSION`, aborta. Para sobrescribir igual:
+
+```powershell
+& ([scriptblock]::Create((iwr "https://raw.githubusercontent.com/FranciscoJardon/INICIO/main/scripts/install.ps1" -UseBasicParsing).Content)) -Force
+```
+
+> **Tip:** después de instalar, hacé commit de los cambios al repo de tu proyecto. Cualquier dev que clone va a recibir Amatora completo.
+
+> **Mac/Linux:** próximamente, un equivalente en bash.
 
 ## Versión
 
@@ -33,8 +57,8 @@ AMATORA-PROCESO/
 │   ├── implement.md                    ← theme custom existente sin Amatora (auditoría primero)
 │   └── update.md                       ← theme con Amatora vieja → versión nueva
 ├── scripts/
-│   ├── install-skill.ps1               ← ★ one-liner público: descarga + instala la skill en .claude/skills/ del proyecto actual
-│   ├── new-amatora-project.ps1         ← proyecto nuevo: clona Dawn + abre VS Code + prompt al clipboard
+│   ├── install.ps1                     ← ★ one-liner público: instala skill + sistema en el theme actual
+│   ├── new-amatora-project.ps1         ← proyecto nuevo desde Dawn: clona + abre VS Code + prompt al clipboard
 │   └── sync-amatora-skill.ps1          ← (operador agencia) sync desde clone local con modo -Global o per-proyecto
 ├── skill/
 │   ├── SKILL.md                        ← spec canónico (español, single source of truth)
