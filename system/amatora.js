@@ -1,7 +1,11 @@
 /*!
- * Amatora JS — v2.1
+ * Amatora JS — v2.2
  * Componentes JS del sistema Amatora.
  * Por ahora incluye: Slider (carousel con drag, arrows, dots, progress).
+ *
+ * Defaults globales: lee window.AmatoraConfig (seteado por amatora-tokens.liquid
+ * desde el panel del customizer) — dotsStyle, arrowsPos, showArrows/Dots, arrowIcon.
+ * Prioridad: data-attribute > opts > AmatoraConfig > hardcoded.
  *
  * USO DEL SLIDER:
  *   <div data-amatora-slider
@@ -60,6 +64,14 @@
         opts = opts || {};
         var d = this.el.dataset;
 
+        // Defaults globales del panel Amatora (settings → tokens → window.AmatoraConfig).
+        // Prioridad: data-attribute > opts > AmatoraConfig > hardcoded.
+        var cfg = (typeof window !== 'undefined' && window.AmatoraConfig) || {};
+        var defShowArrows = cfg.sliderShowArrows !== undefined ? !!cfg.sliderShowArrows : true;
+        var defShowDots   = cfg.sliderShowDots   !== undefined ? !!cfg.sliderShowDots   : true;
+        var defDotsStyle  = cfg.sliderDotsStyle  || 'bar';
+        var defArrowsPos  = cfg.sliderArrowsPos  || 'header';
+
         // Opciones (data-attributes > opts > defaults)
         this.o = {
             visibleDesktop: toNum(d.visibleDesktop, opts.visibleDesktop || 3),
@@ -69,13 +81,13 @@
             peek:           d.peek    != null ? toInt(d.peek, 48) : (opts.peek != null ? opts.peek : null),
             loop:           toBool(d.loop, opts.loop || false),
             autoplay:       toInt(d.autoplay, opts.autoplay || 0),
-            showArrows:     toBool(d.arrows, opts.showArrows !== false),
-            showDots:       toBool(d.dots, opts.showDots !== false),
+            showArrows:     toBool(d.arrows, opts.showArrows !== undefined ? opts.showArrows : defShowArrows),
+            showDots:       toBool(d.dots,   opts.showDots   !== undefined ? opts.showDots   : defShowDots),
             showCounter:    toBool(d.counter, opts.showCounter || false),
             label:          d.label || opts.label || '',
             variant:        d.variant || opts.variant || 'default',
-            arrowsPos:      d.arrowsPos || opts.arrowsPos || 'header',
-            dotsStyle:      d.dotsStyle || opts.dotsStyle || 'bar',
+            arrowsPos:      d.arrowsPos || opts.arrowsPos || defArrowsPos,
+            dotsStyle:      d.dotsStyle || opts.dotsStyle || defDotsStyle,
             dotsAlign:      d.dotsAlign || opts.dotsAlign || 'center',
             progressWidth:  d.progressWidth  || opts.progressWidth  || null,
             progressHeight: d.progressHeight || opts.progressHeight || null,
@@ -224,12 +236,22 @@
 
     SliderAmatora.prototype._buildArrows = function () {
         var wrap = mk('div', 'slider-amatora__arrows');
+        var cfg = (typeof window !== 'undefined' && window.AmatoraConfig) || {};
+        var customIcon = cfg.sliderArrowIcon;
+        var iconPrev, iconNext;
+        if (customIcon) {
+            iconPrev = '<img src="' + customIcon + '" alt="" class="slider-amatora__arrow-icon slider-amatora__arrow-icon--flip">';
+            iconNext = '<img src="' + customIcon + '" alt="" class="slider-amatora__arrow-icon">';
+        } else {
+            iconPrev = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>';
+            iconNext = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>';
+        }
         wrap.innerHTML =
             '<button type="button" class="slider-amatora__arrow slider-amatora__arrow--prev" aria-label="Anterior">' +
-              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>' +
+              iconPrev +
             '</button>' +
             '<button type="button" class="slider-amatora__arrow slider-amatora__arrow--next" aria-label="Siguiente">' +
-              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>' +
+              iconNext +
             '</button>';
         return wrap;
     };

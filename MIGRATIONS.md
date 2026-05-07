@@ -10,6 +10,82 @@ Formato por release:
 
 ---
 
+## v0.3.0 → desde v0.2.x
+
+Foco del release: que **instalar Amatora no rompa el theme** y que el panel del customizer **realmente afecte el look**. Resuelve los reportes de "los colores quedan default" e "instalo y se rompen los sliders del theme".
+
+### Pisadas globales removidas (BREAKING — visual)
+
+Se quitaron de `system/amatora.css` dos selectores que pisaban elementos del theme sin opt-in:
+
+| Removido                          | Por qué                                                                            |
+|-----------------------------------|------------------------------------------------------------------------------------|
+| `button { background: none; border: none; cursor: pointer; }` | Mataba todos los botones del theme (header, drawer, paginación, **flechas de slideshow nativo** — explica "los sliders del theme se ven mal"). |
+| `.product-form__submit { padding: 20px 0; border-radius: 30px; font-weight: 800; width: 100%; }` | Pisaba el add-to-cart de PDP sin que el dev opte. |
+
+**Lo que SÍ queda** (a propósito): `.cart-totals__tax-note { display: none !important }` y la pisada de posición de `.dialog-modal[open].search-modal__content`.
+
+**Migración:** si tu theme dependía visualmente de alguna de las dos pisadas removidas:
+
+- Para el look del add-to-cart 100% ancho con esquina pill → usá las clases nativas del sistema sobre tu propio `<button>`:
+  ```liquid
+  <button class="btn-primary-amatora btn-block-amatora"
+          data-add-to-cart
+          data-variant-id="{{ product.selected_or_first_available_variant.id }}">
+    <span class="btn-label">Agregar al carrito</span>
+  </button>
+  ```
+- Para neutralizar botones específicos del theme → escribí tu propia regla en `assets/<theme>.css` o usá las utility classes de Amatora (`.bg-transparent-amatora`, `.border-none-amatora`).
+
+### Heredar colores del theme al instalar (NUEVO)
+
+`prompts/init.md` ahora tiene un **PASO 4.5 — HEREDAR COLORES DEL THEME** que detecta los colores ya configurados en `config/settings_schema.json` + `config/settings_data.json` (soporta schema clásico Y `color_scheme_group` de Dawn 2.0+) y los usa como defaults del panel Amatora antes del merge.
+
+**Migración:** no aplica para themes ya migrados — esto solo corre en `init.md` (theme limpio). Si querés re-rescatar colores en un theme que ya tiene Amatora instalado, edití manualmente el panel en el customizer.
+
+### Settings nuevos del panel
+
+Agregar a `config/settings_schema.json` dentro del panel "Amatora — Diseño base":
+
+**Sliders / Carruseles (header nuevo):**
+- `slider_dots_style` (select: bar / circle / progress / progress-segmented, default `bar`)
+- `slider_arrows_pos` (select: header / sides, default `header`)
+- `slider_show_arrows` (checkbox, default `true`)
+- `slider_show_dots` (checkbox, default `true`)
+- `slider_gap` (range 0-40, default 16)
+- `slider_arrow_size` (range 28-60, default 44)
+- `slider_arrow_icon` (image_picker, opcional — sube SVG/PNG cuadrado apuntando a la derecha; la flecha "Anterior" se voltea con `scaleX(-1)`)
+- `slider_transition_speed` (select: smooth / normal / fast, default `smooth`)
+
+Defaults idénticos al hardcoded anterior — no hay regresión visual.
+
+### `window.AmatoraConfig` (NUEVO contrato runtime)
+
+`amatora-tokens.liquid` ahora emite un `<script>` que setea `window.AmatoraConfig` con:
+- `sliderDotsStyle`, `sliderArrowsPos`, `sliderShowArrows`, `sliderShowDots`
+- `sliderArrowIcon` (URL del CDN, solo si el dev subió uno)
+
+`amatora.js` lee este objeto en el constructor de `SliderAmatora` con prioridad: **data-attribute > opts (constructor) > AmatoraConfig (panel) > hardcoded default**. Cualquier slider con `data-dots-style="…"` propio sigue ganando (override por sección).
+
+**Migración:** ninguna. Si tu código accedía a `window.AmatoraConfig` antes (no debería existir), revisá colisión.
+
+### Reemplazos de archivo
+
+Para themes con Amatora v0.2.x, reemplazar:
+- `assets/amatora.css`
+- `assets/amatora.js`
+- `assets/AMATORA_VERSION`
+- `snippets/amatora-tokens.liquid`
+
+Hacer el merge incremental en `config/settings_schema.json` agregando los settings nuevos al panel "Amatora — Diseño base" sin tocar valores existentes que el merchant ya haya configurado.
+
+> Verificación post-upgrade:
+> 1. Customizer abre y muestra el header "Sliders / Carruseles" con sus 8 settings.
+> 2. En la home, las flechas y botones del theme nativo recuperan su look original (ya no neutralizados).
+> 3. Cambiar `slider_dots_style` en el customizer → recargar → cualquier `[data-amatora-slider]` sin `data-dots-style` propio refleja el cambio.
+
+---
+
 ## v0.2.1 → desde v0.2.0
 
 ### Bugfix — `amatora-tokens.liquid` deja `@font-face` colgando en `<body>`

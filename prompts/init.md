@@ -101,10 +101,83 @@ Copiá desde `~/amatora-system/system/` a `sections/`:
 aparecer "Banner Amatora" en la lista de secciones disponibles.)
 
 ═══════════════════════════════════════════════════════════════
+PASO 4.5 — HEREDAR COLORES DEL THEME (rescate)
+═══════════════════════════════════════════════════════════════
+Antes de insertar el panel Amatora en settings_schema.json, vas a
+RESCATAR los colores que el theme ya tiene configurados y usarlos
+como defaults del panel Amatora. Así, al instalar, Amatora arranca
+con la paleta del cliente en vez de los colores genéricos del sistema.
+
+Procedimiento:
+
+  a) Leé `config/settings_schema.json` y `config/settings_data.json`.
+
+  b) Identificá los settings de color del theme. Dos casos posibles:
+
+     CASO 1 — Schema clásico (theme antiguo):
+       Settings con `"type": "color"` en el top-level de cada panel.
+       El valor actual está en `settings_data.json → current → <id>`.
+
+     CASO 2 — Color schemes (Dawn 2.0+ y similares):
+       Existe un setting con `"type": "color_scheme_group"`.
+       Los valores están en `settings_data.json → current →
+       <group_id> → <scheme_id> → settings → <field>`.
+       Usá la PRIMERA scheme definida (típicamente "scheme-1" o
+       la marcada como default por el theme).
+
+     Si `current` en settings_data.json es un STRING (nombre de preset),
+     resolvé buscando en `presets[<nombre>]`.
+
+  c) Mapeá los IDs/campos del theme a los IDs de Amatora con esta
+     prioridad (primer match gana, sin saltarse el orden):
+
+       am_primary       ← ids que contengan, en orden:
+                          "accent_1", "primary", "main", "brand",
+                          "principal", "color_button", "button_background"
+       am_secondary     ← "accent_2", "secondary"
+       am_text          ← "text", "foreground", "body_text", "color_body"
+       am_bg_light      ← "background_1", "background", "bg_primary"
+       am_accent        ← "accent", "highlight"
+                          (excluyendo accent_1 / accent_2)
+       btn_primary_bg   ← "button_background", "button_bg", "button"
+                          (si no hay match, usar el mismo valor que am_primary)
+       btn_primary_fg   ← "button_text", "button_label", "button_fg",
+                          "color_button_text"
+
+     Los hover (am_primary_hover, am_secondary_hover) NO se rescatan:
+     dejá el default de Amatora.
+
+  d) Leé `~/amatora-system/system/settings_schema.amatora.json`.
+     Para cada `id` que tenga match en el paso (c), reemplazá el
+     campo `default` con el color rescatado del theme.
+     Para los que NO tengan match, dejá el default original.
+
+  e) Mostrame esta tabla ANTES de seguir al PASO 5:
+
+       | ID Amatora      | Default original | Valor rescatado | Origen          |
+       | --------------- | ---------------- | --------------- | --------------- |
+       | am_primary      | #004a3b          | #4a90e2         | colors_accent_1 |
+       | am_secondary    | #9c6b3f          | (sin match)     | —               |
+       | btn_primary_bg  | #004a3b          | #ff6600         | color_button    |
+       ...
+
+     Si hay más de un match plausible para un mismo id Amatora,
+     parate y preguntame antes de elegir.
+
+  f) Una vez mostrada la tabla, usá ese schema MODIFICADO (no el
+     original de ~/amatora-system) en el PASO 5 para hacer el merge.
+
+REGLA: si NO existe `config/settings_data.json` (theme recién
+descargado sin guardar nunca), saltá este paso completo y usá los
+defaults originales de Amatora. Avisame en el reporte final.
+
+═══════════════════════════════════════════════════════════════
 PASO 5 — MERGE DEL SCHEMA
 ═══════════════════════════════════════════════════════════════
-Leé `~/amatora-system/system/settings_schema.amatora.json`. Es un objeto
-que representa UN panel del array de `config/settings_schema.json`.
+Tomá el schema MODIFICADO en el PASO 4.5 (con los defaults rescatados
+del theme). Si el PASO 4.5 se saltó, leé directamente
+`~/amatora-system/system/settings_schema.amatora.json`.
+Es un objeto que representa UN panel del array de `config/settings_schema.json`.
 
 Insertá ese objeto al final del array de `config/settings_schema.json`,
 respetando JSON válido. NO toques los paneles existentes.
@@ -153,6 +226,7 @@ Mostrame en este formato:
   Archivos modificados:
     - layout/theme.liquid (con resumen de los 4 inserts)
     - config/settings_schema.json (panel "Amatora — Diseño base" agregado)
+  Colores rescatados del theme: <N de M, o "no aplicó (sin settings_data.json)">
   Skill sincronizado en .claude/skills/amatora-theme-builder/ del proyecto
   Smoke-test:
     1. Abrir customizer

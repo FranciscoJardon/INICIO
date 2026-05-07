@@ -49,19 +49,10 @@ h2, h3 {
 
 h4, p, a, button { font-style: normal; }
 
-button {
-    background: none;
-    border: none;
-    cursor: pointer;
-}
-
-.product-form__submit {
-    padding: 20px 0;
-    border-radius: 30px;
-    font-weight: 800;
-    width: 100%;
-}
-
+/* Nota: el reset global de `button {}` y la pisada a `.product-form__submit`
+   se quitaron en v0.3.0 — pisaban botones del theme sin opt-in.
+   Ver MIGRATIONS.md. Si querés ese look para el add-to-cart, usá
+   `.btn-primary-amatora btn-block-amatora` con data-add-to-cart. */
 
 .cart-totals__tax-note, .cart-totals__tax-note {
     display: none !important;
@@ -1154,6 +1145,15 @@ p {
     width: 18px;
     height: 18px;
     display: block;
+}
+.slider-amatora__arrow-icon {
+    width: 18px;
+    height: 18px;
+    display: block;
+    object-fit: contain;
+}
+.slider-amatora__arrow-icon--flip {
+    transform: scaleX(-1);
 }
 
 

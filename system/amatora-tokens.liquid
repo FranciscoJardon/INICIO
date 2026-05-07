@@ -72,5 +72,38 @@
     {%- if settings.btn_fs %}
     --btn-fs:     {{ settings.btn_fs }}px;
     {%- endif %}
+
+    {%- comment -%} Sliders — defaults globales del panel {%- endcomment -%}
+    {%- if settings.slider_gap %}
+    --sl-gap:        {{ settings.slider_gap }}px;
+    {%- endif %}
+    {%- if settings.slider_arrow_size %}
+    --sl-arrow-size: {{ settings.slider_arrow_size }}px;
+    {%- endif %}
+    {%- case settings.slider_transition_speed -%}
+    {%- when 'smooth' %}
+    --sl-transition: 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+    {%- when 'normal' %}
+    --sl-transition: 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+    {%- when 'fast' %}
+    --sl-transition: 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+    {%- endcase -%}
   }
 </style>
+
+{%- comment -%}
+  Defaults globales del slider que NO son CSS variables (estilo de dots,
+  posición de flechas, mostrar/ocultar). amatora.js los lee al inicializar
+  cada [data-amatora-slider]. Si la sección define data-* propios, esos
+  ganan (data-attribute > opts > AmatoraConfig > hardcoded).
+{%- endcomment -%}
+<script>
+  window.AmatoraConfig = window.AmatoraConfig || {};
+  window.AmatoraConfig.sliderDotsStyle  = {{ settings.slider_dots_style  | default: 'bar'    | json }};
+  window.AmatoraConfig.sliderArrowsPos  = {{ settings.slider_arrows_pos  | default: 'header' | json }};
+  window.AmatoraConfig.sliderShowArrows = {{ settings.slider_show_arrows | default: true     | json }};
+  window.AmatoraConfig.sliderShowDots   = {{ settings.slider_show_dots   | default: true     | json }};
+  {%- if settings.slider_arrow_icon != blank %}
+  window.AmatoraConfig.sliderArrowIcon  = {{ settings.slider_arrow_icon | image_url: width: 64 | json }};
+  {%- endif %}
+</script>

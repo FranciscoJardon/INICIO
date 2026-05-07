@@ -87,6 +87,71 @@
       "min": 12, "max": 22, "step": 1, "default": 16
     },
 
+    { "type": "header", "content": "Sliders / Carruseles" },
+    {
+      "type": "select",
+      "id": "slider_dots_style",
+      "label": "Estilo de los puntos (dots)",
+      "options": [
+        { "value": "bar",                "label": "Barras" },
+        { "value": "circle",             "label": "Círculos" },
+        { "value": "progress",           "label": "Barra de progreso" },
+        { "value": "progress-segmented", "label": "Progreso segmentado (stories)" }
+      ],
+      "default": "bar"
+    },
+    {
+      "type": "select",
+      "id": "slider_arrows_pos",
+      "label": "Posición de las flechas",
+      "options": [
+        { "value": "header", "label": "En el header (arriba)" },
+        { "value": "sides",  "label": "Flotantes a los lados" }
+      ],
+      "default": "header"
+    },
+    {
+      "type": "checkbox",
+      "id": "slider_show_arrows",
+      "label": "Mostrar flechas por defecto",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "slider_show_dots",
+      "label": "Mostrar dots por defecto",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "slider_gap",
+      "label": "Espacio entre slides (px)",
+      "min": 0, "max": 40, "step": 2, "default": 16
+    },
+    {
+      "type": "range",
+      "id": "slider_arrow_size",
+      "label": "Tamaño de las flechas (px)",
+      "min": 28, "max": 60, "step": 2, "default": 44
+    },
+    {
+      "type": "image_picker",
+      "id": "slider_arrow_icon",
+      "label": "Icono personalizado de las flechas",
+      "info": "Subí un SVG o PNG cuadrado (~24×24) apuntando hacia la derecha. La flecha 'Anterior' se voltea automáticamente. Si lo dejás vacío, se usa el chevron por defecto."
+    },
+    {
+      "type": "select",
+      "id": "slider_transition_speed",
+      "label": "Velocidad de transición",
+      "options": [
+        { "value": "smooth", "label": "Suave (premium)" },
+        { "value": "normal", "label": "Normal" },
+        { "value": "fast",   "label": "Rápida" }
+      ],
+      "default": "smooth"
+    },
+
     { "type": "header", "content": "Comportamiento del carrito" },
     {
       "type": "select",
