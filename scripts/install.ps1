@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
   Instalador todo-en-uno de Amatora para un theme Shopify.
 
