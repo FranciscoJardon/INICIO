@@ -7,12 +7,12 @@
     1. Verifica/actualiza el clone del sistema Amatora en ~/amatora-system.
     2. Clona Dawn (o el theme base que indiques) en la carpeta del proyecto,
        sin el .git del upstream — para que sea tu repo desde cero.
-    3. Copia el prompt de inicialización al portapapeles.
+    3. Corre install.ps1 directamente sobre la carpeta del nuevo theme:
+       copia assets/snippets/sections, edita theme.liquid, mergea schema y
+       rescata los colores actuales del theme (settings_data.json).
     4. Abre VS Code en la carpeta del proyecto.
 
-  Después solo abrís Claude Code en VS Code y pegás (Ctrl+V) el prompt que
-  ya está en el clipboard. Claude termina de instalar Amatora copiando
-  desde ~/amatora-system al theme.
+  Cero pasos manuales después — al abrir VS Code, Amatora ya está instalado.
 
 .EXAMPLE
   .\new-amatora-project.ps1 -Name cliente-zapatos
@@ -68,17 +68,23 @@ if ($LASTEXITCODE -ne 0) { throw "git clone del theme base falló" }
 Remove-Item -Recurse -Force "$projectPath\.git"
 Write-Host "    .git del theme upstream removido"
 
-# 3. Copiar el prompt init.md al clipboard (extrayendo el bloque entre ``` ```)
-$initMd = Get-Content "$amatoraRoot\prompts\init.md" -Raw
-$blockMatch = [regex]::Match($initMd, '(?s)```\r?\n(.*?)\r?\n```')
-if ($blockMatch.Success) {
-  $blockMatch.Groups[1].Value | Set-Clipboard
-  Write-Host "==> Prompt de inicialización copiado al portapapeles"
-} else {
-  Write-Warning "No pude extraer el bloque del prompt. Abrí $amatoraRoot\prompts\init.md a mano."
+# 3. Correr install.ps1 directo sobre la carpeta del proyecto
+Write-Host ""
+Write-Host "==> Instalando Amatora en el theme nuevo"
+$installScript = Join-Path $amatoraRoot "scripts\install.ps1"
+if (-not (Test-Path $installScript)) {
+  throw "No encontré $installScript. ¿El clone de Amatora esta actualizado?"
+}
+Push-Location $projectPath
+try {
+  & $installScript
+  if ($LASTEXITCODE -ne 0 -and $null -ne $LASTEXITCODE) { throw "install.ps1 falló (exit $LASTEXITCODE)" }
+} finally {
+  Pop-Location
 }
 
 # 4. Abrir VS Code
+Write-Host ""
 Write-Host "==> Abriendo VS Code"
 code $projectPath
 
@@ -87,7 +93,7 @@ Write-Host "==> LISTO"
 Write-Host "    Proyecto:        $projectPath"
 Write-Host "    Sistema Amatora: $amatoraRoot"
 Write-Host ""
-Write-Host "Siguiente paso (en la nueva ventana de VS Code):"
-Write-Host "  1. Abrí Claude Code"
-Write-Host "  2. Pegá (Ctrl+V) en el chat — el prompt ya está en el clipboard"
-Write-Host "  3. Esperá el reporte del PASO 8"
+Write-Host "Amatora ya esta instalado. Pasos siguientes:"
+Write-Host "  1. shopify theme dev (o tu workflow de subida)"
+Write-Host "  2. Customizer -> 'Theme settings' -> panel 'Amatora — Diseño base'"
+Write-Host "  3. Agregar 'Banner Amatora' a la home como smoke-test"

@@ -39,9 +39,9 @@ Se quitaron de `system/amatora.css` dos selectores que pisaban elementos del the
 
 ### Heredar colores del theme al instalar (NUEVO)
 
-`prompts/init.md` ahora tiene un **PASO 4.5 — HEREDAR COLORES DEL THEME** que detecta los colores ya configurados en `config/settings_schema.json` + `config/settings_data.json` (soporta schema clásico Y `color_scheme_group` de Dawn 2.0+) y los usa como defaults del panel Amatora antes del merge.
+`scripts/install.ps1` ahora detecta los colores ya configurados en `config/settings_schema.json` + `config/settings_data.json` (soporta schema clásico Y `color_scheme_group` de Dawn 2.0+) y los usa como defaults del panel Amatora antes del merge. Imprime tabla `| ID Amatora | Valor rescatado | Origen |` antes de aplicar.
 
-**Migración:** no aplica para themes ya migrados — esto solo corre en `init.md` (theme limpio). Si querés re-rescatar colores en un theme que ya tiene Amatora instalado, edití manualmente el panel en el customizer.
+**Migración:** no aplica para themes ya migrados — esto solo corre en `install.ps1` (theme limpio). Si querés re-rescatar colores en un theme que ya tiene Amatora instalado, edití manualmente el panel en el customizer.
 
 ### Settings nuevos del panel
 
@@ -96,7 +96,7 @@ Hacer el merge incremental en `config/settings_schema.json` agregando los settin
 
 **Migración para themes que ya tienen v0.2.0 instalado:**
 
-Reemplazar todo `snippets/amatora-tokens.liquid` por la versión nueva del repo. No hay cambios de naming, no hay otros archivos afectados, no hay settings nuevos. El prompt `update.md` lo hace automáticamente al copiar el snippet desde `~/amatora-system/system/`.
+Reemplazar todo `snippets/amatora-tokens.liquid` por la versión nueva del repo. No hay cambios de naming, no hay otros archivos afectados, no hay settings nuevos. `install.ps1 -Force` lo hace automáticamente.
 
 > Verificación: después de aplicar el fix, abrir devtools en la home y confirmar que el `<head>` tiene UN solo `<style>` con los `@font-face` y los `:root` adentro, y que el `<body>` no tiene texto crudo de `@font-face` colgando.
 

@@ -120,8 +120,8 @@ $versionFile = Join-Path $projectRoot "assets/AMATORA_VERSION"
 if ((Test-Path $versionFile) -and (-not $Force)) {
   $currentVersion = (Get-Content $versionFile -Raw).Trim()
   Write-Warning "El theme ya tiene Amatora (versión $currentVersion)."
-  Write-Warning "Para sobrescribir, re-corré con -Force."
-  Write-Warning "Para actualizar respetando customizaciones, usá el prompt update.md."
+  Write-Warning "Para sobrescribir, re-corré con -Force (hace backup .bak.timestamp antes)."
+  Write-Warning "Si el theme tiene customizaciones del cliente, revisá MIGRATIONS.md y aplicá renames a mano antes de pisar."
   return
 }
 
