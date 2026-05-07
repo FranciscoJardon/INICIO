@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
   Instalador todo-en-uno de Amatora para un theme Shopify.
 
@@ -10,6 +10,9 @@
        - assets/amatora.css, amatora.js, AMATORA_VERSION
        - snippets/amatora-tokens.liquid, amatora-add-to-cart.liquid
        - sections/banner-amatora.liquid
+       - RESCATA los colores ya configurados en el customizer del theme
+         (settings_data.json, soportando color_scheme_group de Dawn 2.0+)
+         y los inyecta como defaults del panel Amatora antes del merge.
        - merge del panel de settings en config/settings_schema.json
        - inserción de tags en layout/theme.liquid (CSS, JS, snippets)
 
@@ -188,15 +191,120 @@ if (-not $hasAtc) {
 
 Set-FileLF -Dest $themeLiquid -Content $themeContent
 
-# ===== Mergear schema =====
+# ===== Mergear schema (con rescate de colores del theme) =====
 Write-Host ""
 Write-Host "=== Mergeando settings_schema.json ==="
 $existingSchema = [System.IO.File]::ReadAllText($schemaPath)
+$rescued = [ordered]@{}
 
 if ($existingSchema -match '"name"\s*:\s*"Amatora') {
   Write-Host "==> El schema ya tiene un panel 'Amatora —...' — sin cambios"
+  Write-Host "    (Skip rescate de colores: el panel ya está, los colores ya están configurados)"
 } else {
   $patchContent = Get-AsLF -Path "system/settings_schema.amatora.json"
+
+  # ----- Rescate de colores del theme -----
+  Write-Host ""
+  Write-Host "=== Rescatando colores del theme ==="
+  $dataPath = Join-Path $projectRoot "config/settings_data.json"
+  if (-not (Test-Path $dataPath)) {
+    Write-Host "==> No existe config/settings_data.json — usando defaults de Amatora."
+  } else {
+    try {
+      $themeSchema = Get-Content $schemaPath -Raw | ConvertFrom-Json
+      $themeData   = Get-Content $dataPath   -Raw | ConvertFrom-Json
+
+      # Resolver "current": objeto de valores, o nombre de preset (string) → buscar en presets
+      $currentVals = $themeData.current
+      if ($currentVals -is [string]) {
+        $currentVals = $themeData.presets.$currentVals
+      }
+
+      # Recolectar (theme_id → color_value) en orden de aparición en el schema
+      $themeColors = [ordered]@{}
+      foreach ($panel in $themeSchema) {
+        if ($null -eq $panel.settings) { continue }
+        foreach ($s in $panel.settings) {
+          if (-not $s.id) { continue }
+          # Caso clásico: setting tipo color
+          if ($s.type -eq 'color') {
+            $val = $currentVals.($s.id)
+            if ($val) { $themeColors[$s.id] = $val }
+          }
+          # Dawn 2.0+: color_scheme_group → primera scheme definida
+          if ($s.type -eq 'color_scheme_group' -and $s.definition) {
+            $groupVal = $currentVals.($s.id)
+            if (-not $groupVal) { continue }
+            $schemes = @($groupVal.PSObject.Properties)
+            if ($schemes.Count -eq 0) { continue }
+            $firstScheme = $schemes[0].Value
+            if (-not $firstScheme.settings) { continue }
+            foreach ($field in $s.definition) {
+              if (-not $field.id) { continue }
+              if ($field.type -eq 'color' -or $field.type -eq 'color_background') {
+                $fieldVal = $firstScheme.settings.($field.id)
+                if ($fieldVal -and $fieldVal -ne '') { $themeColors[$field.id] = $fieldVal }
+              }
+            }
+          }
+        }
+      }
+
+      if ($themeColors.Count -eq 0) {
+        Write-Host "==> No se encontraron colores en el schema/data del theme."
+      } else {
+        # Mapeo amatora_id → patrones (primer match gana, en orden)
+        $mapping = [ordered]@{
+          'am_primary'     = @('accent_1','primary','main','brand','principal','color_button','button_background','button')
+          'am_secondary'   = @('accent_2','secondary')
+          'am_text'        = @('text','foreground','body_text','color_body')
+          'am_bg_light'    = @('background_1','background','bg_primary')
+          'am_accent'      = @('highlight')
+          'btn_primary_bg' = @('button_background','button_bg','button')
+          'btn_primary_fg' = @('button_text','button_label','button_fg','color_button_text')
+        }
+
+        foreach ($amaId in $mapping.Keys) {
+          foreach ($pattern in $mapping[$amaId]) {
+            $matchKey = @($themeColors.Keys | Where-Object { $_ -like "*$pattern*" })[0]
+            if ($matchKey) {
+              $rescued[$amaId] = @{ value = $themeColors[$matchKey]; source = $matchKey }
+              break
+            }
+          }
+        }
+
+        # Fallback: btn_primary_bg = am_primary si no hubo match propio
+        if (-not $rescued.Contains('btn_primary_bg') -and $rescued.Contains('am_primary')) {
+          $rescued['btn_primary_bg'] = @{ value = $rescued['am_primary'].value; source = '(fallback de am_primary)' }
+        }
+
+        # Mutar $patchContent: reemplazar el "default" de cada id rescatado
+        foreach ($amaId in $rescued.Keys) {
+          $newDefault = $rescued[$amaId].value
+          $rxPattern  = '("id"\s*:\s*"' + [regex]::Escape($amaId) + '"[^}]*?"default"\s*:\s*)"[^"]*"'
+          $rxReplace  = '$1"' + $newDefault + '"'
+          $patchContent = [regex]::Replace($patchContent, $rxPattern, $rxReplace)
+        }
+
+        # Tabla
+        Write-Host ""
+        Write-Host "    | ID Amatora      | Valor rescatado | Origen"
+        Write-Host "    |-----------------|-----------------|--------------------------"
+        foreach ($k in $rescued.Keys) {
+          $v = $rescued[$k]
+          Write-Host ("    | {0,-15} | {1,-15} | {2}" -f $k, $v.value, $v.source)
+        }
+        Write-Host ""
+        Write-Host "==> $($rescued.Count) defaults reemplazados antes del merge."
+      }
+    } catch {
+      Write-Warning "Error parseando JSON del theme: $($_.Exception.Message)"
+      Write-Warning "Se usarán los defaults de Amatora."
+    }
+  }
+
+  # ----- Append del patch al schema -----
   $lastBracket = $existingSchema.LastIndexOf(']')
   if ($lastBracket -lt 0) {
     throw "config/settings_schema.json no parece un array JSON válido."
@@ -225,6 +333,10 @@ Write-Host ""
 Write-Host "    Archivos modificados (con .bak.$stamp):"
 Write-Host "      layout/theme.liquid"
 Write-Host "      config/settings_schema.json"
+if ($rescued -and $rescued.Count -gt 0) {
+  Write-Host ""
+  Write-Host "    Colores rescatados del theme: $($rescued.Count)"
+}
 Write-Host ""
 Write-Host "    Próximos pasos:"
 Write-Host "      1. Reiniciar Claude Code en este proyecto."
