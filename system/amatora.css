@@ -1,10 +1,14 @@
 /* ============================================================
    AMATORA CSS — Sistema de utility classes
    ============================================================
+   Amatora es una caja de herramientas OPT-IN: instalarlo no cambia
+   el look de ningún theme. Cada clase termina en `-amatora` y solo
+   aplica si la usás. Sin reset global, sin estilos de elementos.
+
    Orden:
-   1. Reset
+   1. Ajustes específicos de theme (2 reglas puntuales — el resto opt-in)
    2. CONFIGURACIÓN DEL PROYECTO (editar en cada proyecto nuevo)
-   3. Tipografía base (fija, no editar)
+   3. Tipografía — clases de fuente (opt-in)
    4. Colores — utility classes
    5. Contenedor
    6-26. Utilities (display, flex, grid, spacing, etc.)
@@ -14,50 +18,21 @@
    ============================================================ */
 
 /* ============================================================
-   1. RESET MÍNIMO
+   1. AJUSTES ESPECÍFICOS DE THEME
+   ============================================================
+   Amatora NO trae reset global ni estilos de elementos (body, h1-h6,
+   p, a…). Es una caja de herramientas OPT-IN: nada aplica hasta que
+   uses una clase `-amatora`. Instalarlo no cambia el look de ningún
+   theme — ni nuevo ni avanzado.
+
+   Las 2 reglas de abajo son la única excepción: ajustes puntuales
+   para un theme específico del operador. Si te molestan en otro
+   theme, borralas — no son parte del core de Amatora.
    ============================================================ */
-*,
-*::before,
-*::after {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
 
-html {
-    line-height: 1.5;
-    -webkit-text-size-adjust: 100%;
-}
-
-body {
-    margin: 0;
-    overflow-x: hidden;
-}
-
-img,
-video {
-    max-width: 100%;
-    height: auto;
-}
-
-h6 { font-style: normal; }
-
-h2, h3 {
-    font-optical-sizing: auto;
-    font-style: normal;
-}
-
-h4, p, a, button { font-style: normal; }
-
-/* Nota: el reset global de `button {}` y la pisada a `.product-form__submit`
-   se quitaron en v0.3.0 — pisaban botones del theme sin opt-in.
-   Ver MIGRATIONS.md. Si querés ese look para el add-to-cart, usá
-   `.btn-primary-amatora btn-block-amatora` con data-add-to-cart. */
-
-.cart-totals__tax-note, .cart-totals__tax-note {
+.cart-totals__tax-note {
     display: none !important;
 }
-
 
 .dialog-modal[open].search-modal__content {
   left: 50%;
@@ -143,30 +118,18 @@ h4, p, a, button { font-style: normal; }
 
 
 /* ============================================================
-   3. TIPOGRAFÍA BASE — No editar
+   3. TIPOGRAFÍA — clases de fuente (opt-in)
    ============================================================
-   Las reglas usan las variables --am-font-heading y --am-font-body.
-   Para cambiar fuentes, edita las variables en la sección 2.
+   Amatora NO pisa la tipografía del theme. Si querés las fuentes
+   configuradas en el panel Amatora, aplicá estas clases en las
+   secciones NUEVAS que construyas:
+
+     <h2 class="font-heading-amatora text-3xl-amatora">…</h2>
+     <p class="font-body-amatora">…</p>
    ============================================================ */
 
-h1, h2 {
-    font-family: var(--am-font-heading);
-}
-
-h3, h4, h5, h6 {
-    font-family: var(--am-font-body);
-}
-
-p, a, button, input, select, textarea, label, span, li {
-    font-family: var(--am-font-body);
-}
-
-p {
-    font-style: normal;
-    font-weight: 400;
-    line-height: 120%;
-    color: var(--am-text-primary);
-}
+.font-heading-amatora { font-family: var(--am-font-heading); }
+.font-body-amatora    { font-family: var(--am-font-body); }
 
 
 /* ============================================================

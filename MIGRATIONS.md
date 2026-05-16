@@ -10,6 +10,52 @@ Formato por release:
 
 ---
 
+## v0.4.0 → desde v0.3.x
+
+Foco del release: **Amatora ya no rompe themes avanzados.** Pasa de "framework que impone un diseño" a "caja de herramientas opt-in". Instalar Amatora en cualquier theme (nuevo o en producción) ya no cambia nada visualmente hasta que uses una clase `-amatora`.
+
+### Reset global y tipografía base removidos (BREAKING — visual)
+
+Se quitaron de `system/amatora.css` todas las reglas que pisaban elementos del theme sin opt-in:
+
+| Removido | Por qué rompía |
+|----------|----------------|
+| `* , *::before, *::after { box-sizing; margin:0; padding:0 }` | Un reset global sobre un theme establecido **colapsa todo el spacing**. Era la causa principal de "instalo y rompe todo". |
+| `html { line-height; -webkit-text-size-adjust }` | Cambiaba el line-height base del theme. |
+| `body { margin:0; overflow-x:hidden }` | Podía ocultar scroll horizontal intencional. |
+| `img, video { max-width:100%; height:auto }` | Pisaba el sizing de imágenes del theme. |
+| `h6 {}`, `h2,h3 {}`, `h4,p,a,button { font-style }` | Reset de font-style global. |
+| `h1-h6 { font-family }`, `p,a,button… { font-family }`, `p { color }` | **Pisaban la tipografía y el color de texto** de todo el theme. |
+
+### Clases nuevas — reemplazo opt-in de la tipografía
+
+Como ya no hay `h1,h2 { font-family: var(--am-font-heading) }` global, la fuente del panel Amatora se aplica con 2 clases nuevas:
+
+```css
+.font-heading-amatora { font-family: var(--am-font-heading); }
+.font-body-amatora    { font-family: var(--am-font-body); }
+```
+
+Uso en secciones nuevas:
+
+```liquid
+<h2 class="font-heading-amatora text-3xl-amatora">Título</h2>
+<p class="font-body-amatora text-muted-amatora">Texto</p>
+```
+
+### Migración para themes con Amatora v0.3.x instalado
+
+1. Reemplazar `assets/amatora.css` y `assets/AMATORA_VERSION` por la versión nueva.
+2. En las **secciones Amatora que ya construiste**, revisá:
+   - **Headings** que dependían de la fuente Amatora global → agregá `class="font-heading-amatora"`.
+   - **Párrafos** que dependían de `p { color: var(--am-text-primary) }` → agregá `class="text-muted-amatora"` (o la clase de color que corresponda).
+   - **Layout que dependía del reset `* { margin:0 }`** → si una sección Amatora se ve con espaciado raro, agregá los `.m-*-amatora` / `.p-*-amatora` explícitos que falten.
+3. Las secciones **del theme original** (no-Amatora) ahora recuperan su tipografía y spacing nativos — eso es lo esperado.
+
+> Las 2 reglas theme-specific (`.cart-totals__tax-note` hidden, posición de `.dialog-modal`) se mantienen — son ajustes puntuales conocidos del operador, no parte del core.
+
+---
+
 ## v0.3.0 → desde v0.2.x
 
 Foco del release: que **instalar Amatora no rompa el theme** y que el panel del customizer **realmente afecte el look**. Resuelve los reportes de "los colores quedan default" e "instalo y se rompen los sliders del theme".
