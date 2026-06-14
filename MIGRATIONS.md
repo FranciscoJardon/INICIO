@@ -10,6 +10,42 @@ Formato por release:
 
 ---
 
+## v0.5.0 → desde v0.4.x
+
+Foco del release: **simplificación**. `amatora.css` baja de 1684 → 1474 líneas quitando utilities redundantes / nicho que casi nadie usa.
+
+### Removido del CSS (BREAKING para quien las haya usado)
+
+**Section 30 — `lg:` breakpoint entero** (~138 líneas)
+- Se removieron TODAS las clases con prefijo `lg:` (md: ahora cubre tablet + desktop).
+- Si una sección vieja usaba `lg:flex-amatora`, `lg:grid-cols-3-amatora`, `lg:text-xl-amatora`, etc. → reemplazar por la `md:` equivalente.
+
+**Utilities raramente usadas removidas:**
+
+| Categoría | Removido | Reemplazo |
+|---|---|---|
+| Grid columns | `grid-cols-7/8/9/10/11`, `col-span-7/8/9/10/11` (y `md:` equivalentes) | Usar `grid-cols-6` o `grid-cols-12` |
+| Grid niche | `col-start-1..7`, `row-span-1..3`, `justify-items-center`, `justify-self-*` | Inline style si hace falta |
+| Gap separado | `gap-x-1..8`, `gap-y-1..8` | Usar `gap-*` simétrico (95% de los casos) |
+| Widths px raros | `w-10/20/30/40/60/70/80` (y `md:` equiv.) | Mantener `w-50/100/300`. Para otros, `style="width:NNpx"` |
+| Heights px raros | `h-40/50/70`, `md:h-200/400/600/700/800` | Mantener `h-100/300/400/500/600/700/800` (base); en `md:`, solo `h-300/500` |
+| Gap-14 | `gap-14-amatora` (y `md:`) | Usar `gap-12-amatora` |
+| `md:w-img-amatora` | `width: 60%` random | `md:w-2/3-amatora` o inline |
+
+### Migración
+
+1. Reemplazar `assets/amatora.css` y `assets/AMATORA_VERSION` por la versión nueva.
+2. Buscar y reemplazar en `sections/*.liquid` + `snippets/*.liquid`:
+   - `lg\:([a-z-]+)-amatora` → revisar caso por caso si usar `md:` o quitar
+   - `gap-x-N-amatora` y `gap-y-N-amatora` → `gap-N-amatora` (si la asimetría era importante, usar inline)
+   - `grid-cols-(7|8|9|10|11)-amatora` → revisar diseño (probablemente debía ser 6 o 12)
+   - `w-(10|20|30|40|60|70|80)-amatora` → inline `style="width:NNpx"` o repensar
+3. Si nada de eso aparece en tus archivos → no hay migración necesaria, solo aprovechás el archivo más liviano.
+
+> **Nota honesta sobre el recorte:** el plan original prometía bajar a ~700 líneas (cut "Medio"). El cut real es de 1684 → 1474 porque las utilities clave del sistema (componentes de slider, botones, escala de typography) son las que pesan y no se pueden tocar sin romper el comportamiento. El resto del sistema se trabaja en passes futuros.
+
+---
+
 ## v0.4.0 → desde v0.3.x
 
 Foco del release: **Amatora ya no rompe themes avanzados.** Pasa de "framework que impone un diseño" a "caja de herramientas opt-in". Instalar Amatora en cualquier theme (nuevo o en producción) ya no cambia nada visualmente hasta que uses una clase `-amatora`.

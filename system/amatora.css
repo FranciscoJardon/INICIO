@@ -14,7 +14,7 @@
    6-26. Utilities (display, flex, grid, spacing, etc.)
    27. Componentes compuestos (btn, card)
    28. Slider Amatora (base, variantes, arrows, dots)
-   29-30. Responsive (md, lg)
+   29. Responsive (md ≥768px) — un solo breakpoint cubre tablet+desktop
    ============================================================ */
 
 /* ============================================================
@@ -222,11 +222,6 @@
 .self-end-amatora     { align-self: flex-end; }
 .self-stretch-amatora { align-self: stretch; }
 
-.justify-items-center-amatora { justify-items: center; }
-.justify-self-center-amatora  { justify-self: center; }
-.justify-self-start-amatora   { justify-self: start; }
-.justify-self-end-amatora     { justify-self: end; }
-
 .gap-1-amatora  { gap: var(--am-space-1); }
 .gap-2-amatora  { gap: var(--am-space-2); }
 .gap-3-amatora  { gap: var(--am-space-3); }
@@ -235,21 +230,6 @@
 .gap-8-amatora  { gap: var(--am-space-8); }
 .gap-10-amatora { gap: var(--am-space-10); }
 .gap-12-amatora { gap: var(--am-space-12); }
-.gap-14-amatora { gap: var(--am-space-14); }
-
-.gap-x-1-amatora { column-gap: var(--am-space-1); }
-.gap-x-2-amatora { column-gap: var(--am-space-2); }
-.gap-x-3-amatora { column-gap: var(--am-space-3); }
-.gap-x-4-amatora { column-gap: var(--am-space-4); }
-.gap-x-6-amatora { column-gap: var(--am-space-6); }
-.gap-x-8-amatora { column-gap: var(--am-space-8); }
-
-.gap-y-1-amatora { row-gap: var(--am-space-1); }
-.gap-y-2-amatora { row-gap: var(--am-space-2); }
-.gap-y-3-amatora { row-gap: var(--am-space-3); }
-.gap-y-4-amatora { row-gap: var(--am-space-4); }
-.gap-y-6-amatora { row-gap: var(--am-space-6); }
-.gap-y-8-amatora { row-gap: var(--am-space-8); }
 
 
 /* ============================================================
@@ -261,11 +241,6 @@
 .grid-cols-4-amatora  { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .grid-cols-5-amatora  { grid-template-columns: repeat(5, minmax(0, 1fr)); }
 .grid-cols-6-amatora  { grid-template-columns: repeat(6, minmax(0, 1fr)); }
-.grid-cols-7-amatora  { grid-template-columns: repeat(7, minmax(0, 1fr)); }
-.grid-cols-8-amatora  { grid-template-columns: repeat(8, minmax(0, 1fr)); }
-.grid-cols-9-amatora  { grid-template-columns: repeat(9, minmax(0, 1fr)); }
-.grid-cols-10-amatora { grid-template-columns: repeat(10, minmax(0, 1fr)); }
-.grid-cols-11-amatora { grid-template-columns: repeat(11, minmax(0, 1fr)); }
 .grid-cols-12-amatora { grid-template-columns: repeat(12, minmax(0, 1fr)); }
 
 .col-span-1-amatora    { grid-column: span 1 / span 1; }
@@ -274,25 +249,8 @@
 .col-span-4-amatora    { grid-column: span 4 / span 4; }
 .col-span-5-amatora    { grid-column: span 5 / span 5; }
 .col-span-6-amatora    { grid-column: span 6 / span 6; }
-.col-span-7-amatora    { grid-column: span 7 / span 7; }
-.col-span-8-amatora    { grid-column: span 8 / span 8; }
-.col-span-9-amatora    { grid-column: span 9 / span 9; }
-.col-span-10-amatora   { grid-column: span 10 / span 10; }
-.col-span-11-amatora   { grid-column: span 11 / span 11; }
 .col-span-12-amatora   { grid-column: span 12 / span 12; }
 .col-span-full-amatora { grid-column: 1 / -1; }
-
-.col-start-1-amatora { grid-column-start: 1; }
-.col-start-2-amatora { grid-column-start: 2; }
-.col-start-3-amatora { grid-column-start: 3; }
-.col-start-4-amatora { grid-column-start: 4; }
-.col-start-5-amatora { grid-column-start: 5; }
-.col-start-6-amatora { grid-column-start: 6; }
-.col-start-7-amatora { grid-column-start: 7; }
-
-.row-span-1-amatora { grid-row: span 1 / span 1; }
-.row-span-2-amatora { grid-row: span 2 / span 2; }
-.row-span-3-amatora { grid-row: span 3 / span 3; }
 
 
 /* ============================================================
@@ -414,14 +372,7 @@
 .w-min-amatora    { width: min-content; }
 .w-max-amatora    { width: max-content; }
 
-.w-10-amatora  { width: 10px; }
-.w-20-amatora  { width: 20px; }
-.w-30-amatora  { width: 30px; }
-.w-40-amatora  { width: 40px; }
 .w-50-amatora  { width: 50px; }
-.w-60-amatora  { width: 60px; }
-.w-70-amatora  { width: 70px; }
-.w-80-amatora  { width: 80px; }
 .w-100-amatora { width: 100px; }
 .w-300-amatora { width: 300px; }
 
@@ -453,9 +404,6 @@
 .min-h-screen-amatora { min-height: 100vh; }
 .min-h-full-amatora   { min-height: 100%; }
 
-.h-40-amatora  { height: 40px; }
-.h-50-amatora  { height: 50px; }
-.h-70-amatora  { height: 70px; }
 .h-100-amatora { height: 100px; }
 .h-300-amatora { height: 300px; }
 .h-400-amatora { height: 400px; }
@@ -1376,11 +1324,6 @@
     .md\:col-span-4-amatora  { grid-column: span 4 / span 4; }
     .md\:col-span-5-amatora  { grid-column: span 5 / span 5; }
     .md\:col-span-6-amatora  { grid-column: span 6 / span 6; }
-    .md\:col-span-7-amatora  { grid-column: span 7 / span 7; }
-    .md\:col-span-8-amatora  { grid-column: span 8 / span 8; }
-    .md\:col-span-9-amatora  { grid-column: span 9 / span 9; }
-    .md\:col-span-10-amatora { grid-column: span 10 / span 10; }
-    .md\:col-span-11-amatora { grid-column: span 11 / span 11; }
     .md\:col-span-12-amatora { grid-column: span 12 / span 12; }
 
     /* Gap */
@@ -1392,7 +1335,6 @@
     .md\:gap-8-amatora  { gap: var(--am-space-8); }
     .md\:gap-10-amatora { gap: var(--am-space-10); }
     .md\:gap-12-amatora { gap: var(--am-space-12); }
-    .md\:gap-14-amatora { gap: var(--am-space-14); }
 
     /* Padding */
     .md\:p-0-amatora { padding: var(--am-space-0); }
@@ -1467,34 +1409,19 @@
     .md\:w-auto-amatora   { width: auto; }
     .md\:w-1\/2-amatora   { width: 50%; }
     .md\:w-1\/3-amatora   { width: 33.333333%; }
-    .md\:w-img-amatora    { width: 60%; }
     .md\:w-2\/3-amatora   { width: 66.666667%; }
     .md\:w-1\/4-amatora   { width: 25%; }
     .md\:w-3\/4-amatora   { width: 75%; }
-    .md\:w-10-amatora     { width: 10px; }
-    .md\:w-20-amatora     { width: 20px; }
-    .md\:w-30-amatora     { width: 30px; }
-    .md\:w-80-amatora     { width: 80px; }
-    .md\:w-100-amatora    { width: 100px; }
-    .md\:w-300-amatora    { width: 300px; }
 
     .md\:max-w-xs-amatora  { max-width: 240px; }
-    .md\:max-w-100-amatora { max-width: 100px; }
-    .md\:max-w-200-amatora { max-width: 200px; }
     .md\:max-w-300-amatora { max-width: 300px; }
     .md\:max-w-400-amatora { max-width: 400px; }
 
     /* Height */
     .md\:h-auto-amatora { height: auto; }
     .md\:h-full-amatora { height: 100%; }
-    .md\:h-100-amatora  { height: 100px; }
-    .md\:h-200-amatora  { height: 200px; }
     .md\:h-300-amatora  { height: 300px; }
-    .md\:h-400-amatora  { height: 400px; }
     .md\:h-500-amatora  { height: 500px; }
-    .md\:h-600-amatora  { height: 600px; }
-    .md\:h-700-amatora  { height: 700px; }
-    .md\:h-800-amatora  { height: 800px; }
 
     /* Align / Justify */
     .md\:items-start-amatora    { align-items: flex-start; }
@@ -1545,141 +1472,3 @@
 }
 
 
-/* ============================================================
-   30. RESPONSIVE: LG (≥1024px)
-   ============================================================ */
-@media (min-width: 1024px) {
-
-    /* Colores */
-    .lg\:text-black-amatora     { color: var(--am-color-black); }
-    .lg\:text-white-amatora     { color: var(--am-color-white); }
-    .lg\:text-primary-amatora   { color: var(--am-color-primary); }
-    .lg\:text-secondary-amatora { color: var(--am-color-secondary); }
-
-    /* Display */
-    .lg\:block-amatora        { display: block; }
-    .lg\:inline-block-amatora { display: inline-block; }
-    .lg\:inline-amatora       { display: inline; }
-    .lg\:flex-amatora         { display: flex; }
-    .lg\:grid-amatora         { display: grid; }
-    .lg\:hidden-amatora       { display: none; }
-
-    .lg\:flex-row-amatora { flex-direction: row; }
-    .lg\:flex-col-amatora { flex-direction: column; }
-
-    /* Grid */
-    .lg\:grid-cols-1-amatora  { grid-template-columns: repeat(1, minmax(0, 1fr)); }
-    .lg\:grid-cols-2-amatora  { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .lg\:grid-cols-3-amatora  { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    .lg\:grid-cols-4-amatora  { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-    .lg\:grid-cols-5-amatora  { grid-template-columns: repeat(5, minmax(0, 1fr)); }
-    .lg\:grid-cols-6-amatora  { grid-template-columns: repeat(6, minmax(0, 1fr)); }
-    .lg\:grid-cols-12-amatora { grid-template-columns: repeat(12, minmax(0, 1fr)); }
-
-    .lg\:col-span-1-amatora  { grid-column: span 1 / span 1; }
-    .lg\:col-span-2-amatora  { grid-column: span 2 / span 2; }
-    .lg\:col-span-3-amatora  { grid-column: span 3 / span 3; }
-    .lg\:col-span-4-amatora  { grid-column: span 4 / span 4; }
-    .lg\:col-span-5-amatora  { grid-column: span 5 / span 5; }
-    .lg\:col-span-6-amatora  { grid-column: span 6 / span 6; }
-    .lg\:col-span-7-amatora  { grid-column: span 7 / span 7; }
-    .lg\:col-span-8-amatora  { grid-column: span 8 / span 8; }
-    .lg\:col-span-9-amatora  { grid-column: span 9 / span 9; }
-    .lg\:col-span-10-amatora { grid-column: span 10 / span 10; }
-    .lg\:col-span-11-amatora { grid-column: span 11 / span 11; }
-    .lg\:col-span-12-amatora { grid-column: span 12 / span 12; }
-
-    /* Gap */
-    .lg\:gap-1-amatora { gap: var(--am-space-1); }
-    .lg\:gap-2-amatora { gap: var(--am-space-2); }
-    .lg\:gap-3-amatora { gap: var(--am-space-3); }
-    .lg\:gap-4-amatora { gap: var(--am-space-4); }
-    .lg\:gap-6-amatora { gap: var(--am-space-6); }
-    .lg\:gap-8-amatora { gap: var(--am-space-8); }
-
-    /* Padding */
-    .lg\:p-0-amatora { padding: var(--am-space-0); }
-    .lg\:p-1-amatora { padding: var(--am-space-1); }
-    .lg\:p-2-amatora { padding: var(--am-space-2); }
-    .lg\:p-3-amatora { padding: var(--am-space-3); }
-    .lg\:p-4-amatora { padding: var(--am-space-4); }
-    .lg\:p-6-amatora { padding: var(--am-space-6); }
-    .lg\:p-8-amatora { padding: var(--am-space-8); }
-    .lg\:px-1-amatora { padding-left: var(--am-space-1); padding-right: var(--am-space-1); }
-    .lg\:px-2-amatora { padding-left: var(--am-space-2); padding-right: var(--am-space-2); }
-    .lg\:px-4-amatora { padding-left: var(--am-space-4); padding-right: var(--am-space-4); }
-    .lg\:py-1-amatora { padding-top: var(--am-space-1); padding-bottom: var(--am-space-1); }
-    .lg\:py-2-amatora { padding-top: var(--am-space-2); padding-bottom: var(--am-space-2); }
-    .lg\:py-4-amatora { padding-top: var(--am-space-4); padding-bottom: var(--am-space-4); }
-    .lg\:pt-4-amatora { padding-top: var(--am-space-4); }
-    .lg\:pr-4-amatora { padding-right: var(--am-space-4); }
-    .lg\:pb-4-amatora { padding-bottom: var(--am-space-4); }
-    .lg\:pl-4-amatora { padding-left: var(--am-space-4); }
-
-    /* Margin */
-    .lg\:m-0-amatora { margin: var(--am-space-0); }
-    .lg\:m-1-amatora { margin: var(--am-space-1); }
-    .lg\:m-2-amatora { margin: var(--am-space-2); }
-    .lg\:m-3-amatora { margin: var(--am-space-3); }
-    .lg\:m-4-amatora { margin: var(--am-space-4); }
-    .lg\:m-6-amatora { margin: var(--am-space-6); }
-    .lg\:m-8-amatora { margin: var(--am-space-8); }
-    .lg\:mx-auto-amatora { margin-left: auto; margin-right: auto; }
-    .lg\:mx-1-amatora    { margin-left: var(--am-space-1); margin-right: var(--am-space-1); }
-    .lg\:mx-2-amatora    { margin-left: var(--am-space-2); margin-right: var(--am-space-2); }
-    .lg\:mx-4-amatora    { margin-left: var(--am-space-4); margin-right: var(--am-space-4); }
-    .lg\:my-1-amatora    { margin-top: var(--am-space-1); margin-bottom: var(--am-space-1); }
-    .lg\:my-2-amatora    { margin-top: var(--am-space-2); margin-bottom: var(--am-space-2); }
-    .lg\:my-4-amatora    { margin-top: var(--am-space-4); margin-bottom: var(--am-space-4); }
-    .lg\:mt-4-amatora    { margin-top: var(--am-space-4); }
-    .lg\:mr-4-amatora    { margin-right: var(--am-space-4); }
-    .lg\:mb-4-amatora    { margin-bottom: var(--am-space-4); }
-    .lg\:ml-4-amatora    { margin-left: var(--am-space-4); }
-
-    /* Tipografía */
-    .lg\:text-sm-amatora   { font-size: 14px; line-height: 20px; }
-    .lg\:text-base-amatora { font-size: 16px; line-height: 24px; }
-    .lg\:text-lg-amatora   { font-size: 18px; line-height: 28px; }
-    .lg\:text-xl-amatora   { font-size: 20px; line-height: 28px; }
-    .lg\:text-2xl-amatora  { font-size: 24px; line-height: 32px; }
-    .lg\:text-3xl-amatora  { font-size: 30px; line-height: 36px; }
-    .lg\:text-4xl-amatora  { font-size: 36px; line-height: 40px; }
-    .lg\:text-5xl-amatora  { font-size: 48px; line-height: 52px; }
-
-    /* Width / Height */
-    .lg\:w-full-amatora { width: 100%; }
-    .lg\:w-auto-amatora { width: auto; }
-    .lg\:w-1\/2-amatora { width: 50%; }
-    .lg\:w-1\/3-amatora { width: 33.333333%; }
-    .lg\:w-2\/3-amatora { width: 66.666667%; }
-    .lg\:w-1\/4-amatora { width: 25%; }
-    .lg\:w-3\/4-amatora { width: 75%; }
-    .lg\:h-auto-amatora { height: auto; }
-    .lg\:h-full-amatora { height: 100%; }
-
-    /* Align / Justify */
-    .lg\:items-start-amatora     { align-items: flex-start; }
-    .lg\:items-center-amatora    { align-items: center; }
-    .lg\:items-end-amatora       { align-items: flex-end; }
-    .lg\:justify-start-amatora   { justify-content: flex-start; }
-    .lg\:justify-center-amatora  { justify-content: center; }
-    .lg\:justify-between-amatora { justify-content: space-between; }
-    .lg\:justify-end-amatora     { justify-content: flex-end; }
-
-    /* Z-index responsive */
-    .lg\:z-1-amatora   { z-index: 1; }
-    .lg\:z-10-amatora  { z-index: 10; }
-    .lg\:z-20-amatora  { z-index: 20; }
-    .lg\:z-30-amatora  { z-index: 30; }
-    .lg\:z-40-amatora  { z-index: 40; }
-    .lg\:z-50-amatora  { z-index: 50; }
-    .lg\:z-100-amatora { z-index: 100; }
-
-    /* Order */
-    .lg\:order-1-amatora { order: 1; }
-    .lg\:order-2-amatora { order: 2; }
-    .lg\:order-3-amatora { order: 3; }
-
-    /* Transform */
-    .lg\:scale-3-amatora { transform: scale(1.35); }
-}
