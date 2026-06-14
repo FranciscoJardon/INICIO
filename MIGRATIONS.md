@@ -10,6 +10,54 @@ Formato por release:
 
 ---
 
+## v0.6.0 → desde v0.5.x
+
+Foco del release: **simplificar el slider JS** removiendo features niche que casi nadie usaba pero pesaban en código + API mental.
+
+### Features removidas (BREAKING si las usabas)
+
+| Feature | Reemplazo / Por qué se removió |
+|---|---|
+| **Counter** (`data-counter="true"`, "1/N" en el header) | Niche. Si lo necesitás, escribe markup propio en el header de la sección. |
+| **Dots style `progress`** (barra continua que se llena) | El estilo `bar` (default) cubre el caso visual. Quien necesite barra de progreso real, usa CSS propio. |
+| **Dots style `progress-segmented`** (tipo "stories" de Instagram) | Mismo caso. Se elimina del JS y del CSS. |
+| **`data-dots-align`** (left / center / right del contenedor de dots) | Solo era relevante para los estilos progress removidos. |
+| **`data-progress-width/height/radius/gap/bg`** (5 CSS vars opcionales) | Mismo caso, solo para progress. |
+
+**`slider_dots_style` en el panel del customizer:** ahora solo expone `bar` y `circle`. Si tenías el setting en `progress` o `progress-segmented`, hay que reelegirlo.
+
+### Lo que SE MANTIENE intacto
+
+Todo lo demás del slider sigue funcionando igual:
+- `data-visible-{desktop,tablet,mobile}` para slides por breakpoint
+- `data-gap`, `data-peek`, `data-variant` (default/banner)
+- `data-arrows`, `data-arrows-pos`, `data-dots`
+- `data-loop`, `data-autoplay`, `data-label`
+- `data-accent` (override del color de dots por instancia)
+- Drag + touch + resize + Section Rendering API
+- AmatoraConfig (defaults globales del panel)
+- Custom arrow icon (v0.3.0)
+
+### Stats
+
+| Archivo | Antes | Ahora | Cambio |
+|---|---|---|---|
+| `amatora.css` | 1474 | 1376 | -98 (-7%) |
+| `amatora.js` | 663 | 625 | -38 (-6%) |
+| `settings_schema.amatora.json` | 4 opciones de dots | 2 opciones | clearer |
+
+### Migración
+
+1. Reemplazar `assets/amatora.css`, `assets/amatora.js`, `assets/AMATORA_VERSION` y `snippets/amatora-tokens.liquid` por las versiones nuevas.
+2. Buscar en `sections/*.liquid` + `snippets/*.liquid` por los atributos removidos:
+   - `data-counter="true"` → quitar o reemplazar con markup custom en el header
+   - `data-dots-style="progress"` o `"progress-segmented"` → cambiar a `"bar"` o `"circle"`
+   - `data-dots-align="..."` → eliminar (no tenía efecto en bar/circle)
+   - `data-progress-width/height/radius/gap/bg` → eliminar
+3. En el customizer del cliente, si el panel "Amatora — Diseño base" tenía `slider_dots_style` seteado en uno de los dos valores removidos, va a caer al default `bar` automáticamente.
+
+---
+
 ## v0.5.2 → desde v0.5.1
 
 Foco del release: **terminar el trim del SKILL.md** moviendo el detalle de Mandato 3 (Imágenes) a su propio reference. Solo docs, sin breaking ni cambio de comportamiento.

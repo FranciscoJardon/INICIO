@@ -93,10 +93,8 @@
       "id": "slider_dots_style",
       "label": "Estilo de los puntos (dots)",
       "options": [
-        { "value": "bar",                "label": "Barras" },
-        { "value": "circle",             "label": "Círculos" },
-        { "value": "progress",           "label": "Barra de progreso" },
-        { "value": "progress-segmented", "label": "Progreso segmentado (stories)" }
+        { "value": "bar",    "label": "Barras" },
+        { "value": "circle", "label": "Círculos" }
       ],
       "default": "bar"
     },

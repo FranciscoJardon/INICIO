@@ -1,13 +1,8 @@
 /*!
- * Amatora JS — v2.2
- * Componentes JS del sistema Amatora.
- * Por ahora incluye: Slider (carousel con drag, arrows, dots, progress).
+ * Amatora JS — v3.0
+ * Slider carousel para Shopify themes — drag, arrows, dots, autoplay, loop.
  *
- * Defaults globales: lee window.AmatoraConfig (seteado por amatora-tokens.liquid
- * desde el panel del customizer) — dotsStyle, arrowsPos, showArrows/Dots, arrowIcon.
- * Prioridad: data-attribute > opts > AmatoraConfig > hardcoded.
- *
- * USO DEL SLIDER:
+ * USO MÍNIMO:
  *   <div data-amatora-slider
  *        data-visible-desktop="3"
  *        data-visible-tablet="2"
@@ -16,7 +11,25 @@
  *     <div>Slide 2</div>
  *   </div>
  *
- * Auto-inicializa al cargar la página + expone window.SliderAmatora.
+ * Data attributes soportados:
+ *   data-visible-{desktop,tablet,mobile}  número de slides visibles por breakpoint
+ *   data-gap                              px entre slides (default 16)
+ *   data-peek                             px del asomo en banner variant (default 48)
+ *   data-variant                          "default" | "banner"
+ *   data-arrows                           "true" | "false"  (default true)
+ *   data-arrows-pos                       "header" | "sides"
+ *   data-dots                             "true" | "false"  (default true)
+ *   data-dots-style                       "bar" | "circle"
+ *   data-loop                             "true" | "false"
+ *   data-autoplay                         ms (0 = off)
+ *   data-label                            texto del header
+ *   data-accent                           hex color override del color de dots
+ *
+ * Defaults globales: lee window.AmatoraConfig (seteado por amatora-tokens.liquid
+ * desde el panel Amatora del customizer). Prioridad:
+ *   data-attribute > opts > AmatoraConfig > hardcoded.
+ *
+ * Auto-inicializa al cargar y expone window.SliderAmatora.
  * Depende de los estilos en amatora.css (sección 28).
  */
 (function (global) {
@@ -83,17 +96,10 @@
             autoplay:       toInt(d.autoplay, opts.autoplay || 0),
             showArrows:     toBool(d.arrows, opts.showArrows !== undefined ? opts.showArrows : defShowArrows),
             showDots:       toBool(d.dots,   opts.showDots   !== undefined ? opts.showDots   : defShowDots),
-            showCounter:    toBool(d.counter, opts.showCounter || false),
             label:          d.label || opts.label || '',
             variant:        d.variant || opts.variant || 'default',
             arrowsPos:      d.arrowsPos || opts.arrowsPos || defArrowsPos,
             dotsStyle:      d.dotsStyle || opts.dotsStyle || defDotsStyle,
-            dotsAlign:      d.dotsAlign || opts.dotsAlign || 'center',
-            progressWidth:  d.progressWidth  || opts.progressWidth  || null,
-            progressHeight: d.progressHeight || opts.progressHeight || null,
-            progressRadius: d.progressRadius || opts.progressRadius || null,
-            progressGap:    d.progressGap    || opts.progressGap    || null,
-            progressBg:     d.progressBg     || opts.progressBg     || null,
             accentColor:    d.accent   || opts.accentColor || null
         };
 
@@ -138,14 +144,6 @@
         this.el.setAttribute('data-variant',     this.o.variant);
         this.el.setAttribute('data-arrows-pos',  this.o.arrowsPos);
         this.el.setAttribute('data-dots-style',  this.o.dotsStyle);
-        this.el.setAttribute('data-dots-align',  this.o.dotsAlign);
-
-        // Variables CSS específicas del progress (opcionales)
-        if (this.o.progressWidth)  this.el.style.setProperty('--sl-progress-width',  this.o.progressWidth);
-        if (this.o.progressHeight) this.el.style.setProperty('--sl-progress-height', this.o.progressHeight);
-        if (this.o.progressRadius) this.el.style.setProperty('--sl-progress-radius', this.o.progressRadius);
-        if (this.o.progressGap)    this.el.style.setProperty('--sl-progress-gap',    this.o.progressGap);
-        if (this.o.progressBg)     this.el.style.setProperty('--sl-progress-bg',     this.o.progressBg);
     };
 
     // ───────── BUILD DOM ─────────
@@ -166,8 +164,7 @@
 
         // Header
         var hasHeader = this.o.label
-                     || (this.o.showArrows && this.o.arrowsPos === 'header')
-                     || this.o.showCounter;
+                     || (this.o.showArrows && this.o.arrowsPos === 'header');
 
         if (hasHeader) {
             var header   = mk('div', 'slider-amatora__header');
@@ -175,12 +172,6 @@
 
             if (this.o.label) {
                 header.appendChild(mk('span', 'slider-amatora__label', this.o.label));
-            }
-
-            if (this.o.showCounter) {
-                var counter = mk('span', 'slider-amatora__counter');
-                counter.innerHTML = '<strong class="slider-amatora__cur">1</strong>/<span class="slider-amatora__tot">1</span>';
-                controls.appendChild(counter);
             }
 
             if (this.o.showArrows && this.o.arrowsPos === 'header') {
@@ -216,13 +207,6 @@
         // Dots
         if (this.o.showDots) {
             this.dotsEl = mk('div', 'slider-amatora__dots');
-
-            // Si es variante progress, agregamos la barra interna
-            if (this.o.dotsStyle === 'progress') {
-                this.progressEl = mk('div', 'slider-amatora__progress');
-                this.dotsEl.appendChild(this.progressEl);
-            }
-
             this.el.appendChild(this.dotsEl);
         }
 
@@ -230,8 +214,6 @@
         this.slides  = Array.prototype.slice.call(this.track.querySelectorAll('.slider-amatora__slide'));
         this.btnPrev = this.el.querySelector('.slider-amatora__arrow--prev');
         this.btnNext = this.el.querySelector('.slider-amatora__arrow--next');
-        this.curEl   = this.el.querySelector('.slider-amatora__cur');
-        this.totEl   = this.el.querySelector('.slider-amatora__tot');
     };
 
     SliderAmatora.prototype._buildArrows = function () {
@@ -341,47 +323,27 @@
         var total = this._maxStep() + 1;
         var self = this;
 
-        if (this.curEl) this.curEl.textContent = this.step + 1;
-        if (this.totEl) this.totEl.textContent = total;
-
         if (this.btnPrev) this.btnPrev.disabled = !this.o.loop && this.step === 0;
         if (this.btnNext) this.btnNext.disabled = !this.o.loop && this.step >= this._maxStep();
 
         if (this.dotsEl) {
-            // Variante "progress": una sola barra, no hay dots individuales
-            if (this.o.dotsStyle === 'progress') {
-                // Recrear si nunca existió O si el resize handler lo borró del DOM (dotsEl.innerHTML = '')
-                if (!this.progressEl || !this.progressEl.isConnected) {
-                    this.progressEl = mk('div', 'slider-amatora__progress');
-                    this.dotsEl.innerHTML = '';
-                    this.dotsEl.appendChild(this.progressEl);
+            // Reconstruir dots si cambió el número
+            var currentCount = this.dotsEl.children.length;
+            if (currentCount !== total) {
+                this.dotsEl.innerHTML = '';
+                for (var i = 0; i < total; i++) {
+                    var dot = mk('button', 'slider-amatora__dot');
+                    dot.type = 'button';
+                    dot.setAttribute('aria-label', 'Ir al slide ' + (i + 1));
+                    (function (idx) {
+                        dot.addEventListener('click', function () { self._snap(idx); });
+                    })(i);
+                    this.dotsEl.appendChild(dot);
                 }
-                var pct = total <= 1 ? 100 : ((this.step + 1) / total) * 100;
-                this.progressEl.style.width = pct + '%';
-
-            // Variantes con dots individuales (bar, circle, progress-segmented)
-            } else {
-                // Reconstruir dots si cambió el número
-                var currentCount = 0;
-                for (var k = 0; k < this.dotsEl.children.length; k++) {
-                    if (this.dotsEl.children[k].classList.contains('slider-amatora__dot')) currentCount++;
-                }
-                if (currentCount !== total) {
-                    this.dotsEl.innerHTML = '';
-                    for (var i = 0; i < total; i++) {
-                        var dot = mk('button', 'slider-amatora__dot');
-                        dot.type = 'button';
-                        dot.setAttribute('aria-label', 'Ir al slide ' + (i + 1));
-                        (function (idx) {
-                            dot.addEventListener('click', function () { self._snap(idx); });
-                        })(i);
-                        this.dotsEl.appendChild(dot);
-                    }
-                }
-                var dots = this.dotsEl.querySelectorAll('.slider-amatora__dot');
-                for (var j = 0; j < dots.length; j++) {
-                    dots[j].classList.toggle('is-active', j === this.step);
-                }
+            }
+            var dots = this.dotsEl.querySelectorAll('.slider-amatora__dot');
+            for (var j = 0; j < dots.length; j++) {
+                dots[j].classList.toggle('is-active', j === this.step);
             }
         }
     };

@@ -1,6 +1,6 @@
 # Slider Amatora — API completa
 
-Componente carousel/slider del sistema Amatora. Auto-inicializa al cargar la página sobre cualquier elemento con `[data-amatora-slider]`. Soporta drag, touch, arrows, dots (4 estilos), autoplay, loop, peek, accent color.
+Componente carousel/slider del sistema Amatora. Auto-inicializa al cargar la página sobre cualquier elemento con `[data-amatora-slider]`. Soporta drag, touch, arrows, dots (2 estilos: bar y circle), autoplay, loop, peek, accent color.
 
 **Archivos:**
 - CSS: `assets/amatora.css` — sección 28
@@ -26,7 +26,7 @@ Componente carousel/slider del sistema Amatora. Auto-inicializa al cargar la pá
 El JS:
 1. Añade `.slider-amatora` al elemento.
 2. Envuelve cada hijo directo en `.slider-amatora__slide`.
-3. Construye header (label + arrows + counter), stage > viewport > track, y dots.
+3. Construye header (label + arrows), stage > viewport > track, y dots.
 4. Aplica drag (mouse), touch, resize y autoplay si están habilitados.
 
 ---
@@ -42,25 +42,13 @@ El JS:
 | `data-peek`           | px (entero)    | `48` (móvil 24) | Solo `variant="banner"`: cuánto asoma el siguiente |
 | `data-variant`        | `default` \| `banner` | `default` | `banner` = 1 slide a la vez con peek |
 | `data-arrows-pos`     | `header` \| `sides` | `header` | `sides` = arrows flotantes sobre el viewport |
-| `data-dots-style`     | `bar` \| `circle` \| `progress` \| `progress-segmented` | `bar` | Estilo visual de la paginación |
+| `data-dots-style`     | `bar` \| `circle` | `bar` | Estilo visual de la paginación |
 | `data-arrows`         | `true` \| `false` | `true` | Mostrar flechas |
 | `data-dots`           | `true` \| `false` | `true` | Mostrar dots |
-| `data-counter`        | `true` \| `false` | `false` | Muestra `1/N` en el header |
 | `data-label`          | texto              | `''`   | Título a la izquierda del header |
 | `data-loop`           | `true` \| `false` | `false` | Vuelve al inicio al pasar del último |
 | `data-autoplay`       | ms (entero)        | `0` (off) | Avance automático cada N ms; pausa en hover |
 | `data-accent`         | hex                | `--am-color-primary` | Color del active de dots y hover de arrows |
-
-### Opciones del progress (solo `dots-style="progress"` o `progress-segmented"`)
-
-| Atributo | Valores ejemplo | Default | Descripción |
-|---|---|---|---|
-| `data-dots-align` | `left` \| `center` \| `right` | `center` | Alineación del contenedor de dots |
-| `data-progress-width`  | `100%`, `240px`, `50%` | `100%` | Ancho del track |
-| `data-progress-height` | `2px`, `3px`, `6px`    | `3px`  | Altura |
-| `data-progress-radius` | `0`, `4px`, `9999px`   | `9999px` (pill) | Border-radius |
-| `data-progress-gap`    | `2px`, `6px`           | `6px`  | Solo segmented — gap entre segmentos |
-| `data-progress-bg`     | hex / var              | `--am-border` | Color del track inactivo |
 
 ---
 
@@ -86,8 +74,6 @@ Muestra N slides simultáneos según breakpoint. Step = 1 slide. Drag/swipe disp
 |---|---|---|
 | `bar` (default) | Pill horizontal, activo se ensancha de 24→36px | Default elegante |
 | `circle`        | Circulitos 8px, activo 10px + scale | Más discreto |
-| `progress`      | Una sola barra que se llena (0% → 100%) | Banners cinemáticos / un solo focal |
-| `progress-segmented` | Barras tipo "stories" de Instagram | Cuando importa cuántos slides hay |
 
 ---
 
@@ -160,12 +146,6 @@ mySliderEl.addEventListener('slider-amatora:change', function (e) {
   --sl-dot-active:   var(--am-color-primary);
   --sl-transition:   0.48s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   --sl-peek:         48px;                  /* 24px en móvil */
-
-  --sl-progress-width:  100%;
-  --sl-progress-height: 3px;
-  --sl-progress-radius: 9999px;
-  --sl-progress-gap:    6px;
-  --sl-progress-bg:     var(--am-border);
 }
 ```
 
@@ -175,7 +155,7 @@ Para overridear en una sección concreta, sobrescribe estas vars en el scope `#{
 
 ## Ejemplos típicos
 
-### Banner full-width con autoplay y dots tipo progress
+### Banner full-width con autoplay
 
 ```html
 <div data-amatora-slider
@@ -185,9 +165,6 @@ Para overridear en una sección concreta, sobrescribe estas vars en el scope `#{
      data-peek="0"
      data-autoplay="5000"
      data-loop="true"
-     data-dots-style="progress"
-     data-progress-height="2px"
-     data-progress-width="240px"
      data-arrows-pos="sides">
   <div><img …></div>
   <div><img …></div>
@@ -211,13 +188,12 @@ Para overridear en una sección concreta, sobrescribe estas vars en el scope `#{
 </div>
 ```
 
-### Galería de testimonios con counter
+### Galería de testimonios sin dots (solo arrows)
 
 ```html
 <div data-amatora-slider
      data-visible-desktop="2"
      data-visible-mobile="1"
-     data-counter="true"
      data-label="Lo que dicen"
      data-dots="false">
   …

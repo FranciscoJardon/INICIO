@@ -915,30 +915,21 @@
    El JS (amatora.js) se encarga de envolver cada slide,
    construir header, arrows, dots y aplicar drag+touch+resize.
 
-   Todos los atributos data-* disponibles:
+   Atributos data-* soportados:
      data-visible-desktop  → número decimal (ej: 3, 3.2)
      data-visible-tablet   → número decimal (ej: 2, 2.1)
      data-visible-mobile   → número decimal (ej: 1.2, 1.1)
      data-gap              → px entre slides (default 16)
      data-peek             → px del asomo en variant banner (default 48)
      data-variant          → "default" | "banner"
-     data-arrows-pos       → "header" | "sides"
-     data-dots-style       → "bar" | "circle" | "progress" | "progress-segmented"
      data-arrows           → "true" | "false"   (default true)
+     data-arrows-pos       → "header" | "sides"
      data-dots             → "true" | "false"   (default true)
-     data-counter          → "true" | "false"   (default false)
+     data-dots-style       → "bar" | "circle"
      data-label            → texto del header
      data-loop             → "true" | "false"   (default false)
      data-autoplay         → ms (0 = off)
-     data-accent           → hex color (ej: "#FF6B00")
-
-   Opciones del progress (solo cuando dots-style="progress" o "progress-segmented"):
-     data-dots-align       → "left" | "center" | "right" (default center)
-     data-progress-width   → "100%" | "240px" | "50%" (default 100%)
-     data-progress-height  → "3px" | "6px" | "2px" (default 3px)
-     data-progress-radius  → "9999px" (pill) | "0" (rectangular) | "4px"
-     data-progress-gap     → "6px" | "2px" (solo segmented, default 6px)
-     data-progress-bg      → color track (default --am-border)
+     data-accent           → hex color (override del color de dots, ej: "#FF6B00")
    ============================================================ */
 
 
@@ -972,13 +963,6 @@
     visibility: visible;
     transition: opacity 0.25s ease;
 
-    /* Variables específicas del progress (dots-style="progress" / "progress-segmented") */
-    --sl-progress-width:   100%;
-    --sl-progress-height:  3px;
-    --sl-progress-radius:  9999px;
-    --sl-progress-gap:     6px;
-    --sl-progress-bg:      var(--am-border);
-
     position: relative;
     width: 100%;
 }
@@ -1007,17 +991,6 @@
     align-items: center;
     gap: var(--am-space-3);
 }
-
-.slider-amatora__counter {
-    font-family: var(--am-font-body);
-    font-size: 13px;
-    color: var(--am-text-secondary);
-}
-.slider-amatora__counter strong {
-    color: var(--am-text-primary);
-    font-weight: 600;
-}
-
 
 /* ---------- 28.3 Arrows (por defecto en header) ---------- */
 .slider-amatora__arrows {
@@ -1186,77 +1159,6 @@
     height: 10px;
     transform: scale(1.1);
 }
-
-/* ---------- 28.8.1 Alineación del contenedor de dots ---------- */
-.slider-amatora[data-dots-align="left"] .slider-amatora__dots {
-    margin-left: 0;
-    margin-right: auto;
-}
-.slider-amatora[data-dots-align="right"] .slider-amatora__dots {
-    margin-left: auto;
-    margin-right: 0;
-}
-.slider-amatora[data-dots-align="center"] .slider-amatora__dots {
-    margin-left: auto;
-    margin-right: auto;
-}
-
-/* ---------- 28.8.2 Variante: Progress (barra continua que se llena) ---------- */
-.slider-amatora[data-dots-style="progress"] .slider-amatora__dots {
-    display: block;
-    width: var(--sl-progress-width);
-    max-width: 100%;
-    margin-left: auto;
-    margin-right: auto;
-    height: var(--sl-progress-height);
-    background: var(--sl-progress-bg);
-    border-radius: var(--sl-progress-radius);
-    overflow: hidden;
-    position: relative;
-    padding: 0;
-    gap: 0;
-}
-.slider-amatora[data-dots-style="progress"] .slider-amatora__dot {
-    display: none;
-}
-.slider-amatora[data-dots-style="progress"] .slider-amatora__progress {
-    display: block;
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    background: var(--sl-dot-active);
-    border-radius: var(--sl-progress-radius);
-    transition: width 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    width: 0%;
-}
-
-/* Por defecto .slider-amatora__progress está oculta — solo aparece en variante progress */
-.slider-amatora__progress {
-    display: none;
-}
-
-/* ---------- 28.8.3 Variante: Progress segmentado (tipo stories) ---------- */
-.slider-amatora[data-dots-style="progress-segmented"] .slider-amatora__dots {
-    width: var(--sl-progress-width);
-    max-width: 100%;
-    margin-left: auto;
-    margin-right: auto;
-    gap: var(--sl-progress-gap);
-}
-.slider-amatora[data-dots-style="progress-segmented"] .slider-amatora__dot {
-    flex: 1;
-    width: auto;
-    min-width: 0;
-    height: var(--sl-progress-height);
-    border-radius: var(--sl-progress-radius);
-    background: var(--sl-progress-bg);
-}
-.slider-amatora[data-dots-style="progress-segmented"] .slider-amatora__dot.is-active {
-    width: auto;
-    background: var(--sl-dot-active);
-}
-
 
 /* ---------- 28.9 Responsive del slider (mobile-first) ---------- */
 /* Base (mobile, <768px): --sl-visible ya = var(--sl-visible-sm, 1.2) en 28.1 */
