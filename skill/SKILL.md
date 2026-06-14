@@ -389,9 +389,11 @@ Los botones leen variables `--btn-*` con fallback al token global. 3 niveles:
   <!-- todos los btn-primary-amatora aquí dentro heredan -->
 </div>
 
-<!-- 3. Global (en theme.liquid desde panel Amatora) -->
-<style>:root { --btn-bg: {{ settings.btn_primary_bg }}; }</style>
+<!-- 3. Global (en assets/amatora.css sección 2) -->
+:root { --btn-radius: 8px; --btn-fs: 14px; }
 ```
+
+Para overridear el color de los botones a nivel sistema, editá directamente `--am-color-primary` en `assets/amatora.css` sección 2 — el botón lo hereda automáticamente vía `var(--btn-bg, var(--am-color-primary))`.
 
 Variables disponibles: `--btn-bg`, `--btn-fg`, `--btn-border`, `--btn-radius`, `--btn-py`, `--btn-px`, `--btn-fs`, `--btn-fw`, `--btn-w`, `--btn-max`, `--btn-bg-hover`.
 

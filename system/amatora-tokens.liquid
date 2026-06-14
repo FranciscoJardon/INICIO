@@ -1,20 +1,23 @@
 {%- comment -%}
   amatora-tokens.liquid
   ----------------------------------------------------------------------
-  Inyecta los tokens del sistema Amatora en :root leyendo desde
-  config/settings_schema.json (panel "Amatora — Diseño base").
+  Desde v0.7.0: este snippet NO inyecta colores ni dimensiones de botones.
+
+  Source of truth de la paleta + forma de botones = assets/amatora.css
+  (sección 2 — CONFIGURACIÓN DEL PROYECTO). Para cambiar la marca o el
+  radius de los botones, editá ese archivo directamente.
+
+  Lo que SÍ hace este snippet:
+    - Carga las fuentes elegidas en el customizer (font_face)
+    - Inyecta --am-font-heading / --am-font-body en :root
+    - Inyecta los settings de slider (--sl-gap, --sl-arrow-size, --sl-transition)
+    - Setea window.AmatoraConfig con los defaults de slider que no son CSS vars
 
   Renderizá UNA sola vez en layout/theme.liquid, dentro del <head>,
   inmediatamente DESPUÉS de cargar amatora.css:
 
     {{ 'amatora.css' | asset_url | stylesheet_tag }}
     {% render 'amatora-tokens' %}
-
-  Reglas:
-    - Si un setting no existe, el fallback de amatora.css se mantiene.
-    - Las fuentes usan font_face para que Shopify las cargue como Web Fonts.
-    - Cualquier override por instancia/sección con `style="--btn-bg:..."`
-      sigue ganando porque CSS variables tienen mayor especificidad de scope.
 {%- endcomment -%}
 
 <style>
@@ -31,46 +34,11 @@
   {%- endif %}
 
   :root {
-    {%- if settings.am_primary != blank %}
-    --am-color-primary:        {{ settings.am_primary }};
-    {%- endif %}
-    {%- if settings.am_primary_hover != blank %}
-    --am-color-primary-hover:  {{ settings.am_primary_hover }};
-    {%- endif %}
-    {%- if settings.am_secondary != blank %}
-    --am-color-secondary:        {{ settings.am_secondary }};
-    {%- endif %}
-    {%- if settings.am_secondary_hover != blank %}
-    --am-color-secondary-hover:  {{ settings.am_secondary_hover }};
-    {%- endif %}
-    {%- if settings.am_accent != blank %}
-    --am-color-accent:         {{ settings.am_accent }};
-    {%- endif %}
-    {%- if settings.am_text != blank %}
-    --am-text-primary:         {{ settings.am_text }};
-    {%- endif %}
-    {%- if settings.am_bg_light != blank %}
-    --am-bg-light:             {{ settings.am_bg_light }};
-    {%- endif %}
-
     {%- if settings.am_font_heading != blank %}
     --am-font-heading: {{ settings.am_font_heading.family }}, {{ settings.am_font_heading.fallback_families }};
     {%- endif %}
     {%- if settings.am_font_body != blank %}
     --am-font-body:    {{ settings.am_font_body.family }},    {{ settings.am_font_body.fallback_families }};
-    {%- endif %}
-
-    {%- if settings.btn_primary_bg != blank %}
-    --btn-bg:     {{ settings.btn_primary_bg }};
-    {%- endif %}
-    {%- if settings.btn_primary_fg != blank %}
-    --btn-fg:     {{ settings.btn_primary_fg }};
-    {%- endif %}
-    {%- if settings.btn_radius %}
-    --btn-radius: {{ settings.btn_radius }}px;
-    {%- endif %}
-    {%- if settings.btn_fs %}
-    --btn-fs:     {{ settings.btn_fs }}px;
     {%- endif %}
 
     {%- comment -%} Sliders — defaults globales del panel {%- endcomment -%}

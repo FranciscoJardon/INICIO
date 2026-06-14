@@ -275,14 +275,16 @@ Solo dos clases base + dos modificadores. Todo lo demás se configura por CSS va
   <a class="btn-primary-amatora">Comprar</a>
 </div>
 
-{# 3. Global desde theme settings (theme.liquid) #}
-<style>
-  :root {
-    --btn-bg:     {{ settings.btn_primary_bg }};
-    --btn-radius: {{ settings.btn_radius }}px;
-  }
-</style>
+{# 3. Global en assets/amatora.css (sección 2) #}
+{# Estos valores ya están definidos en :root del CSS. Editar ahí
+   para cambiar el sistema entero. #}
+:root {
+  --btn-radius: 8px;
+  --btn-fs:     14px;
+}
 ```
+
+> Desde v0.7.0 los colores y la forma de los botones viven en `assets/amatora.css` sección 2, no en el customizer. Para cambiar el color de marca, editás `--am-color-primary` ahí directamente — los botones lo heredan vía `var(--btn-bg, var(--am-color-primary))`.
 
 **Estados (set por `amatora-add-to-cart.liquid`, render por CSS):**
 

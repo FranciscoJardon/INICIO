@@ -1,49 +1,7 @@
 {
   "name": "Amatora — Diseño base",
   "settings": [
-    { "type": "header", "content": "Colores" },
-    {
-      "type": "color",
-      "id": "am_primary",
-      "label": "Color primario",
-      "default": "#004a3b"
-    },
-    {
-      "type": "color",
-      "id": "am_primary_hover",
-      "label": "Color primario (hover)",
-      "default": "#003a2e"
-    },
-    {
-      "type": "color",
-      "id": "am_secondary",
-      "label": "Color secundario",
-      "default": "#9c6b3f"
-    },
-    {
-      "type": "color",
-      "id": "am_secondary_hover",
-      "label": "Color secundario (hover)",
-      "default": "#7d5532"
-    },
-    {
-      "type": "color",
-      "id": "am_accent",
-      "label": "Color de acento",
-      "default": "#FFF8EC"
-    },
-    {
-      "type": "color",
-      "id": "am_text",
-      "label": "Color de texto principal",
-      "default": "#0c2330"
-    },
-    {
-      "type": "color",
-      "id": "am_bg_light",
-      "label": "Fondo claro",
-      "default": "#FAF7F0"
-    },
+    { "type": "paragraph", "content": "Los colores Y la forma/tamaño de los botones del sistema viven en assets/amatora.css (sección 2 — CONFIGURACIÓN DEL PROYECTO). Para cambiar la paleta de marca o el radius/font-size de los botones, editá ese archivo. El installer rescata los colores del theme automáticamente al instalar." },
 
     { "type": "header", "content": "Tipografía" },
     {
@@ -57,34 +15,6 @@
       "id": "am_font_body",
       "label": "Fuente de cuerpo",
       "default": "helvetica_n4"
-    },
-
-    { "type": "header", "content": "Botones" },
-    {
-      "type": "color",
-      "id": "btn_primary_bg",
-      "label": "Botón primario — fondo",
-      "info": "Si lo dejas vacío, usa el color primario.",
-      "default": "#004a3b"
-    },
-    {
-      "type": "color",
-      "id": "btn_primary_fg",
-      "label": "Botón primario — texto",
-      "default": "#ffffff"
-    },
-    {
-      "type": "range",
-      "id": "btn_radius",
-      "label": "Radio del botón (px)",
-      "min": 0, "max": 40, "step": 2, "default": 30,
-      "info": "0 = cuadrado, 30 = pill."
-    },
-    {
-      "type": "range",
-      "id": "btn_fs",
-      "label": "Tamaño de fuente del botón (px)",
-      "min": 12, "max": 22, "step": 1, "default": 16
     },
 
     { "type": "header", "content": "Sliders / Carruseles" },

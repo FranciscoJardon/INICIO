@@ -10,6 +10,55 @@ Formato por release:
 
 ---
 
+## v0.7.0 → desde v0.6.x
+
+Foco del release: **arquitectura de configuración invertida**. `assets/amatora.css` pasa a ser la única fuente de verdad para colores y forma de botones. El customizer del tema queda solo para fonts, sliders y comportamiento del carrito.
+
+### El problema que se arregló
+
+En v0.6.x los colores podían venir de tres lugares: defaults en `amatora.css`, defaults del customizer (en el panel "Amatora — Diseño base"), o valores rescatados por el installer al copiarlos al customizer. Cuando un dev veía un color inesperado en una sección, tenía que rastrear el cascade: ¿es del CSS? ¿es del customizer? ¿es del rescate? La sesión de un usuario lo evidenció — el verde "apareció de la nada" y hubo que ir snippet por snippet hasta encontrar el `settings.am_primary`.
+
+### Cambios
+
+**`settings_schema.amatora.json` (BREAKING)** — Removidos los settings:
+- Header "Colores" entero (`am_primary`, `am_primary_hover`, `am_secondary`, `am_secondary_hover`, `am_accent`, `am_text`, `am_bg_light`)
+- Header "Botones — forma y tamaño" (`btn_primary_bg`, `btn_primary_fg`, `btn_radius`, `btn_fs`)
+
+El panel ahora arranca con un párrafo informativo que apunta al dev a `assets/amatora.css`. Quedan los headers Tipografía, Sliders / Carruseles, Comportamiento del carrito.
+
+**`amatora-tokens.liquid` (BREAKING)** — Removidos los bloques `:root` que inyectaban `--am-color-*`, `--am-text-*`, `--am-bg-light`, `--btn-bg`, `--btn-fg`, `--btn-radius`, `--btn-fs`. El snippet ahora solo inyecta `@font-face` + las variables de fuentes + los CSS vars del slider. Más liviano y predecible.
+
+**`amatora.css` sección 2** — Agregado el subbloque "BOTONES (forma y tamaño global)" con `--btn-radius`, `--btn-fs`, `--btn-fw`, `--btn-py`, `--btn-px`. Editar acá afecta todo el sistema. La sección 2 sigue siendo la única zona del CSS que el dev edita en cada proyecto.
+
+**`install.ps1`** — El rescate de colores ahora muta `assets/amatora.css` directamente (en memoria, antes de escribirlo). Mapeo simplificado de roles a CSS vars:
+- `primary`  → `--am-color-primary` + `--am-color-primary-hover`
+- `secondary` → `--am-color-secondary` + `--am-color-secondary-hover`
+- `text`     → `--am-text-primary` + `--am-text-secondary`
+- `bg_light` → `--am-bg-light`
+
+Si el theme no tiene `settings_data.json` (theme recién bajado sin guardar), el CSS se instala con sus defaults.
+
+### Migración para themes con v0.6.x instalada
+
+1. **Backup del panel viejo del customizer**: si el merchant ya configuró colores en el panel "Amatora — Diseño base", anotalos antes (Color primario, etc.). Vas a tenerlos que escribir en `amatora.css` sección 2.
+2. **Editar `config/settings_schema.json`** del theme: borrar a mano el panel `"name": "Amatora — Diseño base"` viejo (tiene settings que ya no se usan).
+3. **Correr `install.ps1 -Force`**: copia el sistema nuevo, mete el panel reducido, y si tu theme tiene colores en su propio schema → el rescate los escribe directo en `amatora.css`.
+4. **Si los colores rescatados no son los que querés**: editar manualmente `assets/amatora.css` sección 2.
+
+### Stats
+
+| Archivo | v0.6.x | v0.7.0 | Cambio |
+|---|---|---|---|
+| `amatora-tokens.liquid` | 109 | 67 | -42 (-39%) |
+| `settings_schema.amatora.json` | 14 settings | 11 settings | -3 colores + -2 btn |
+| `install.ps1` rescate map | 7 IDs | 4 roles | más simple |
+
+### Filosofía
+
+**Un sistema, una fuente de verdad por concepto.** Colores → `amatora.css`. Sliders → customizer. Cart behavior → customizer. Fuentes → customizer (porque Shopify provee el font picker y vale la pena el merchant pueda tocarlas). No más cascada implícita.
+
+---
+
 ## v0.6.0 → desde v0.5.x
 
 Foco del release: **simplificar el slider JS** removiendo features niche que casi nadie usaba pero pesaban en código + API mental.
