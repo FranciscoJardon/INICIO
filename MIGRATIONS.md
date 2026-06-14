@@ -10,6 +10,31 @@ Formato por release:
 
 ---
 
+## v0.5.2 → desde v0.5.1
+
+Foco del release: **terminar el trim del SKILL.md** moviendo el detalle de Mandato 3 (Imágenes) a su propio reference. Solo docs, sin breaking ni cambio de comportamiento.
+
+### Cambios
+
+- **`skill/SKILL.md`** baja de 645 → 449 líneas. El Mandato 3 pasa de 229 a 33 líneas: queda el resumen de las 5 reglas core + quick checklist + pointers.
+- **`skill/reference/images.md`** (nuevo, 230 líneas) — Contiene las 11 reglas detalladas con tablas de anchos por contexto, la política completa de `loading="eager"` vs `lazy` (cuándo falla en Shopify y qué hacer), patterns de `<picture>` + preload, casos edge (productos en slider, banner hero, iconos, videos).
+
+### Resumen de la simplificación del skill
+
+| | Inicio (pre-trim) | Fin (v0.5.2) | Reducción |
+|---|---|---|---|
+| `SKILL.md` | 782 | 449 | -42% |
+| Nuevos `reference/buttons.md` + `reference/images.md` | — | 363 | (cargan on-demand) |
+| Total siempre-cargado en context | 782 | 449 | -333 líneas |
+
+El contenido completo se preserva — solo se reorganiza para que SKILL.md (lo que se carga en cada trigger del skill) quede más liviano.
+
+### Migración
+
+Ninguna. Solo docs.
+
+---
+
 ## v0.5.1 → desde v0.5.0
 
 Foco del release: **simplificar el skill**. Solo cambios de documentación, sin breaking ni cambios de comportamiento.
