@@ -101,13 +101,12 @@ El scoping con `#{{ sid }}` evita que el CSS de una sección filtre a otras del 
 
 ## Compatibilidad con el theme original
 
-El sistema Amatora **convive** con el theme base — no lo reemplaza:
+El sistema Amatora **convive** con el theme base — no lo reemplaza. Desde v0.4.0 es opt-in puro:
 
-- Las clases de Dawn (ej: `.product-form__submit`, `.cart-drawer`) siguen funcionando
-- Las utilidades Amatora (`*-amatora`) son opt-in: solo aplican donde se usen
-- Los tokens `--am-*` están en `:root` pero no afectan a estilos que no los referencian
-
-Si una sección del theme original entra en conflicto con una Amatora, la última cargada gana (típicamente Amatora porque se carga después).
+- Las clases nativas del theme (ej: `.product-form__submit`, `.cart-drawer`, `.header__menu`) siguen funcionando intactas — Amatora ya no las pisa
+- Las utilidades Amatora (`*-amatora`) solo aplican donde se usen — instalar no cambia el look de ningún theme
+- Los tokens `--am-*` están en `:root` pero no afectan estilos que no los referencian
+- Excepciones documentadas: 2 reglas theme-specific en `amatora.css` sección 1 (ver `reference/system-overview.md` §7)
 
 ---
 

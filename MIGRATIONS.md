@@ -10,6 +10,23 @@ Formato por release:
 
 ---
 
+## v0.5.1 → desde v0.5.0
+
+Foco del release: **simplificar el skill**. Solo cambios de documentación, sin breaking ni cambios de comportamiento.
+
+### Cambios
+
+- **`skill/SKILL.md`** baja de 782 → 645 líneas. El detalle del patrón **opcional** de add-to-cart (4 estados, productos con variantes, eventos custom, schema completo) se movió a `skill/reference/buttons.md` (nuevo, 133 líneas). En SKILL.md queda la API esencial de botones + un pointer.
+- **Add-to-cart re-categorizado de "obligatorio" a "OPCIONAL".** El theme puede seguir usando su propio botón de "Agregar al carrito" sin tocar el patrón Amatora.
+- **`skill/reference/system-overview.md` §7** reescrita — describía un reset global que ya no existe desde v0.4.0.
+- **`skill/reference/file-tree.md`** actualizado — la sección "Compatibilidad con el theme original" ahora refleja que Amatora ya no pisa `.product-form__submit` ni otras clases nativas.
+
+### Migración
+
+Ninguna. Solo docs. Si tu workflow lee `SKILL.md` directamente, mismo contenido pero más corto y mejor organizado.
+
+---
+
 ## v0.5.0 → desde v0.4.x
 
 Foco del release: **simplificación**. `amatora.css` baja de 1684 → 1474 líneas quitando utilities redundantes / nicho que casi nadie usa.

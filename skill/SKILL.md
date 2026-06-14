@@ -558,112 +558,57 @@ Carrusel completo con drag, touch, flechas, dots (4 estilos: bar, circle, progre
 
 *Crítico (MANDATO 1)*: Usa esto para CUALQUIER carrusel. Ninguna otra librería JS permitida.
 
-### Botones — `primary` y `secondary`, todo configurable
+### Botones — `primary` y `secondary`
 
-🚨 *Nunca escribas CSS de botón nuevo (padding, radius, bg, hover, font-size) cuando ya hay clases del sistema.* Solo existen dos. Todo lo demás se configura por CSS variables.
+Solo 2 clases base + 2 modificadores. Todo lo demás se configura por CSS variables — nunca escribas CSS de botón nuevo (padding, radius, bg, hover).
 
 | Clase | Cuándo usar |
 |---|---|
-| `.btn-primary-amatora`   | Acción principal: "Comprar", "Agregar al carrito", CTA del hero. |
-| `.btn-secondary-amatora` | Acción alternativa: "Ver más", "Saber más", links de soporte. |
-
-#### Cómo se configura
-
-Cada botón lee variables locales con fallback al token global. Eso significa que el merchant (o tú desde Liquid) puede overridear cualquier dimensión sin tocar `amatora.css`:
-
-```css
-.btn-primary-amatora {
-  background:    var(--btn-bg,        var(--am-color-primary));
-  color:         var(--btn-fg,        var(--am-color-white));
-  border:        var(--btn-border,    none);
-  border-radius: var(--btn-radius,    30px);
-  padding:       var(--btn-py, 12px) var(--btn-px, 24px);
-  font-size:     var(--btn-fs,        16px);
-  font-weight:   var(--btn-fw,        700);
-  width:         var(--btn-w,         auto);
-  max-width:     var(--btn-max,       none);
-}
-.btn-primary-amatora:hover { background: var(--btn-bg-hover, var(--am-color-primary-hover)); }
-```
-
-(`.btn-secondary-amatora` igual pero con fallback a `--am-color-secondary`.)
-
-#### Tres niveles de override
-
-**1. Por instancia** — un solo botón:
-```liquid
-<a class="btn-primary-amatora"
-   style="--btn-bg: {{ section.settings.cta_bg }}; --btn-radius: 8px;">
-  Comprar ahora
-</a>
-```
-
-**2. Por sección** — todos los botones de un bloque:
-```liquid
-<div id="{{ sid }}" style="--btn-bg: #ff6b35; --btn-radius: 12px;">
-  <!-- cualquier .btn-primary-amatora aquí dentro hereda -->
-</div>
-```
-
-**3. Global** — desde el customizer (`theme.liquid` lee `settings.*`):
-```liquid
-<style>
-  :root {
-    --btn-bg:     {{ settings.btn_primary_bg }};
-    --btn-fg:     {{ settings.btn_primary_fg }};
-    --btn-radius: {{ settings.btn_radius }}px;
-    --btn-fs:     {{ settings.btn_fs }}px;
-  }
-</style>
-```
-
-#### Modificadores de forma
-
-Cuando necesitas algo distinto al pill default, agrega un modificador. Sin escribir CSS nuevo:
+| `.btn-primary-amatora`   | Acción principal: "Comprar", CTA del hero. |
+| `.btn-secondary-amatora` | Acción alternativa: "Ver más", links de soporte. |
 
 | Modificador | Efecto |
 |---|---|
-| `.btn-block-amatora`   | Ancho completo (`max-width: 450px`), forma signature con esquina asimétrica `border-radius: 0 0 30px 0`. Para CTAs de hero. |
-| `.btn-outline-amatora` | Fondo transparente con borde del color base. Combina con primary o secondary. |
+| `.btn-block-amatora`   | Ancho completo (max 450px) con esquina signature. Para CTAs de hero. |
+| `.btn-outline-amatora` | Fondo transparente con borde. Combina con primary o secondary. |
+
+#### Override por instancia / sección / global
+
+Los botones leen variables `--btn-*` con fallback al token global. 3 niveles:
 
 ```liquid
-✅ <a class="btn-primary-amatora">Agregar al carrito</a>
-✅ <a class="btn-primary-amatora btn-block-amatora">Comprar ahora</a>          <!-- hero CTA -->
-✅ <a class="btn-secondary-amatora btn-outline-amatora">Ver más</a>            <!-- outlined -->
-✅ <a class="btn-primary-amatora" style="--btn-radius: 4px;">Suscribirme</a>   <!-- radius custom -->
+<!-- 1. Por instancia -->
+<a class="btn-primary-amatora" style="--btn-bg: #ff6b35; --btn-radius: 8px;">CTA</a>
+
+<!-- 2. Por sección -->
+<div id="{{ sid }}" style="--btn-bg: #ff6b35;">
+  <!-- todos los btn-primary-amatora aquí dentro heredan -->
+</div>
+
+<!-- 3. Global (en theme.liquid desde panel Amatora) -->
+<style>:root { --btn-bg: {{ settings.btn_primary_bg }}; }</style>
 ```
+
+Variables disponibles: `--btn-bg`, `--btn-fg`, `--btn-border`, `--btn-radius`, `--btn-py`, `--btn-px`, `--btn-fs`, `--btn-fw`, `--btn-w`, `--btn-max`, `--btn-bg-hover`.
+
+🚨 **Prohibido**:
+- ❌ Escribir `.mi-seccion-am__cta { padding: ...; }` — overridea con `--btn-*` en su lugar.
+- ❌ `style="background: ...;"` — usa `style="--btn-bg: ...;"` para que el hover siga funcionando.
 
 #### Centrar un `.btn-block-amatora`
 
-Envuélvelo en flex porque tiene `max-width`:
+Envuélvelo en flex (tiene max-width):
 ```liquid
 <div class="flex-amatora justify-center-amatora">
   <a class="btn-primary-amatora btn-block-amatora">Comprar</a>
 </div>
 ```
 
-🚨 **Prohibido**:
-- ❌ Escribir `.mi-seccion-am__cta { padding: ...; border-radius: ...; }` — usa la clase del sistema y overridea con `--btn-*`.
-- ❌ `style="background: ...; border-radius: ..."` — usa las variables (`style="--btn-bg: ...; --btn-radius: ..."`) para que hover y los demás estados sigan funcionando.
+#### Add-to-cart con feedback visual — OPCIONAL
 
-#### Botón "Agregar al carrito" — comportamiento estándar
+Si querés botones de "Agregar al carrito" con estados visuales reales (spinner durante el fetch, "Agregado" en éxito, error al fallar), Amatora trae el snippet `amatora-add-to-cart.liquid`. **Es opcional, no obligatorio** — el theme puede seguir usando su propio add-to-cart sin tocar nada de esto.
 
-🚨 *Este patrón aplica a CUALQUIER botón que sume un producto al carrito*: cards de producto, quick-add, sliders de "best sellers", PDP, related products. Todos siguen el mismo contrato. No reimplementes la lógica por sección.
-
-##### 1. Estados visuales — controlados por CSS en `amatora.css`
-
-El botón tiene 4 estados que se manejan por el atributo `data-state`. *El estilo de cada estado vive en `amatora.css`* — la sección no escribe CSS de loader, ni el JS toca `style.*`.
-
-| `data-state`        | Qué se ve                                                  |
-|---------------------|------------------------------------------------------------|
-| (ausente) o `idle`  | Botón normal: "Agregar al carrito"                         |
-| `loading`           | Spinner reemplaza el texto. Click bloqueado, sin opacidad. |
-| `success`           | Checkmark + "Agregado". Persiste 1.5s, vuelve a `idle`.    |
-| `error`             | Icono ⚠ + "Intenta de nuevo". Persiste hasta el próximo click. |
-
-*El loader es REAL.* Refleja el estado del fetch a `/cart/add.js`: `data-state="loading"` se setea ANTES del fetch y se quita en el `.then()` o `.catch()`. Si la red está lenta, el spinner dura lo que dura la red. *Prohibido `setTimeout(..., 800)` para "que se vea cargando un rato"*. La única excepción es el timer de 1.5s que mantiene el estado `success` visible DESPUÉS de que el fetch ya respondió (eso es UX feedback, no loader).
-
-Estructura HTML obligatoria — el `<span class="btn-label">` es necesario para que el spinner pueda ocultarlo sin tirar layout shift:
+Si lo activás (`{% render 'amatora-add-to-cart' %}` antes de `</body>`), basta agregar `data-add-to-cart` + `data-variant-id` al botón:
 
 ```liquid
 <button class="btn-primary-amatora"
@@ -673,89 +618,7 @@ Estructura HTML obligatoria — el `<span class="btn-label">` es necesario para 
 </button>
 ```
 
-##### 2. Lógica — un solo snippet, no JS por sección
-
-`amatora.js` no se toca. La lógica vive en un snippet nuevo `snippets/amatora-add-to-cart.liquid` que se renderiza *UNA vez* en `theme.liquid` (antes de `</body>`):
-
-```liquid
-{# layout/theme.liquid — antes de </body> #}
-{% render 'amatora-add-to-cart' %}
-```
-
-El snippet usa *event delegation* — un solo listener captura clicks en cualquier `[data-add-to-cart]` del documento, incluso los inyectados por AJAX o por la Section Rendering API. No se duplica JS por sección, no se rompe en re-renders parciales.
-
-Contrato del snippet:
-- Click en `[data-add-to-cart]` con `data-variant-id` → `data-state="loading"` → `fetch('/cart/add.js')`.
-- Éxito → `data-state="success"` por 1.5s → `idle`. Dispatcha `amatora:cart:added` en `document` para que el cart drawer del theme se entere.
-- Error → `data-state="error"`. Vuelve a `idle` en el próximo click.
-
-##### 3. Productos con variantes — configurable
-
-🚨 *Si un producto tiene más de una variante, NO podés agregar al carrito sin saber cuál.* Hay dos comportamientos posibles, el merchant elige uno desde el customizer (`settings.add_to_cart_with_variants`):
-
-| Setting                       | Comportamiento                                                                                       | Cuándo elegirlo                              |
-|-------------------------------|------------------------------------------------------------------------------------------------------|----------------------------------------------|
-| `link_to_product` *(default)* | El botón pasa a `<a href="{{ product.url }}">` — manda al PDP donde el cliente elige variante.       | Catálogos chicos, productos con muchas opciones, merchants que no quieren JS extra. |
-| `show_variants_inline`        | El botón abre un drawer/modal con selector de variantes; el botón final del drawer agrega al carrito. | Productos con 2-3 variantes simples (talles, colores), foco en conversión.          |
-
-🚨 *Cuando linkea al PDP, el texto del botón cambia.* Decirle "Agregar al carrito" a algo que en realidad navega es UX rota.
-
-| Caso                                              | Texto correcto              |
-|---------------------------------------------------|-----------------------------|
-| Sin variantes (o solo la default) → agrega directo | "Agregar al carrito"        |
-| Con variantes + `link_to_product`                 | "Ver opciones" / "Elegir"   |
-| Con variantes + `show_variants_inline`            | "Agregar al carrito"        |
-
-Patrón Liquid:
-
-```liquid
-{%- assign behavior = settings.add_to_cart_with_variants | default: 'link_to_product' -%}
-
-{%- if product.has_only_default_variant -%}
-  {# una sola variante: agregar directo #}
-  <button class="btn-primary-amatora"
-          data-add-to-cart
-          data-variant-id="{{ product.selected_or_first_available_variant.id }}">
-    <span class="btn-label">Agregar al carrito</span>
-  </button>
-
-{%- elsif behavior == 'show_variants_inline' -%}
-  <button class="btn-primary-amatora" data-open-variants="{{ product.handle }}">
-    <span class="btn-label">Agregar al carrito</span>
-  </button>
-  {# render del drawer/modal de variantes acá #}
-
-{%- else -%}
-  {# default: link al PDP #}
-  <a class="btn-primary-amatora" href="{{ product.url }}">
-    <span class="btn-label">Ver opciones</span>
-  </a>
-{%- endif -%}
-```
-
-Setting para `config/settings_schema.json`:
-
-```json
-{
-  "type": "select",
-  "id": "add_to_cart_with_variants",
-  "label": "Productos con variantes",
-  "info": "Qué hace el botón cuando el producto tiene más de una variante.",
-  "options": [
-    { "value": "link_to_product",      "label": "Mandar a la página del producto" },
-    { "value": "show_variants_inline", "label": "Mostrar variantes en un drawer" }
-  ],
-  "default": "link_to_product"
-}
-```
-
-##### 4. Self-check del botón add-to-cart
-
-- [ ] ¿Tiene `<span class="btn-label">` adentro? (el spinner lo oculta sin layout shift)
-- [ ] ¿`data-add-to-cart` + `data-variant-id` presentes cuando agrega directo?
-- [ ] Si tiene variantes: ¿respeta `settings.add_to_cart_with_variants`? ¿El texto cambia a "Ver opciones" cuando linkea al PDP?
-- [ ] ¿`amatora.js` quedó intacto? ¿La lógica está en `snippets/amatora-add-to-cart.liquid`?
-- [ ] ¿Ningún `setTimeout` simulando carga? El loader debe terminar exactamente cuando el fetch resuelve.
+Ver `reference/buttons.md` para el contrato completo (4 estados, productos con variantes, eventos `amatora:cart:added` / `amatora:cart:error` para integrar con el cart drawer del theme).
 
 ### Card base
 `.card-amatora` — bg blanco, border, sombra sutil, radius 12px, padding 16px. Usa para cards genéricas de producto/info. *Si tu card tiene fondo de color, elementos absolutos, o aspect ratios no estándar, escribe una clase específica del componente* — `.card-amatora` es solo para el caso genérico de caja blanca.

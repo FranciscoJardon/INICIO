@@ -314,10 +314,16 @@ Solo para tarjetas blancas genéricas. Si tu card tiene background colorido, ele
 
 ---
 
-## 7. Reset incluido (sección 1)
+## 7. Amatora NO pisa el theme
 
-- `box-sizing: border-box` en todo
-- `body { overflow-x: hidden }`
-- `img, video { max-width: 100%; height: auto }`
-- `button { background: none; border: none; cursor: pointer }`
-- `.product-form__submit` ya tiene estilo pill (radius 30px, weight 800, width 100%, padding 20px 0)
+Desde v0.4.0 el sistema es **opt-in puro**: instalarlo no cambia nada visualmente hasta que uses una clase `-amatora`. Lo que NO trae:
+
+- ❌ Reset global (`* { margin:0; padding:0 }`)
+- ❌ Estilos de elementos (`body`, `html`, `h1-h6`, `p`, `a`, `button`, `img`)
+- ❌ Pisada al add-to-cart de PDP (`.product-form__submit`)
+
+**Las únicas excepciones** son 2 reglas theme-specific en `amatora.css` (sección 1):
+- `.cart-totals__tax-note { display: none !important }`
+- `.dialog-modal[open].search-modal__content { ... }` (positioning fix)
+
+Son ajustes puntuales para un theme del operador. Si te molestan en otro theme, borralas — no son parte del core.
