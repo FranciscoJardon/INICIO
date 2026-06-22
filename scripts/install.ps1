@@ -41,9 +41,23 @@
   & ([scriptblock]::Create((iwr ".../install.ps1" -UseBasicParsing).Content)) -SkillOnly
 
   Solo instala la skill, sin tocar el theme.
+
+.PARAMETER ToolsOnly
+  Modo NO-INVASIVO. Instala la skill + copia los assets (amatora.css con
+  rescate de colores, amatora.js, AMATORA_VERSION) en assets/ del theme,
+  pero NO toca layout/theme.liquid ni config/settings_schema.json. Tampoco
+  copia los snippets ni la sección banner-amatora.
+  El dev integra a mano cuando esté listo agregando 2 tags a theme.liquid.
+  Útil cuando querés probar Amatora en un theme en producción sin riesgo.
+
+.EXAMPLE
+  & ([scriptblock]::Create((iwr ".../install.ps1" -UseBasicParsing).Content)) -ToolsOnly
+
+  Copia los archivos a assets/ pero no edita nada del theme.
 #>
 param(
   [switch]$SkillOnly,
+  [switch]$ToolsOnly,
   [switch]$Force
 )
 
@@ -122,6 +136,135 @@ if ((Test-Path $versionFile) -and (-not $Force)) {
   Write-Warning "El theme ya tiene Amatora (versión $currentVersion)."
   Write-Warning "Para sobrescribir, re-corré con -Force (hace backup .bak.timestamp antes)."
   Write-Warning "Si el theme tiene customizaciones del cliente, revisá MIGRATIONS.md y aplicá renames a mano antes de pisar."
+  return
+}
+
+# ============================================================
+# FASE 2.A — TOOLSONLY (no invasivo: solo copia assets/)
+# ============================================================
+if ($ToolsOnly) {
+  Write-Host ""
+  Write-Host "=== Modo ToolsOnly — copiando solo a assets/, sin tocar theme.liquid ni schema ==="
+
+  # Copiar amatora.js + AMATORA_VERSION
+  foreach ($f in @(
+    @{ src = "system/amatora.js";      dest = "assets/amatora.js" },
+    @{ src = "system/AMATORA_VERSION"; dest = "assets/AMATORA_VERSION" }
+  )) {
+    Write-Host "==> $($f.src)"
+    Set-FileLF -Dest (Join-Path $projectRoot $f.dest) -Content (Get-AsLF -Path $f.src)
+  }
+
+  # amatora.css con rescate de colores (en memoria, después se escribe)
+  Write-Host "==> system/amatora.css (con rescate de colores)"
+  $amatoraCssContent = Get-AsLF -Path "system/amatora.css"
+  $rescued = [ordered]@{}
+  $dataPath = Join-Path $projectRoot "config/settings_data.json"
+  $schemaPath = Join-Path $projectRoot "config/settings_schema.json"
+
+  if (-not (Test-Path $dataPath) -or -not (Test-Path $schemaPath)) {
+    Write-Host "==> No existe config/settings_data.json o settings_schema.json — amatora.css se instala con los defaults."
+  } else {
+    try {
+      $themeSchema = Get-Content $schemaPath -Raw | ConvertFrom-Json
+      $themeData   = Get-Content $dataPath   -Raw | ConvertFrom-Json
+      $currentVals = $themeData.current
+      if ($currentVals -is [string]) { $currentVals = $themeData.presets.$currentVals }
+
+      $themeColors = [ordered]@{}
+      foreach ($panel in $themeSchema) {
+        if ($null -eq $panel.settings) { continue }
+        foreach ($s in $panel.settings) {
+          if (-not $s.id) { continue }
+          if ($s.type -eq 'color') {
+            $val = $currentVals.($s.id)
+            if ($val) { $themeColors[$s.id] = $val }
+          }
+          if ($s.type -eq 'color_scheme_group' -and $s.definition) {
+            $groupVal = $currentVals.($s.id)
+            if (-not $groupVal) { continue }
+            $schemes = @($groupVal.PSObject.Properties)
+            if ($schemes.Count -eq 0) { continue }
+            $firstScheme = $schemes[0].Value
+            if (-not $firstScheme.settings) { continue }
+            foreach ($field in $s.definition) {
+              if (-not $field.id) { continue }
+              if ($field.type -eq 'color' -or $field.type -eq 'color_background') {
+                $fieldVal = $firstScheme.settings.($field.id)
+                if ($fieldVal -and $fieldVal -ne '') { $themeColors[$field.id] = $fieldVal }
+              }
+            }
+          }
+        }
+      }
+
+      if ($themeColors.Count -gt 0) {
+        $mapping = [ordered]@{
+          'primary'   = @('accent_1','primary','main','brand','principal','color_button','button_background','button')
+          'secondary' = @('accent_2','secondary')
+          'text'      = @('text','foreground','body_text','color_body')
+          'bg_light'  = @('background_1','background','bg_primary')
+        }
+        $cssVarMapping = [ordered]@{
+          'primary'   = @('--am-color-primary', '--am-color-primary-hover')
+          'secondary' = @('--am-color-secondary', '--am-color-secondary-hover')
+          'text'      = @('--am-text-primary', '--am-text-secondary')
+          'bg_light'  = @('--am-bg-light')
+        }
+        foreach ($role in $mapping.Keys) {
+          foreach ($pattern in $mapping[$role]) {
+            $matchKey = @($themeColors.Keys | Where-Object { $_ -like "*$pattern*" })[0]
+            if ($matchKey) {
+              $rescued[$role] = @{ value = $themeColors[$matchKey]; source = $matchKey }
+              break
+            }
+          }
+        }
+        foreach ($role in $rescued.Keys) {
+          $newColor = $rescued[$role].value
+          foreach ($cssVar in $cssVarMapping[$role]) {
+            $rxPattern = '(' + [regex]::Escape($cssVar) + '\s*:\s*)#[0-9a-fA-F]{3,8}'
+            $rxReplace = '$1' + $newColor
+            $amatoraCssContent = [regex]::Replace($amatoraCssContent, $rxPattern, $rxReplace)
+          }
+        }
+        Write-Host ""
+        Write-Host "    Colores rescatados del theme y escritos en assets/amatora.css:"
+        foreach ($k in $rescued.Keys) {
+          $v = $rescued[$k]
+          Write-Host ("    - {0,-9} → {1} (de '{2}')" -f $k, $v.value, $v.source)
+        }
+      }
+    } catch {
+      Write-Warning "Error parseando JSON del theme: $($_.Exception.Message). amatora.css se instala con los defaults."
+    }
+  }
+
+  Set-FileLF -Dest (Join-Path $projectRoot "assets/amatora.css") -Content $amatoraCssContent
+
+  $installedVersion = (Get-Content $versionFile -Raw).Trim()
+  Write-Host ""
+  Write-Host "=== LISTO (modo ToolsOnly) ==="
+  Write-Host "    Versión Amatora: $installedVersion"
+  Write-Host ""
+  Write-Host "    Copiado a assets/:"
+  Write-Host "      amatora.css  (con colores del theme rescatados si se encontraron)"
+  Write-Host "      amatora.js"
+  Write-Host "      AMATORA_VERSION"
+  Write-Host ""
+  Write-Host "    NO se tocó: layout/theme.liquid, config/settings_schema.json,"
+  Write-Host "                snippets/, sections/"
+  Write-Host ""
+  Write-Host "    Para activar Amatora cuando estés listo, agregá MANUALMENTE a"
+  Write-Host "    layout/theme.liquid justo antes de </head>:"
+  Write-Host ""
+  Write-Host "      {{ 'amatora.css' | asset_url | stylesheet_tag }}"
+  Write-Host "      <script src=`"{{ 'amatora.js' | asset_url }}`" defer></script>"
+  Write-Host ""
+  Write-Host "    Mientras los 2 tags no estén en theme.liquid, el theme funciona"
+  Write-Host "    exactamente como antes — Amatora está disponible pero inactivo."
+  Write-Host ""
+  Write-Host "    Para configurar la paleta del sistema: editá assets/amatora.css sección 2."
   return
 }
 

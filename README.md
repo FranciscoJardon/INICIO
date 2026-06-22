@@ -44,7 +44,7 @@ Si el script detecta `assets/AMATORA_VERSION`, aborta. Para sobrescribir igual:
 
 ## Versión
 
-`v0.7.0` — ver [MIGRATIONS.md](MIGRATIONS.md).
+`v0.7.1` — ver [MIGRATIONS.md](MIGRATIONS.md).
 
 ## Estructura
 

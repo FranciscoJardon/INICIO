@@ -10,6 +10,48 @@ Formato por release:
 
 ---
 
+## v0.7.1 → desde v0.7.0
+
+Foco del release: **flag `-ToolsOnly` para instalación no invasiva**. Mismo sistema, nueva forma de instalarlo.
+
+### Nueva opción
+
+```powershell
+& ([scriptblock]::Create((iwr ".../install.ps1" -UseBasicParsing).Content)) -ToolsOnly
+```
+
+| Qué hace | Qué NO hace |
+|---|---|
+| ✅ Instala la skill en `.claude/skills/` | ❌ No edita `layout/theme.liquid` |
+| ✅ Copia `assets/amatora.css` (con rescate de colores) | ❌ No mergea panel en `config/settings_schema.json` |
+| ✅ Copia `assets/amatora.js` | ❌ No copia snippets (`amatora-tokens.liquid`, `amatora-add-to-cart.liquid`) |
+| ✅ Copia `assets/AMATORA_VERSION` | ❌ No copia `sections/banner-amatora.liquid` |
+
+**Mientras los tags no estén en `theme.liquid`, el theme funciona exactamente como antes.** Amatora está disponible pero inactivo.
+
+### Para qué sirve
+
+- Probar Amatora en un theme en producción sin riesgo
+- Instalar la base ahora y wirelo después cuando lo necesités
+- Theme custom del cliente donde no querés tocar nada sin revisar
+
+### Cómo activar después manualmente
+
+Agregá a `layout/theme.liquid` justo antes de `</head>`:
+
+```liquid
+{{ 'amatora.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'amatora.js' | asset_url }}" defer></script>
+```
+
+Ya. El theme empieza a tener las clases `-amatora` disponibles. Cero invasión hasta que vos decidas usarlas.
+
+### Migración
+
+Ninguna. Solo es una flag nueva, los modos existentes (`default`, `-SkillOnly`, `-Force`) funcionan igual.
+
+---
+
 ## v0.7.0 → desde v0.6.x
 
 Foco del release: **arquitectura de configuración invertida**. `assets/amatora.css` pasa a ser la única fuente de verdad para colores y forma de botones. El customizer del tema queda solo para fonts, sliders y comportamiento del carrito.
