@@ -35,7 +35,7 @@
 .EXAMPLE
   iex (iwr ".../install.ps1" -UseBasicParsing).Content
 
-  Default — instala skill + sistema completo.
+  Default - instala skill + sistema completo.
 
 .EXAMPLE
   & ([scriptblock]::Create((iwr ".../install.ps1" -UseBasicParsing).Content)) -SkillOnly
@@ -80,7 +80,7 @@ function Set-FileLF {
 }
 
 # ============================================================
-# FASE 1 — SKILL (siempre se instala)
+# FASE 1 - SKILL (siempre se instala)
 # ============================================================
 Write-Host ""
 Write-Host "=== Instalando skill amatora-theme-builder ==="
@@ -119,7 +119,7 @@ if ($SkillOnly) {
 }
 
 # ============================================================
-# FASE 2 — SISTEMA (default)
+# FASE 2 - SISTEMA (default)
 # ============================================================
 Write-Host ""
 Write-Host "=== Verificando que es un theme Shopify ==="
@@ -142,11 +142,11 @@ if ((Test-Path $versionFile) -and (-not $Force)) {
 }
 
 # ============================================================
-# FASE 2.A — TOOLSONLY (no invasivo: solo copia assets/)
+# FASE 2.A - TOOLSONLY (no invasivo: solo copia assets/)
 # ============================================================
 if ($ToolsOnly) {
   Write-Host ""
-  Write-Host "=== Modo ToolsOnly — copiando solo a assets/, sin tocar theme.liquid ni schema ==="
+  Write-Host "=== Modo ToolsOnly - copiando solo a assets/, sin tocar theme.liquid ni schema ==="
 
   # Copiar amatora.js + AMATORA_VERSION
   foreach ($f in @(
@@ -165,7 +165,7 @@ if ($ToolsOnly) {
   $schemaPath = Join-Path $projectRoot "config/settings_schema.json"
 
   if (-not (Test-Path $dataPath) -or -not (Test-Path $schemaPath)) {
-    Write-Host "==> No existe config/settings_data.json o settings_schema.json — amatora.css se instala con los defaults."
+    Write-Host "==> No existe config/settings_data.json o settings_schema.json - amatora.css se instala con los defaults."
   } else {
     try {
       $themeSchema = Get-Content $schemaPath -Raw | ConvertFrom-Json
@@ -234,7 +234,7 @@ if ($ToolsOnly) {
         Write-Host "    Colores rescatados del theme y escritos en assets/amatora.css:"
         foreach ($k in $rescued.Keys) {
           $v = $rescued[$k]
-          Write-Host ("    - {0,-9} → {1} (de '{2}')" -f $k, $v.value, $v.source)
+          Write-Host ("    - {0,-9} -> {1} (de '{2}')" -f $k, $v.value, $v.source)
         }
       }
     } catch {
@@ -264,7 +264,7 @@ if ($ToolsOnly) {
   Write-Host "      <script src=`"{{ 'amatora.js' | asset_url }}`" defer></script>"
   Write-Host ""
   Write-Host "    Mientras los 2 tags no estén en theme.liquid, el theme funciona"
-  Write-Host "    exactamente como antes — Amatora está disponible pero inactivo."
+  Write-Host "    exactamente como antes - Amatora está disponible pero inactivo."
   Write-Host ""
   Write-Host "    En este modo no hay panel en el customizer: la paleta se edita en assets/amatora.css sección 2."
   Write-Host "    Para tener el panel 'Configuraciones Amatora', corre la instalación completa (sin -ToolsOnly)."
@@ -287,7 +287,7 @@ if (Test-Path $schemaPath) {
 }
 
 # Descargar archivos del sistema
-# amatora.css se mantiene en memoria — primero se rescatan los colores del theme
+# amatora.css se mantiene en memoria - primero se rescatan los colores del theme
 # y SE MUTA el contenido del CSS, recién después se escribe a assets/.
 $systemFiles = @(
   @{ src = "system/amatora.js";                   dest = "assets/amatora.js" },
@@ -327,7 +327,7 @@ if ($headBlock -ne "") {
   $themeContent = $themeContent -replace "(\s*)</head>", $headReplacement
   Write-Host "==> Insertados tags antes de </head>"
 } else {
-  Write-Host "==> </head> ya tenía los tags Amatora — sin cambios"
+  Write-Host "==> </head> ya tenía los tags Amatora - sin cambios"
 }
 
 # Bloque para </body>
@@ -337,7 +337,7 @@ if (-not $hasAtc) {
   $themeContent = $themeContent -replace "(\s*)</body>", $bodyReplacement
   Write-Host "==> Insertado amatora-add-to-cart antes de </body>"
 } else {
-  Write-Host "==> </body> ya tenía amatora-add-to-cart — sin cambios"
+  Write-Host "==> </body> ya tenía amatora-add-to-cart - sin cambios"
 }
 
 Set-FileLF -Dest $themeLiquid -Content $themeContent
@@ -353,7 +353,7 @@ $rescued = [ordered]@{}
 $dataPath = Join-Path $projectRoot "config/settings_data.json"
 
 if (-not (Test-Path $dataPath)) {
-  Write-Host "==> No existe config/settings_data.json — amatora.css se instala con los defaults."
+  Write-Host "==> No existe config/settings_data.json - amatora.css se instala con los defaults."
 } else {
   try {
     $themeSchema = Get-Content $schemaPath -Raw | ConvertFrom-Json
@@ -365,7 +365,7 @@ if (-not (Test-Path $dataPath)) {
       $currentVals = $themeData.presets.$currentVals
     }
 
-    # Recolectar (theme_id → color_value) en orden de aparición en el schema
+    # Recolectar (theme_id -> color_value) en orden de aparición en el schema
     $themeColors = [ordered]@{}
     foreach ($panel in $themeSchema) {
       if ($null -eq $panel.settings) { continue }
@@ -376,7 +376,7 @@ if (-not (Test-Path $dataPath)) {
           $val = $currentVals.($s.id)
           if ($val) { $themeColors[$s.id] = $val }
         }
-        # Dawn 2.0+: color_scheme_group → primera scheme definida
+        # Dawn 2.0+: color_scheme_group -> primera scheme definida
         if ($s.type -eq 'color_scheme_group' -and $s.definition) {
           $groupVal = $currentVals.($s.id)
           if (-not $groupVal) { continue }
@@ -398,7 +398,7 @@ if (-not (Test-Path $dataPath)) {
     if ($themeColors.Count -eq 0) {
       Write-Host "==> No se encontraron colores en el schema/data del theme."
     } else {
-      # Mapeo amatora_role → patrones del theme (primer match gana)
+      # Mapeo amatora_role -> patrones del theme (primer match gana)
       $mapping = [ordered]@{
         'primary'   = @('accent_1','primary','main','brand','principal','color_button','button_background','button')
         'secondary' = @('accent_2','secondary')
@@ -416,7 +416,7 @@ if (-not (Test-Path $dataPath)) {
         }
       }
 
-      # Mapeo role → variables CSS en amatora.css que se mutan
+      # Mapeo role -> variables CSS en amatora.css que se mutan
       $cssVarMapping = [ordered]@{
         'primary'   = @('--am-color-primary', '--am-color-primary-hover')
         'secondary' = @('--am-color-secondary', '--am-color-secondary-hover')
@@ -483,20 +483,33 @@ $existingSchema = [System.IO.File]::ReadAllText($schemaPath)
 if ($existingSchema -match '"name"\s*:\s*"(Configuraciones Amatora|Amatora)') {
   # Instalación previa: se quitan los paneles Amatora viejos y se agrega el actual
   # (round-trip JSON; el archivo se reformatea, hay backup .bak.$stamp).
-  Write-Host "==> El schema ya tiene un panel Amatora — se reemplaza por 'Configuraciones Amatora'"
+  Write-Host "==> El schema ya tiene un panel Amatora - se reemplaza por 'Configuraciones Amatora'"
   try {
-    $schemaArr = @($existingSchema | ConvertFrom-Json)
-    $kept = @($schemaArr | Where-Object {
-      -not (($_.name -is [string]) -and ($_.name -eq 'Configuraciones Amatora' -or $_.name -like 'Amatora*'))
-    })
-    $kept += ($patchContent | ConvertFrom-Json)
-    $newSchema = ConvertTo-Json -InputObject $kept -Depth 100
+    # PS 5.1: ConvertFrom-Json entrega un array JSON como UN solo objeto (no lo
+    # enumera). Se aplana a mano para que la lista de paneles quede plana.
+    $parsed = ConvertFrom-Json -InputObject $existingSchema
+    $panels = New-Object System.Collections.ArrayList
+    foreach ($item in @($parsed)) {
+      if ($item -is [System.Array]) { foreach ($sub in $item) { [void]$panels.Add($sub) } }
+      else { [void]$panels.Add($item) }
+    }
+    $kept = New-Object System.Collections.ArrayList
+    foreach ($panel in $panels) {
+      $n = $panel.name
+      if (($n -is [string]) -and ($n -eq 'Configuraciones Amatora' -or $n -like 'Amatora*')) { continue }
+      [void]$kept.Add($panel)
+    }
+    [void]$kept.Add((ConvertFrom-Json -InputObject $patchContent))
+    $newSchema = ConvertTo-Json -InputObject $kept.ToArray() -Depth 100
     # ConvertTo-Json escapa acentos y símbolos como é; los devolvemos legibles
     $newSchema = [regex]::Replace($newSchema, '\\u([0-9a-fA-F]{4})', {
       param($m) [string][char][Convert]::ToInt32($m.Groups[1].Value, 16)
     })
+    # Verificación antes de escribir: array plano de objetos y theme_info conservado
+    if ($newSchema -notmatch '^\s*\[\s*\{') { throw "el schema resultante no es un array plano de paneles" }
+    if (($existingSchema -match '"theme_info"') -and ($newSchema -notmatch '"theme_info"')) { throw "se perdió el panel theme_info" }
     Set-FileLF -Dest $schemaPath -Content $newSchema
-    Write-Host "==> Panel 'Configuraciones Amatora' actualizado (settings_schema.json reformateado; backup .bak.$stamp)"
+    Write-Host "==> Panel 'Configuraciones Amatora' actualizado: $($kept.Count) paneles (settings_schema.json reformateado; backup .bak.$stamp)"
   } catch {
     Write-Warning "No pude reemplazar el panel automáticamente: $($_.Exception.Message)"
     Write-Warning "Borra el panel Amatora viejo de config/settings_schema.json y vuelve a correr con -Force."

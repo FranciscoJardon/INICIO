@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
   Crea un proyecto Shopify nuevo con el sistema de diseño Amatora preinstalado.
 
@@ -6,13 +6,13 @@
   Hace cuatro cosas:
     1. Verifica/actualiza el clone del sistema Amatora en ~/amatora-system.
     2. Clona Dawn (o el theme base que indiques) en la carpeta del proyecto,
-       sin el .git del upstream — para que sea tu repo desde cero.
+       sin el .git del upstream - para que sea tu repo desde cero.
     3. Corre install.ps1 directamente sobre la carpeta del nuevo theme:
        copia assets/snippets/sections, edita theme.liquid, mergea schema y
        rescata los colores actuales del theme (settings_data.json).
     4. Abre VS Code en la carpeta del proyecto.
 
-  Cero pasos manuales después — al abrir VS Code, Amatora ya está instalado.
+  Cero pasos manuales después - al abrir VS Code, Amatora ya está instalado.
 
 .EXAMPLE
   .\new-amatora-project.ps1 -Name cliente-zapatos
@@ -64,7 +64,7 @@ Write-Host "==> Clonando theme base a $projectPath"
 git clone $ThemeRepo $projectPath
 if ($LASTEXITCODE -ne 0) { throw "git clone del theme base falló" }
 
-# Limpiar el .git del theme upstream — el proyecto arranca como tu repo desde cero
+# Limpiar el .git del theme upstream - el proyecto arranca como tu repo desde cero
 Remove-Item -Recurse -Force "$projectPath\.git"
 Write-Host "    .git del theme upstream removido"
 
@@ -77,8 +77,10 @@ if (-not (Test-Path $installScript)) {
 }
 Push-Location $projectPath
 try {
-  & $installScript
-  if ($LASTEXITCODE -ne 0 -and $null -ne $LASTEXITCODE) { throw "install.ps1 falló (exit $LASTEXITCODE)" }
+  # Se carga como UTF-8 explícito: install.ps1 no lleva BOM (rompería el
+  # one-liner con iwr) y PowerShell 5.1 lo leería como ANSI al ejecutarlo directo.
+  $installBlock = [scriptblock]::Create([IO.File]::ReadAllText($installScript, [Text.Encoding]::UTF8))
+  & $installBlock
 } finally {
   Pop-Location
 }
@@ -95,5 +97,5 @@ Write-Host "    Sistema Amatora: $amatoraRoot"
 Write-Host ""
 Write-Host "Amatora ya esta instalado. Pasos siguientes:"
 Write-Host "  1. shopify theme dev (o tu workflow de subida)"
-Write-Host "  2. Customizer -> 'Theme settings' -> panel 'Amatora — Diseño base'"
+Write-Host "  2. Customizer -> 'Theme settings' -> panel 'Configuraciones Amatora' (colores, fuentes, botones, sliders, carrito)"
 Write-Host "  3. Agregar 'Banner Amatora' a la home como smoke-test"

@@ -203,6 +203,7 @@
         this.track    = mk('div', 'slider-amatora__track');
 
         this.viewport.setAttribute('tabindex', '0');
+        this.viewport.setAttribute('role', 'region');
         this.viewport.setAttribute('aria-roledescription', 'carousel');
 
         var track = this.track;
@@ -436,18 +437,29 @@
 
         var moveDrag = function (x) {
             var dx = self.drag.x - x;
-            if (Math.abs(dx) > 3) self.drag.moved = true;
+            if (Math.abs(dx) > 3 && !self.drag.moved) {
+                self.drag.moved = true;
+                // Recién ahora se bloquean los pointer-events de los slides (CSS .is-dragging).
+                // Si se hiciera en mousedown, un click simple sobre un <a> del slide
+                // terminaría con mouseup en el track y el link nunca navegaría.
+                self.viewport.classList.add('is-dragging');
+            }
             pushSample(x);
             self.track.style.transform = 'translateX(' + (-self._resist(self.drag.off + dx)) + 'px)';
         };
 
         var endDrag = function (x) {
             self.drag.on = false;
+            self.viewport.classList.remove('is-dragging');
             var dx = self.drag.x - x;
             var v  = self._dragVelocity();
             var target = self._resolveDragSnap(dx, v);
             self._snap(target, true, self._snapOptsForDrag(target, v));
             self._resumeAutoplay();
+            // El click que sigue a un drag se cancela (ver onClickCapture); si el
+            // mouse se soltó fuera del viewport no hay click, así que el flag se
+            // limpia solo para no cancelar un click legítimo posterior.
+            setTimeout(function () { self.drag.moved = false; }, 0);
         };
 
         // ===== MOUSE (listeners globales solo mientras dura el drag) =====
@@ -459,16 +471,14 @@
             window.removeEventListener('mousemove', onMouseMove);
             window.removeEventListener('mouseup',   onMouseUp);
             if (!self.drag.on) return;
-            self.viewport.classList.remove('is-dragging');
             endDrag(e.clientX);
         };
         var onMouseDown = function (e) {
             if (e.button !== 0) return;
             // Controles de formulario y botones no inician drag; los links SÍ
-            // (el click se cancela después si hubo movimiento).
+            // (el click se cancela después solo si hubo movimiento).
             if (e.target.closest('button, input, select, textarea')) return;
             if (!beginDrag(e.clientX, e.clientY)) return;
-            self.viewport.classList.add('is-dragging');
             window.addEventListener('mousemove', onMouseMove);
             window.addEventListener('mouseup',   onMouseUp);
             e.preventDefault(); // evita selección de texto y drag nativo de imágenes/links
@@ -485,6 +495,9 @@
 
         this.viewport.addEventListener('mousedown', onMouseDown);
         this.viewport.addEventListener('click', onClickCapture, true);
+        // Sin esto, Chromium inicia un drag nativo (ghost) al arrastrar sobre un
+        // <a> o <img> y deja de mandar mousemove/mouseup al slider.
+        this.viewport.addEventListener('dragstart', function (e) { e.preventDefault(); });
 
         // ===== TOUCH (passive; el CSS pone touch-action: pan-y en el viewport) =====
         var onTouchStart = function (e) {
@@ -506,6 +519,7 @@
             if (!self.drag.on) return;
             if (self.drag.locked === 'v') {
                 self.drag.on = false;
+                self.viewport.classList.remove('is-dragging');
                 self.track.classList.remove('no-anim');
                 self._resumeAutoplay();
                 return;
@@ -519,6 +533,8 @@
         this.viewport.addEventListener('touchcancel', onTouchEnd);
 
         // ===== RESIZE (debounce) =====
+        // ResizeObserver sobre el viewport: cubre el resize de ventana y también
+        // cuando el slider pasa de display:none a visible (tabs, drawers, acordeones).
         var resizeTimer;
         var onResize = function () {
             clearTimeout(resizeTimer);
@@ -527,7 +543,12 @@
                 self._snap(Math.min(self.step, self.m.maxStep), false);
             }, 150);
         };
-        window.addEventListener('resize', onResize);
+        if ('ResizeObserver' in window) {
+            this._ro = new ResizeObserver(function () { onResize(); });
+            this._ro.observe(this.viewport);
+        } else {
+            window.addEventListener('resize', onResize);
+        }
 
         // ===== AUTOPLAY: pausa en hover, pestaña oculta y fuera de viewport =====
         var onVisibility = null;
@@ -598,6 +619,9 @@
     SliderAmatora.prototype.destroy = function () {
         this._pauseAutoplay();
         if (this._io) { this._io.disconnect(); this._io = null; }
+        if (this._ro) { this._ro.disconnect(); this._ro = null; }
+        var idx = instances.indexOf(this);
+        if (idx >= 0) instances.splice(idx, 1);
         var h = this._boundHandlers;
         if (h) {
             if (h.mouseMove)  window.removeEventListener('mousemove', h.mouseMove);
@@ -636,18 +660,32 @@
         initAll();
     }
 
-    // Customizer de Shopify: re-init al recargar una sección
+    // Customizer de Shopify: re-init al recargar una sección, limpiar al quitarla
     document.addEventListener('shopify:section:load', function (e) { initAll(e.target); });
+    document.addEventListener('shopify:section:unload', function (e) {
+        for (var i = instances.length - 1; i >= 0; i--) {
+            if (e.target && e.target.contains && e.target.contains(instances[i].el)) instances[i].destroy();
+        }
+    });
 
-    // Customizer de Shopify: al seleccionar un block, mostrar su slide
-    document.addEventListener('shopify:block:select', function (e) {
-        var slide = e.target && e.target.closest && e.target.closest('.slider-amatora__slide');
-        if (!slide) return;
+    // Customizer de Shopify: al seleccionar un block, mostrar su slide y pausar autoplay
+    function instanceForBlock(target) {
+        var slide = target && target.closest && target.closest('.slider-amatora__slide');
+        if (!slide) return null;
         var sliderEl = slide.closest('.slider-amatora');
         var inst = sliderEl && instanceFor(sliderEl);
-        if (!inst) return;
-        var idx = inst.slides.indexOf(slide);
-        if (idx >= 0) inst.goTo(idx);
+        if (!inst) return null;
+        return { inst: inst, idx: inst.slides.indexOf(slide) };
+    }
+    document.addEventListener('shopify:block:select', function (e) {
+        var r = instanceForBlock(e.target);
+        if (!r || r.idx < 0) return;
+        r.inst._pauseAutoplay();
+        r.inst.goTo(r.idx);
+    });
+    document.addEventListener('shopify:block:deselect', function (e) {
+        var r = instanceForBlock(e.target);
+        if (r) r.inst._resumeAutoplay();
     });
 
     // Expose

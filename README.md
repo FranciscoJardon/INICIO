@@ -44,7 +44,7 @@ Si el script detecta `assets/AMATORA_VERSION`, aborta. Para sobrescribir igual:
 
 ## Versión
 
-`v0.8.0` — ver [MIGRATIONS.md](MIGRATIONS.md).
+`v0.8.1` — ver [MIGRATIONS.md](MIGRATIONS.md).
 
 ## Estructura
 
@@ -166,6 +166,22 @@ Si el theme ya tiene `assets/AMATORA_VERSION` y querés pisarlo con la versión 
 4. Bumpea `system/AMATORA_VERSION` (semver: minor para breaking, patch para bugfix).
 5. Commit + push al repo. Quien corra `install.ps1 -Force` después recibe la versión nueva.
 
+## Tests
+
+Antes de publicar una versión, corre las dos verificaciones que se usaron para la v0.8.1:
+
+```powershell
+# 1. Slider + add-to-cart en Chromium headless (36 comprobaciones: layout pre-init sin salto,
+#    static, autoplay, teclado, drag, drawer de Dawn, estados del botón)
+npm i --no-save playwright          # una vez; si falta el browser: npx playwright install chromium
+node tests/test-amatora.js
+
+# 2. Instalación real sobre un Dawn limpio + theme-check oficial de Shopify
+git clone --depth 1 https://github.com/Shopify/dawn.git $env:TEMP\dawn-test; cd $env:TEMP\dawn-test
+iex (iwr "https://raw.githubusercontent.com/FranciscoJardon/INICIO/main/scripts/install.ps1" -UseBasicParsing).Content
+shopify theme check --path .        # no debe haber offenses en archivos amatora ni en el panel del schema
+```
+
 ## Reglas no-negociables
 
 - **`amatora.js` está congelado.** Toda lógica nueva (event listeners, fetch, drawers) vive en snippets `.liquid` separados (`amatora-add-to-cart.liquid` es el primer ejemplo).
@@ -204,8 +220,9 @@ Detalle completo en [skill/reference/buttons.md](skill/reference/buttons.md).
 
 - [x] ~~`git init` + push a remote~~ — publicado en https://github.com/FranciscoJardon/INICIO.
 - [x] ~~Script `install.ps1` todo-en-uno con rescate de colores del theme~~ — v0.3.0.
-- [ ] Probar v0.8.0 en un theme Dawn real: panel "Configuraciones Amatora", rescate de colores como defaults, drawer al agregar al carrito, `install.ps1 -Force` sobre un theme con el panel viejo.
-- [ ] Probar `install.ps1` en un theme Dawn limpio (verificar tabla de rescate de colores).
+- [x] ~~Probar `install.ps1` en un theme Dawn limpio~~ — v0.8.1: instalación y `-Force` probados sobre Dawn 16 (rescate de colores, reemplazo del panel, `shopify theme check` sin offenses en archivos Amatora).
+- [x] ~~Slider y add-to-cart en navegador~~ — v0.8.1: test en Chromium headless (layout pre-init sin salto, static, autoplay, teclado, drag, drawer de Dawn).
+- [ ] Probar en una tienda real con el customizer: panel "Configuraciones Amatora" y drawer al agregar desde una card.
 - [ ] Probar `install.ps1 -Force` en un theme custom de un cliente actual con secciones existentes.
 - [ ] Drawer de variantes para activar `show_variants_inline`.
 - [ ] Equivalente en bash de `install.ps1` para Mac/Linux.

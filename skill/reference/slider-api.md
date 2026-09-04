@@ -239,5 +239,6 @@ Selectores generados por el JS que sí puedes estilar desde `<style>` de la secc
 - **Touch:** el primer movimiento decide si es horizontal (slider) o vertical (scroll). El viewport tiene `touch-action: pan-y`, así el browser conserva el scroll vertical nativo.
 - **Resistencia en bordes:** sin `loop`, al arrastrar más allá del primer/último slide hay 18% de resistencia.
 - **Flick:** un swipe rápido (>0.5 px/ms) avanza aunque la distancia sea corta; la duración del snap escala con la distancia (180-500ms).
-- **Resize debounce:** 150ms. Reconstruye dots si cambió el total.
+- **Resize:** ResizeObserver sobre el viewport con debounce de 150ms. Cubre el resize de ventana y el paso de `display:none` a visible (tabs, drawers, acordeones): no hace falta llamar `refresh()` en esos casos. Reconstruye dots si cambió el total.
+- **Drag nativo cancelado:** `dragstart` se previene en el viewport; arrastrar sobre un `<a>` o `<img>` mueve el slider, no crea el "ghost" del navegador.
 - **Loop** es "vuelve al inicio", no infinito con clones: mantiene el JS liviano.

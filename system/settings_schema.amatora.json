@@ -25,7 +25,7 @@
       "type": "font_picker",
       "id": "am_font_body",
       "label": "Fuente de cuerpo",
-      "default": "helvetica_n4"
+      "default": "assistant_n4"
     },
 
     { "type": "header", "content": "Botones" },

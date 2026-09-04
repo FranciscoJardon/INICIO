@@ -10,6 +10,20 @@ Formato por release:
 
 ---
 
+## v0.8.1 → desde v0.8.0
+
+Bugfixes encontrados probando v0.8.0 end-to-end: `install.ps1` real sobre un Dawn 16 limpio, `shopify theme check` sobre el resultado, y test del slider y del carrito en Chromium headless.
+
+- **`install.ps1 -Force` (BUG):** el reemplazo del panel viejo generaba un `settings_schema.json` anidado (`[[…], {…}]`) y perdía `theme_info`. PowerShell 5.1 entrega un array JSON como un solo objeto; ahora se aplana y se verifica antes de escribir. Si corriste v0.8.0 con `-Force` sobre un theme que ya tenía panel Amatora, revisa que `config/settings_schema.json` sea un array plano; si no, restaura el `.bak` y vuelve a correr.
+- **Scripts `.ps1` sin guiones largos ni flechas Unicode.** Sin BOM, PowerShell 5.1 los leía como ANSI y esos caracteres se convertían en comillas: error de parseo al ejecutarlos directo (`New-AmatoraProject`, `Sync-AmatoraSkill`). El one-liner con `iwr` no lo sufría.
+- **`amatora.js`:** `dragstart` cancelado en el viewport. Chromium iniciaba un drag nativo al arrastrar sobre un `<a>` o `<img>`, el slider no recibía `mouseup` y cancelaba el siguiente click.
+- **`amatora.js`:** ResizeObserver en el viewport (re-mide al pasar de `display:none` a visible: tabs, drawers), `shopify:block:deselect` reanuda el autoplay, `shopify:section:unload` destruye instancias, `role="region"` en el viewport.
+- **Panel:** fuente de cuerpo por defecto `assistant_n4` (`helvetica_n4` está deprecada; lo marca theme-check).
+
+Migración: reemplazar `assets/amatora.js`, `assets/AMATORA_VERSION` y el panel (o `install.ps1 -Force`). Sin renames.
+
+---
+
 ## v0.8.0 → desde v0.7.x
 
 Foco del release: **la skill dice la verdad sobre el sistema y el sistema deja de estorbar al performance.** Colores y botones vuelven al customizer bajo un solo panel, imágenes con `image_tag`, slider sin `visibility: hidden`, add-to-cart que abre el drawer del theme.

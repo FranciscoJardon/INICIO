@@ -1,11 +1,11 @@
-<#
+﻿<#
 .SYNOPSIS
   Instala/actualiza el skill amatora-theme-builder en Claude Code.
 
 .DESCRIPTION
   Por default instala la skill EN EL PROYECTO actual (en `.claude/skills/`
   de la carpeta donde estés parado). Eso hace que la skill viaje con el
-  repo del proyecto — al clonar en otra máquina, la skill viene incluida.
+  repo del proyecto - al clonar en otra máquina, la skill viene incluida.
 
   Si pasás -Global, instala globalmente en ~/.claude/skills/ y queda
   activa en CUALQUIER proyecto donde abras Claude Code.
@@ -29,7 +29,7 @@
 .EXAMPLE
   .\sync-amatora-skill.ps1 -Global
 
-  Instala globalmente en ~/.claude/skills/ — la skill queda activa
+  Instala globalmente en ~/.claude/skills/ - la skill queda activa
   en cualquier proyecto.
 
 .EXAMPLE
@@ -94,7 +94,7 @@ if (Test-Path $skillTarget) {
   Rename-Item $skillTarget $bak
 }
 
-# 5. Copiar (forzando LF — el parser YAML del frontmatter de SKILL.md
+# 5. Copiar (forzando LF - el parser YAML del frontmatter de SKILL.md
 #    falla con CRLF, lo que deja la skill cargada sin descripción)
 New-Item -ItemType Directory -Force -Path $skillTarget | Out-Null
 
