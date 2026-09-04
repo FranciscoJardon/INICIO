@@ -4,7 +4,7 @@
   Lógica del botón "Agregar al carrito" — un listener delegado para toda
   la página. amatora.js queda intacto.
 
-  Renderiza UNA sola vez en layout/theme.liquid, antes de </body>:
+  Renderízalo UNA sola vez en layout/theme.liquid, antes de </body>:
     {% render 'amatora-add-to-cart' %}
 
   Contrato del HTML:
@@ -15,17 +15,23 @@
       <span class="btn-label">Agregar al carrito</span>
     </button>
 
-  El snippet:
+  Qué hace:
     - intercepta clicks en cualquier [data-add-to-cart] del documento
-    - setea data-state="loading" ANTES del fetch a /cart/add.js
-    - en éxito → data-state="success" por SUCCESS_HOLD_MS, vuelve a idle
-    - en error → data-state="error", se limpia en el siguiente click
-    - dispatcha eventos en `document` para que el cart drawer del theme
-      reaccione: amatora:cart:added | amatora:cart:error
+      (incluye HTML inyectado por AJAX / Section Rendering API)
+    - setea data-state="loading" ANTES del fetch → amatora.css pinta el spinner
+    - POST a /cart/add pidiendo las secciones del carrito del theme
+    - si el theme tiene <cart-drawer> o <cart-notification> (Dawn y
+      derivados), llama a renderContents() → el drawer se abre con el ítem
+      nuevo y el contador se actualiza, igual que el botón nativo del PDP
+    - éxito → data-state="success" por SUCCESS_HOLD_MS, vuelve a idle
+    - error → data-state="error", se limpia en el siguiente click
+    - dispatcha eventos en `document`: amatora:cart:added | amatora:cart:error
 
-  Los estados visuales (spinner, checkmark, error) los pinta amatora.css.
-  Aquí solo controlamos el atributo data-state — cero manipulación de
-  style.* o classList.add().
+  Themes sin <cart-drawer>/<cart-notification>: escucha amatora:cart:added
+  y abre tu drawer ahí. `detail.item` es la respuesta de /cart/add.
+
+  Se desactiva la apertura automática desde el customizer:
+  Configuraciones Amatora → Carrito → "Abrir el carrito al agregar".
 {%- endcomment -%}
 <script>
 (() => {
@@ -33,6 +39,16 @@
   window.__amatoraAddToCartReady = true;
 
   const SUCCESS_HOLD_MS = 1500;
+  const addUrl = (window.routes && window.routes.cart_add_url) || '/cart/add';
+
+  const openDrawer = () => {
+    const cfg = window.AmatoraConfig || {};
+    return cfg.cartOpenDrawer !== false;
+  };
+
+  // Dawn y derivados exponen getSectionsToRender() + renderContents()
+  const getThemeCart = () =>
+    document.querySelector('cart-notification') || document.querySelector('cart-drawer');
 
   document.addEventListener('click', async (e) => {
     const btn = e.target.closest('[data-add-to-cart]');
@@ -43,32 +59,44 @@
 
     e.preventDefault();
     if (btn.dataset.state === 'loading') return;
-
     btn.dataset.state = 'loading';
 
+    const cart = openDrawer() ? getThemeCart() : null;
+    const canRender = cart
+      && typeof cart.getSectionsToRender === 'function'
+      && typeof cart.renderContents === 'function';
+
+    const body = new FormData();
+    body.append('id', variantId);
+    body.append('quantity', btn.dataset.quantity || '1');
+    if (canRender) {
+      body.append('sections', cart.getSectionsToRender().map((s) => s.id).join(','));
+      body.append('sections_url', window.location.pathname);
+      if (typeof cart.setActiveElement === 'function') cart.setActiveElement(document.activeElement);
+    }
+
     try {
-      const res = await fetch('/cart/add.js', {
+      const res = await fetch(addUrl, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
+          'Accept': 'application/javascript',
+          'X-Requested-With': 'XMLHttpRequest'
         },
-        body: JSON.stringify({
-          id: Number(variantId),
-          quantity: Number(btn.dataset.quantity || 1)
-        })
+        body
       });
+      const json = await res.json();
 
-      if (!res.ok) {
-        const body = await res.text();
-        throw new Error('cart/add.js ' + res.status + ' — ' + body);
+      // Shopify responde 422 + { status, message, description } si no hay stock, etc.
+      if (!res.ok || json.status) {
+        throw new Error(json.description || json.message || ('cart/add ' + res.status));
       }
 
-      const item = await res.json();
-
       btn.dataset.state = 'success';
+
+      if (canRender) cart.renderContents(json);
+
       document.dispatchEvent(new CustomEvent('amatora:cart:added', {
-        detail: { item, button: btn }
+        detail: { item: json, button: btn, cart: cart || null }
       }));
 
       setTimeout(() => {

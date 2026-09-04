@@ -10,6 +10,75 @@ Formato por release:
 
 ---
 
+## v0.8.0 → desde v0.7.x
+
+Foco del release: **la skill dice la verdad sobre el sistema y el sistema deja de estorbar al performance.** Colores y botones vuelven al customizer bajo un solo panel, imágenes con `image_tag`, slider sin `visibility: hidden`, add-to-cart que abre el drawer del theme.
+
+### Skill (`SKILL.md` + `reference/`)
+
+- Eliminados los prefijos `lg:` y `xl:` de toda la documentación: **nunca existieron en amatora.css**. Solo hay `md:` (≥768px). Busca `lg:` y `xl:` en tus secciones y cámbialos por `md:` o quítalos.
+- Corregida la escala de `gap-*` (no existe `gap-14-amatora`) y la nota de espaciado.
+- Mandato 2: nueva regla de oro, "si existe una utility, se usa la utility"; el `<style>` de una sección debe ser mínimo.
+- Mandato 3 reescrito: `image_url: width: N | image_tag: …`. **`format: 'webp'` no es un valor válido de `image_url`** (solo acepta `jpg`/`pjpg`); Shopify negocia WebP/AVIF solo. Política de loading: `lazy` por default; `eager` + `fetchpriority: 'high'` solo en la imagen LCP; primeras 3 slides de un slider `eager`.
+- Nuevo Mandato 4 (carrito): todo agregar-al-carrito usa `data-add-to-cart` y el snippet abre el drawer del theme. Patrón de card de producto en `reference/buttons.md` §5.
+- Ya no hace falta el patrón Liquid `is_single`: el JS detecta cuando todo cabe (`.is-static`).
+- `install.ps1` ahora copia `reference/buttons.md` e `images.md` (antes faltaban: la skill instalada tenía referencias rotas).
+- Voz unificada a "tú". Frontmatter `description` bajo el límite de 1024 caracteres.
+
+### `settings_schema.amatora.json` (BREAKING)
+
+Panel renombrado a **"Configuraciones Amatora"**. Vuelven los colores y la forma de los botones al customizer: es la única fuente de verdad; `amatora.css` sección 2 queda como defaults de fábrica.
+
+Settings nuevos: `am_color_primary`, `am_color_primary_hover`, `am_color_secondary`, `am_color_secondary_hover`, `am_text_primary`, `am_text_secondary`, `am_bg_light`, `am_bg_warm`, `am_border`, `am_btn_radius`, `am_btn_fs`, `am_btn_fw`, `am_btn_py`, `am_btn_px`, `am_cart_open_drawer`.
+
+`install.ps1 -Force` reemplaza el panel viejo automáticamente (reformatea `settings_schema.json`; deja backup). El rescate de colores del theme ahora también escribe los `default` del panel.
+
+### `amatora-tokens.liquid`
+
+Inyecta colores, botones, fuentes y slider desde el panel. Debe renderizarse DESPUÉS de `amatora.css`. Publica `AmatoraConfig.cartOpenDrawer` y `AmatoraConfig.cartVariants`.
+
+### `amatora-add-to-cart.liquid`
+
+- POST a `/cart/add` pidiendo las `sections` del carrito. Si el theme tiene `<cart-drawer>` / `<cart-notification>` (Dawn y derivados), llama `renderContents()`: el drawer se abre con el ítem y el contador se actualiza.
+- Respeta `settings.am_cart_open_drawer`.
+- `amatora:cart:added` ahora trae `detail.cart`.
+- Maneja el 422 de Shopify (sin stock) como estado `error`.
+
+### `amatora.css` sección 28 (slider)
+
+- **Se elimina el `visibility: hidden` pre-init.** Antes, el hero no pintaba hasta que corría amatora.js y el LCP se retrasaba aunque la imagen ya hubiera bajado. Ahora el pre-init es un flex simple que respeta `--sl-visible-sm/md/lg`, `--sl-gap` y `--sl-peek` inline.
+- Nuevo `.is-static` (sin flechas ni dots cuando todo cabe), `touch-action: pan-y` en el viewport, `:focus-visible`, `prefers-reduced-motion`.
+
+### `amatora.js` v3.1
+
+- Medidas cacheadas: cero `getComputedStyle` / `offsetWidth` por frame durante el drag.
+- Listeners de mouse en `window` solo mientras dura el drag.
+- El drag con mouse funciona sobre slides que son `<a>` (antes no arrancaba).
+- `data-dots-style`, `data-arrows-pos` y `data-variant` inválidos caen al default (antes `progress-segmented` dejaba los dots invisibles).
+- Autoplay: pausa con pestaña oculta, fuera del viewport y con reduced-motion; se reinicia tras interacción manual.
+- Teclado (← →) en el viewport, `aria-current` en dots.
+- `shopify:block:select` muestra el slide del block seleccionado en el customizer.
+- API nueva: `refresh()`, `SliderAmatora.get(el)`.
+
+### `banner-amatora.liquid`
+
+Reescrito: `image_tag`, utilities en vez de CSS custom, dots `bar`/`circle` con default `bar` (antes `progress-segmented`, removido en v0.6.0 y roto desde entonces), sin `is_single`, CSS vars inline para el pre-init.
+
+### Migración
+
+1. Reemplazar `assets/amatora.css`, `assets/amatora.js`, `assets/AMATORA_VERSION`, `snippets/amatora-tokens.liquid`, `snippets/amatora-add-to-cart.liquid` y `sections/banner-amatora.liquid`, o correr `install.ps1 -Force`.
+2. Panel del customizer: `install.ps1 -Force` lo reemplaza solo. A mano: borra el panel "Amatora — Diseño base" de `config/settings_schema.json` y pega `system/settings_schema.amatora.json`.
+3. En `sections/*.liquid` y `snippets/*.liquid`:
+   - `format: 'webp'` → quitar.
+   - `lg:` / `xl:` → `md:` o quitar.
+   - `data-dots-style="progress"` / `"progress-segmented"` → `"bar"`.
+   - `{% unless is_single %}` alrededor de `data-amatora-slider` → quitar el condicional (el JS lo maneja). Si lo dejas, sigue funcionando.
+   - `<img>` con `srcset` a mano y `<link rel="preload">` a mano → `image_tag` (recomendado, no obligatorio).
+   - Botones de agregar al carrito con fetch propio → `data-add-to-cart` + `data-variant-id`.
+4. Revisar los colores en el customizer si el rescate automático no los encontró.
+
+---
+
 ## v0.7.1 → desde v0.7.0
 
 Foco del release: **flag `-ToolsOnly` para instalación no invasiva**. Mismo sistema, nueva forma de instalarlo.

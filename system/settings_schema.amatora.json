@@ -1,7 +1,18 @@
 {
-  "name": "Amatora — Diseño base",
+  "name": "Configuraciones Amatora",
   "settings": [
-    { "type": "paragraph", "content": "Los colores Y la forma/tamaño de los botones del sistema viven en assets/amatora.css (sección 2 — CONFIGURACIÓN DEL PROYECTO). Para cambiar la paleta de marca o el radius/font-size de los botones, editá ese archivo. El installer rescata los colores del theme automáticamente al instalar." },
+    { "type": "paragraph", "content": "Panel del sistema Amatora. Todo lo que definas aquí manda sobre los valores de fábrica de assets/amatora.css y lo leen todas las secciones -amatora: colores, tipografía, botones, sliders y carrito." },
+
+    { "type": "header", "content": "Colores" },
+    { "type": "color", "id": "am_color_primary",         "label": "Primario",              "default": "#004a3b", "info": "Botones principales, acentos, dots activos." },
+    { "type": "color", "id": "am_color_primary_hover",   "label": "Primario (hover)",      "default": "#004a3b" },
+    { "type": "color", "id": "am_color_secondary",       "label": "Secundario",            "default": "#7db38e" },
+    { "type": "color", "id": "am_color_secondary_hover", "label": "Secundario (hover)",    "default": "#7db38e" },
+    { "type": "color", "id": "am_text_primary",          "label": "Texto principal",       "default": "#004a3b" },
+    { "type": "color", "id": "am_text_secondary",        "label": "Texto secundario",      "default": "#004a3b" },
+    { "type": "color", "id": "am_bg_light",              "label": "Fondo claro",           "default": "#D1E0EF" },
+    { "type": "color", "id": "am_bg_warm",               "label": "Fondo cálido",          "default": "#F6F4F1" },
+    { "type": "color", "id": "am_border",                "label": "Bordes",                "default": "#D0D0D0" },
 
     { "type": "header", "content": "Tipografía" },
     {
@@ -16,6 +27,25 @@
       "label": "Fuente de cuerpo",
       "default": "helvetica_n4"
     },
+
+    { "type": "header", "content": "Botones" },
+    { "type": "paragraph", "content": "Aplica a todos los .btn-primary-amatora y .btn-secondary-amatora. Los .btn-block-amatora conservan su esquina signature." },
+    { "type": "range", "id": "am_btn_radius", "label": "Radio de esquinas",  "min": 0,  "max": 40, "step": 2, "unit": "px", "default": 30 },
+    { "type": "range", "id": "am_btn_fs",     "label": "Tamaño de letra",    "min": 12, "max": 20, "step": 1, "unit": "px", "default": 16 },
+    {
+      "type": "select",
+      "id": "am_btn_fw",
+      "label": "Peso de letra",
+      "options": [
+        { "value": "400", "label": "Normal" },
+        { "value": "500", "label": "Medium" },
+        { "value": "600", "label": "Semibold" },
+        { "value": "700", "label": "Bold" }
+      ],
+      "default": "700"
+    },
+    { "type": "range", "id": "am_btn_py",     "label": "Padding vertical",   "min": 8,  "max": 24, "step": 1, "unit": "px", "default": 12 },
+    { "type": "range", "id": "am_btn_px",     "label": "Padding horizontal", "min": 12, "max": 48, "step": 2, "unit": "px", "default": 24 },
 
     { "type": "header", "content": "Sliders / Carruseles" },
     {
@@ -38,35 +68,15 @@
       ],
       "default": "header"
     },
-    {
-      "type": "checkbox",
-      "id": "slider_show_arrows",
-      "label": "Mostrar flechas por defecto",
-      "default": true
-    },
-    {
-      "type": "checkbox",
-      "id": "slider_show_dots",
-      "label": "Mostrar dots por defecto",
-      "default": true
-    },
-    {
-      "type": "range",
-      "id": "slider_gap",
-      "label": "Espacio entre slides (px)",
-      "min": 0, "max": 40, "step": 2, "default": 16
-    },
-    {
-      "type": "range",
-      "id": "slider_arrow_size",
-      "label": "Tamaño de las flechas (px)",
-      "min": 28, "max": 60, "step": 2, "default": 44
-    },
+    { "type": "checkbox", "id": "slider_show_arrows", "label": "Mostrar flechas por defecto", "default": true },
+    { "type": "checkbox", "id": "slider_show_dots",   "label": "Mostrar dots por defecto",    "default": true },
+    { "type": "range", "id": "slider_gap",        "label": "Espacio entre slides", "min": 0,  "max": 40, "step": 2, "unit": "px", "default": 16 },
+    { "type": "range", "id": "slider_arrow_size", "label": "Tamaño de las flechas", "min": 28, "max": 60, "step": 2, "unit": "px", "default": 44 },
     {
       "type": "image_picker",
       "id": "slider_arrow_icon",
       "label": "Icono personalizado de las flechas",
-      "info": "Subí un SVG o PNG cuadrado (~24×24) apuntando hacia la derecha. La flecha 'Anterior' se voltea automáticamente. Si lo dejás vacío, se usa el chevron por defecto."
+      "info": "SVG o PNG cuadrado (~24×24) apuntando a la derecha. La flecha 'Anterior' se voltea sola. Vacío = chevron por defecto."
     },
     {
       "type": "select",
@@ -80,7 +90,14 @@
       "default": "smooth"
     },
 
-    { "type": "header", "content": "Comportamiento del carrito" },
+    { "type": "header", "content": "Carrito" },
+    {
+      "type": "checkbox",
+      "id": "am_cart_open_drawer",
+      "label": "Abrir el carrito al agregar un producto",
+      "default": true,
+      "info": "Usa el cart drawer o la notificación del theme (Dawn y derivados). Si el theme no tiene, el botón emite el evento amatora:cart:added para que lo enganches a tu drawer."
+    },
     {
       "type": "select",
       "id": "add_to_cart_with_variants",

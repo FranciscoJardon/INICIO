@@ -4,94 +4,74 @@
   ============================================================
   Copia este archivo a sections/{nombre}-amatora.liquid y
   reemplaza:
-    - "nombre"        → identificador kebab-case (ej: "banner-hero")
-    - "Nombre Amatora"→ nombre visible en el customizer
+    - "nombre"         → identificador kebab-case (ej: "productos-destacados")
+    - "Nombre Amatora" → nombre visible en el customizer
     - El contenido HTML, settings y blocks según el caso
 
-  Cumple los 3 mandatos:
+  Cumple los 4 mandatos:
    1. Slider con [data-amatora-slider] (no Swiper/Slick)
-   2. Utility classes -amatora + tokens --am-*
-   3. Imágenes con image_url + width/height + loading correcto
+   2. Utilities -amatora + tokens --am-* (solo prefijo md:)
+   3. Imágenes con image_url + image_tag
+   4. Carrito con data-add-to-cart (si aplica)
   ============================================================
 {%- endcomment -%}
 
 {%- if section.blocks.size > 0 -%}
 {%- liquid
   assign sid = 'nombre-' | append: section.id
-  assign first = section.blocks.first
-  assign is_single = false
-  if section.blocks.size == 1
-    assign is_single = true
-  endif
+  assign vis_lg = section.settings.visible_desktop | default: 3
+  assign vis_md = section.settings.visible_tablet | default: 2
+  assign vis_sm = section.settings.visible_mobile | default: '1.2'
 -%}
 
-{%- comment -%} MANDATE 3 — Preload del LCP (solo si esta sección está above-the-fold) {%- endcomment -%}
-{%- if first.settings.img != blank -%}
-  <link rel="preload" as="image" fetchpriority="high"
-        href="{{ first.settings.img | image_url: width: 1920 }}">
-{%- endif -%}
-
-{%- comment -%} ⚠️ Root tag <div>, NO <section> — Shopify ya lo envuelve en <section> via "tag" del schema {%- endcomment -%}
-<div id="{{ sid }}" class="nombre-am" aria-label="{{ section.settings.aria_label | default: 'Sección' | escape }}">
+{%- comment -%} Root <div>, NUNCA <section>: Shopify ya lo envuelve vía "tag" del schema {%- endcomment -%}
+<div id="{{ sid }}" aria-label="{{ section.settings.aria_label | default: 'Sección' | escape }}">
 
   <div class="container-amatora px-4-amatora md:px-6-amatora py-12-amatora md:py-16-amatora">
 
     {%- if section.settings.heading != blank -%}
-      <h2 class="nombre-am__title text-2xl-amatora md:text-4xl-amatora font-bold-amatora text-center-amatora mb-8-amatora">
+      <h2 class="text-2xl-amatora md:text-4xl-amatora font-bold-amatora text-center-amatora mb-8-amatora">
         {{ section.settings.heading }}
       </h2>
     {%- endif -%}
 
-    <div class="nombre-am__wrap"
-      {%- unless is_single -%}
-        data-amatora-slider
-        data-variant="default"
-        data-visible-desktop="{{ section.settings.visible_desktop | default: 3 }}"
-        data-visible-tablet="{{ section.settings.visible_tablet | default: 2 }}"
-        data-visible-mobile="{{ section.settings.visible_mobile | default: 1.2 }}"
-        data-gap="16"
-        data-arrows-pos="header"
-        data-dots-style="bar"
-        data-loop="false"
-      {%- endunless -%}>
+    {%- comment -%}
+      MANDATO 1. Las CSS vars inline repiten los data-visible-* para que el
+      layout pre-init (antes de amatora.js) sea idéntico al final.
+      Con 1 solo block, el JS marca .is-static: no hace falta lógica Liquid.
+    {%- endcomment -%}
+    <div data-amatora-slider
+         data-visible-desktop="{{ vis_lg }}"
+         data-visible-tablet="{{ vis_md }}"
+         data-visible-mobile="{{ vis_sm }}"
+         data-gap="16"
+         data-arrows-pos="header"
+         data-dots-style="bar"
+         style="--sl-visible-lg: {{ vis_lg }}; --sl-visible-md: {{ vis_md }}; --sl-visible-sm: {{ vis_sm }}; --sl-gap: 16px;">
 
       {%- for block in section.blocks -%}
-        <div class="nombre-am__slide" {{ block.shopify_attributes }}>
+        {%- liquid
+          assign alt = block.settings.alt_text | default: block.settings.heading | default: shop.name
+          assign img_loading = 'lazy'
+          if forloop.index <= 3
+            assign img_loading = 'eager'
+          endif
+        -%}
+        <div {{ block.shopify_attributes }}>
 
+          {%- comment -%} MANDATO 3: una línea por imagen. Primeras 3 slides eager, resto lazy. {%- endcomment -%}
           {%- if block.settings.img != blank -%}
-            {%- comment -%} Imagen móvil (block.settings.img2) {%- endcomment -%}
-            {%- if block.settings.img2 != blank -%}
-              <img
-                src="{{ block.settings.img2 | image_url: width: 800 }}"
-                class="nombre-am__media nombre-am__media--mob w-full-amatora h-auto-amatora"
-                width="{{ block.settings.img2.width }}"
-                height="{{ block.settings.img2.height }}"
-                loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
-                {% if forloop.first %}fetchpriority="high"{% endif %}
-                decoding="async"
-                alt="{{ block.settings.alt_text | default: block.settings.heading | default: 'Imagen' | escape }}">
-            {%- endif -%}
-
-            {%- comment -%} Imagen desktop (block.settings.img) {%- endcomment -%}
-            <img
-              src="{{ block.settings.img | image_url: width: 1200 }}"
-              class="nombre-am__media nombre-am__media--desk w-full-amatora h-auto-amatora"
-              width="{{ block.settings.img.width }}"
-              height="{{ block.settings.img.height }}"
-              loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
-              {% if forloop.first %}fetchpriority="high"{% endif %}
-              decoding="async"
-              alt="{{ block.settings.alt_text | default: block.settings.heading | default: 'Imagen' | escape }}">
+            {{ block.settings.img | image_url: width: 800 | image_tag: class: 'nombre-am__media w-full-amatora h-auto-amatora object-cover-amatora', sizes: '(min-width: 768px) 33vw, 85vw', alt: alt, loading: img_loading }}
           {%- endif -%}
 
           {%- if block.settings.heading != blank -%}
-            <h3 class="nombre-am__heading text-lg-amatora md:text-xl-amatora font-semibold-amatora mt-4-amatora">
+            <h3 class="text-lg-amatora md:text-xl-amatora font-semibold-amatora mt-4-amatora">
               {{ block.settings.heading }}
             </h3>
           {%- endif -%}
 
           {%- if block.settings.text != blank -%}
-            <p class="nombre-am__text text-base-amatora text-muted-amatora mt-2-amatora">
+            <p class="text-base-amatora text-muted-amatora mt-2-amatora">
               {{ block.settings.text }}
             </p>
           {%- endif -%}
@@ -113,22 +93,8 @@
 </div>
 
 <style>
-  /* Scope obligatorio: #{{ sid }} */
-  /* Solo CSS no-utility: positioning, transitions, aspect-ratio, dynamic settings */
-
-  #{{ sid }} .nombre-am__media--mob { display: block; }
-  #{{ sid }} .nombre-am__media--desk { display: none; }
-
-  @media (min-width: 768px) {
-    #{{ sid }} .nombre-am__media--mob { display: none; }
-    #{{ sid }} .nombre-am__media--desk { display: block; }
-  }
-
-  #{{ sid }} .nombre-am__media {
-    object-fit: cover;
-    aspect-ratio: 4/3;
-    border-radius: 12px;
-  }
+  /* Scope obligatorio: #{{ sid }}. Solo lo que NO existe como utility. */
+  #{{ sid }} .nombre-am__media { aspect-ratio: 4/3; }
 
   {%- if section.settings.bg_color != blank -%}
     #{{ sid }} { background: {{ section.settings.bg_color }}; }
@@ -191,12 +157,7 @@
         {
           "type": "image_picker",
           "id": "img",
-          "label": "Imagen desktop (1920×800 recomendado)"
-        },
-        {
-          "type": "image_picker",
-          "id": "img2",
-          "label": "Imagen móvil (1080×1400 recomendado)"
+          "label": "Imagen (800×600 recomendado)"
         },
         {
           "type": "text",

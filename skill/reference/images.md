@@ -1,230 +1,194 @@
 # Imágenes en Shopify — Referencia completa
 
-Las 5 reglas core están en `SKILL.md` (Mandato 3). Acá vive el detalle: 11 reglas específicas, tablas de anchos por contexto, patterns de loading completos, casos edge.
+Las 5 reglas core están en `SKILL.md` (Mandato 3). Aquí va el detalle: por qué `image_tag`, tablas por contexto, patrones completos y la política de loading.
 
-## Regla 1 — `<picture>` para arte responsive (NO dos `<img>` con CSS toggle)
+## Por qué `image_url` + `image_tag`
 
-🚨 **PROHIBIDO**: dos `<img>` desktop/móvil ocultos con `display:none`. El navegador moderno **descarga ambas** antes de evaluar el CSS — duplicas el peso de la página y matas el LCP móvil.
+`image_tag` es el filtro oficial de Shopify para renderizar `<img>`. A partir de la URL que le pasas genera solo:
 
-✅ **Patrón correcto**: UN solo `<picture>` con `<source media>` para art-direction. Solo uno se descarga.
+- `srcset` con un set inteligente de anchos hasta el `width` máximo que pediste
+- `width` y `height` reales de la imagen (CLS = 0)
+- `alt` desde el media si no pasas uno
+- `<link rel="preload">` correcto (con `imagesrcset` + `imagesizes` idénticos al `<img>`) si pasas `preload: true`
+
+Y Shopify elige el formato (WebP / AVIF / JPEG) según lo que soporte el navegador. Por eso:
+
+- ❌ `format: 'webp'` NO existe. `image_url` solo acepta `format: 'jpg'` y `'pjpg'`. Quítalo de todos lados.
+- ❌ `srcset` escrito a mano con cinco `image_url` distintos: más Liquid, mismo resultado, más fácil equivocarse.
+- ❌ `<link rel="preload">` escrito a mano: si no coincide exactamente con el `srcset`/`sizes` del `<img>`, el navegador descarga la imagen dos veces.
+- ❌ `{{ img }}` o `{{ img.src }}` a secas: entrega la imagen original (puede ser un PNG de 8MB).
+
+## Regla 1 — La línea base
+
+```liquid
+{{ img | image_url: width: 2040 | image_tag: class: 'hero-am__media', sizes: '100vw', alt: alt, loading: 'lazy' }}
+```
+
+Parámetros de `image_tag` que usamos:
+
+| Parámetro | Qué hace |
+|---|---|
+| `class` | Clases del `<img>` (utilities `-amatora` y/o tu clase `-am`) |
+| `sizes` | Ancho real que ocupa la imagen, para que el navegador elija del srcset |
+| `alt` | Texto alternativo. Si lo omites, usa el alt del media en Shopify |
+| `loading` | `'lazy'` (default nuestro) o `'eager'` (solo LCP y primeras slides) |
+| `fetchpriority` | `'high'` SOLO en la imagen LCP |
+| `preload` | `true` SOLO en la imagen LCP sin versión móvil aparte |
+| `widths` | Opcional. Lista custom de anchos (`'400, 800, 1200'`) si el set automático no te sirve |
+
+## Regla 2 — `width` máximo por contexto
+
+`width` en `image_url` es el tope del srcset. Pedir más de lo que el contenedor puede mostrar es desperdicio puro.
+
+| Contexto | `width` | Por qué |
+|---|---|---|
+| Banner / hero full-width | `2040` | Cubre pantallas 2x hasta ~1020px CSS y desktop 1x hasta 2040 |
+| Sección full-width secundaria | `1500` | |
+| Imagen a media pantalla (split, about) | `1100` | |
+| Card de producto / colección (grid o slider) | `800` | El contenedor real mide 280-500px; 800 cubre retina |
+| Imagen dentro de un post / texto | `1200` | |
+| Poster de video | `1600` | |
+| Thumbnail / avatar | `300` | |
+| Icono / badge / logo chico | `200` | Sin `sizes`, sin srcset (ver Regla 7) |
+| Logo header | `400` | |
+
+Prohibido: `width: 3840`, `width: 5760`, o `image_url` sin `width` (error de Liquid).
+
+## Regla 3 — `sizes` correcto
+
+`sizes` le dice al navegador cuánto ancho CSS ocupa la imagen en cada breakpoint. Si mientes, elige mal.
+
+| Layout | `sizes` |
+|---|---|
+| Full-width | `'100vw'` |
+| Container (max 1500px) | `'(min-width: 1500px) 1500px, 100vw'` |
+| Grid de 2 columnas | `'(min-width: 768px) 50vw, 100vw'` |
+| Grid de 3 columnas | `'(min-width: 768px) 33vw, 100vw'` |
+| Grid de 4 columnas | `'(min-width: 768px) 25vw, 50vw'` |
+| Card en slider (3 desktop / 1.2 móvil) | `'(min-width: 768px) 33vw, 85vw'` |
+| Card en slider (4 desktop / 2 móvil) | `'(min-width: 768px) 25vw, 50vw'` |
+| Imagen a media pantalla | `'(min-width: 768px) 50vw, 100vw'` |
+
+## Regla 4 — `loading` y `fetchpriority`
+
+**Política: `lazy` por default. `eager` solo donde el usuario lo ve al llegar.**
+
+| Caso | `loading` | `fetchpriority` | `preload` |
+|---|---|---|---|
+| Imagen LCP (primera del primer hero/banner) | `'eager'` | `'high'` | `true` si no hay imagen móvil aparte |
+| Primeras 3 slides de cualquier slider | `'eager'` | omitir | no |
+| Slides 4+ de un slider | `'lazy'` | omitir | no |
+| Logo del header | `'eager'` | omitir | no |
+| Todo lo demás (grids, secciones, footer, drawers, popups) | `'lazy'` | omitir | no |
+
+Por qué NO `eager` en todo: cada imagen `eager` compite por ancho de banda con la imagen LCP. Un home con 40 imágenes eager tarda más en pintar el hero que uno con 3 eager y 37 lazy. El navegador pide las lazy solas cuando se acercan al viewport (con 1-2 pantallas de margen), incluso dentro de un slider con `overflow: hidden`.
+
+Si alguna vez viste slides "en blanco" o imágenes que no aparecían hasta arrastrar, la causa no era `lazy`: hasta v0.7.x `amatora.css` ocultaba todo slider con `visibility: hidden` hasta que corría el JS. Desde v0.8.0 no se oculta nada.
+
+🚨 `fetchpriority: 'high'` en más de una imagen anula el efecto: el navegador ya no sabe cuál es la importante.
+
+Patrón en un slider:
+
+```liquid
+{%- for block in section.blocks -%}
+  {%- liquid
+    assign img_loading = 'lazy'
+    if forloop.index <= 3
+      assign img_loading = 'eager'
+    endif
+  -%}
+  <div {{ block.shopify_attributes }}>
+    {{ block.settings.img | image_url: width: 800 | image_tag: class: 'cards-am__media', sizes: '(min-width: 768px) 33vw, 85vw', alt: block.settings.alt_text, loading: img_loading }}
+  </div>
+{%- endfor -%}
+```
+
+## Regla 5 — Imagen móvil distinta: `<picture>`
+
+Cuando el merchant sube una imagen vertical para móvil y una horizontal para desktop, va UN `<picture>` con un `<source>` para móvil. El `<img>` de desktop es el `image_tag`.
 
 ```liquid
 {%- liquid
-  assign img_d = block.settings.img
-  assign img_m = block.settings.img2 | default: img_d
-  assign alt   = block.settings.alt_text | default: 'Banner' | escape
+  assign img   = block.settings.img
+  assign img_m = block.settings.img2
+  assign alt   = block.settings.alt_text | default: shop.name
 -%}
-
-{%- if img_d != blank -%}
-  <picture class="banner-am__media">
-    {# Móvil: aspect ratio vertical, srcset granular #}
+<picture>
+  {%- if img_m != blank -%}
     <source media="(max-width: 767px)"
-            srcset="{{ img_m | image_url: width: 375,  format: 'webp' }} 375w,
-                    {{ img_m | image_url: width: 750,  format: 'webp' }} 750w,
-                    {{ img_m | image_url: width: 1100, format: 'webp' }} 1100w"
+            srcset="{{ img_m | image_url: width: 750 }} 750w,
+                    {{ img_m | image_url: width: 1080 }} 1080w"
             sizes="100vw"
             width="{{ img_m.width }}" height="{{ img_m.height }}">
+  {%- endif -%}
+  {%- if forloop.first and img_m == blank -%}
+    {{ img | image_url: width: 2040 | image_tag: class: 'hero-am__media', sizes: '100vw', alt: alt, loading: 'eager', fetchpriority: 'high', preload: true }}
+  {%- elsif forloop.first -%}
+    {{ img | image_url: width: 2040 | image_tag: class: 'hero-am__media', sizes: '100vw', alt: alt, loading: 'eager', fetchpriority: 'high' }}
+  {%- else -%}
+    {{ img | image_url: width: 2040 | image_tag: class: 'hero-am__media', sizes: '100vw', alt: alt, loading: 'lazy' }}
+  {%- endif -%}
+</picture>
+```
 
-    {# Desktop fallback #}
-    <img src="{{ img_d | image_url: width: 1500, format: 'webp' }}"
-         srcset="{{ img_d | image_url: width: 750,  format: 'webp' }} 750w,
-                 {{ img_d | image_url: width: 1100, format: 'webp' }} 1100w,
-                 {{ img_d | image_url: width: 1500, format: 'webp' }} 1500w,
-                 {{ img_d | image_url: width: 1920, format: 'webp' }} 1920w"
-         sizes="100vw"
-         width="{{ img_d.width }}" height="{{ img_d.height }}"
-         alt="{{ alt }}"
-         {% if forloop.first %}loading="eager" fetchpriority="high"{% else %}loading="eager"{% endif %}
-         decoding="async">
-  </picture>
+Por qué `preload: true` solo cuando NO hay imagen móvil: el preload apunta al srcset del `<img>` (desktop). En móvil el `<picture>` elige el `<source>` (otra imagen), así que el preload bajaría la de desktop de gusto. Con `eager` + `fetchpriority: 'high'` alcanza: el hero es de lo primero en el HTML.
+
+🚨 PROHIBIDO: dos `<img>` (móvil y desktop) con `display: none` por breakpoint. El navegador descarga ambos antes de evaluar el CSS.
+
+## Regla 6 — Cards de producto
+
+```liquid
+{%- assign p_img = product.featured_image -%}
+{%- if p_img != blank -%}
+  {{ p_img | image_url: width: 800 | image_tag: class: 'card-am__media w-full-amatora h-auto-amatora', sizes: '(min-width: 768px) 25vw, 50vw', alt: p_img.alt, loading: 'lazy' }}
 {%- endif -%}
 ```
 
-(Nota: en un banner con varios slides en carrusel, los slides 2+ van `eager` también porque están dentro de un track con `transform` — `lazy` falla ahí. Ver Regla 6.)
+`product.featured_image.alt` ya trae el alt que el merchant cargó en Shopify; si está vacío, `image_tag` cae al título del producto.
 
-## Regla 2 — `srcset` + `sizes` SIEMPRE (no width fijo)
+Hover con segunda imagen: renderiza `product.images[1]` con `loading: 'lazy'` y muéstrala por CSS en `:hover`. No la hagas eager.
 
-Cargar `image_url: width: 1920` sin `srcset` obliga al móvil a descargar 1920px aunque su pantalla mida 375px. **Cada `<img>` que ocupe ancho variable necesita `srcset` + `sizes`.**
+## Regla 7 — Iconos, badges, logos chicos
 
-**Anchos recomendados por contexto:**
-
-| Contexto | `srcset` widths | `sizes` |
-|---|---|---|
-| Banner hero full-width | `375, 750, 1100, 1500, 1920` | `100vw` |
-| Sección full-width | `375, 750, 1100, 1500` | `100vw` |
-| Product card en grid 4 cols | `200, 400, 600` | `(min-width: 768px) 25vw, 50vw` |
-| Product card en grid 3 cols (slider) | `300, 500, 700` | `(min-width: 768px) 33vw, 90vw` |
-| Card 2x2 (collection card) | `300, 500, 700` | `(min-width: 768px) 25vw, 50vw` |
-| Icono / badge / shipping icon | `width: 80` (1x fijo, sin srcset) | — |
-| Avatar / thumbnail | `100, 200` | fijo |
-| Logo en banner | `width: 300` (fijo) | — |
-
-## Regla 3 — `width` y `height` SIEMPRE presentes (CLS = 0)
+Un solo tamaño, sin `sizes`, `eager` si está above-the-fold:
 
 ```liquid
-✅ width="{{ img.width }}" height="{{ img.height }}"
-❌ (faltante → cumulative layout shift al cargar)
+{{ icon | image_url: width: 200 | image_tag: class: 'icons-am__icon', width: 48, height: 48, alt: block.settings.alt_text, loading: 'lazy' }}
 ```
 
-Si la imagen es decorativa (background CSS), úsala como `background-image` con `aspect-ratio` en CSS, **no** como `<img>` sin width/height.
+`width: 48, height: 48` en `image_tag` fija los atributos HTML al tamaño de render (el srcset sigue teniendo hasta 200 para retina).
 
-## Regla 4 — Tamaño correcto por contexto (NO sobre-pedir)
+## Regla 8 — `alt`
 
-🚨 **NO pedir 1920 / 3840 cuando el contenedor real es menor.** Pedir 3840 para un banner full-width es overkill — duplica bytes vs. 1920 sin diferencia visible salvo en pantallas 4K (<3% del tráfico).
+- Siempre un setting `alt_text` por bloque en el schema, `"type": "text"`.
+- Fallback razonable: `block.settings.alt_text | default: block.settings.heading | default: shop.name`.
+- NO pases el alt ya escapado a `image_tag`: el filtro escapa solo. Escapa únicamente cuando lo imprimes tú en un atributo (`aria-label="{{ alt | escape }}"`).
+- `alt=""` solo para imágenes puramente decorativas, y entonces suele ser mejor un `background-image`.
 
-| Elemento | Width máximo razonable |
-|---|---|
-| Icono SVG/PNG (icon-bar, badge) | **80–200** |
-| Logo header | **300–400** |
-| Product card image | **400–600** (no 800) |
-| Card de colección 2-col | **600–800** |
-| Hero móvil | **750–1100** |
-| Banner full-width desktop | **1500–1920** |
-| Background full-bleed 4K | **2560** (jamás 3840) |
-| Poster de video | **1600** |
+## Regla 9 — Videos
 
-**Prohibido**: `image_url: width: 3840` para uso normal, o `image_url` sin `width` (devuelve la nativa = puede ser 5000px+).
-
-## Regla 5 — `format: 'webp'` explícito
-
-Aunque `image_url` por default sirve webp en navegadores compatibles, **siempre** declara `format: 'webp'` explícito. Es defensa en profundidad y deja la intención clara en el código:
+- `autoplay muted loop playsinline`: los 4 son obligatorios para autoplay en iOS.
+- `poster="{{ poster | image_url: width: 1600 }}"` siempre, para no ver pantalla negra.
+- `preload="metadata"` solo en el primer video visible; el resto `preload="none"`.
+- Shopify `video` setting: itera `block.settings.video.sources` para los `<source>`.
 
 ```liquid
-✅ {{ img | image_url: width: 1100, format: 'webp' }}
-❌ {{ img | image_url: width: 1100 }}   {# depende de heurística del navegador #}
+<video class="hero-am__media" autoplay muted loop playsinline
+       poster="{{ block.settings.poster | image_url: width: 1600 }}"
+       {% if forloop.first %}preload="metadata"{% else %}preload="none"{% endif %}>
+  {%- for src in block.settings.video.sources -%}
+    <source src="{{ src.url }}" type="{{ src.mime_type }}">
+  {%- endfor -%}
+</video>
 ```
 
-## Regla 6 — Estrategia de loading: `eager` por default, `lazy` solo en zonas seguras
+## Checklist por cada imagen
 
-🚨 **En Shopify, `loading="lazy"` falla seguido y causa pop-in / imágenes que no cargan.** Las causas conocidas:
-
-1. **Carruseles con `transform: translateX`**: los slides off-screen están técnicamente "in viewport" para el IntersectionObserver pero visualmente ocultos por `overflow:hidden`. Lazy no se comporta confiable — o carga todo de golpe (rompe el propósito) o no carga nunca hasta que dragueas (flash al paginar).
-2. **Preview del customizer**: el iframe no siempre dispara los eventos de intersección. Las imágenes lazy aparecen en blanco mientras el merchant edita.
-3. **Sections AJAX-recargadas** (Section Rendering API): lazy puede no disparar tras un reload parcial.
-4. **Iconos pequeños**: pop-in visible al hacer scroll porque el observer dispara tarde.
-
-**Política — DEFAULT a `eager`:**
-
-| Caso | loading | fetchpriority |
-|---|---|---|
-| LCP (primera imagen above-the-fold del primer banner/hero) | `eager` | `high` + preload |
-| Cualquier imagen above-the-fold no-LCP | `eager` | (omitir = auto) |
-| Iconos pequeños (≤200w, icon-bar, badges) | `eager` | (omitir) |
-| Imágenes dentro de cualquier carrusel/slider | `eager` | (omitir) — NUNCA lazy |
-| Imágenes dentro de drawers, popups, accordions cerrados | `eager` | (omitir) |
-| Imágenes claramente below-the-fold + NO en carrusel + NO en customizer preview crítico (ej. footer Instagram, footer testimoniales) | `lazy` | (omitir) |
-
-**Decoding**: SIEMPRE `decoding="async"` en todas las imágenes. Es seguro y ayuda al main thread.
-
-```liquid
-{# LCP — primera slide del hero/banner #}
-{% if forloop.first and section.index == 1 %}
-  loading="eager" fetchpriority="high"
-{% else %}
-  loading="eager"
-{% endif %}
-decoding="async"
-```
-
-**Si dudas → `eager`.** Cuesta unos bytes extra de ancho de banda, pero evita 100% el pop-in, los slides en blanco y los bugs del customizer.
-
-**Alternativa moderna a `lazy` que NO falla**: si querés deprioritizar una imagen sin riesgo de que no cargue, usa `fetchpriority="low"` en lugar de `loading="lazy"`. El navegador la baja al final de la cola pero la pide igual junto con el resto del HTML — sin IntersectionObserver, sin riesgo de no disparar.
-
-```liquid
-{# Imagen below-the-fold cuando lazy falló: #}
-loading="eager" fetchpriority="low" decoding="async"
-```
-
-🚨 **NUNCA pongas `eager` con `fetchpriority="high"` en más de UNA imagen por página.** Eso es solo para el LCP. Si pones high en 5 imágenes, el navegador no sabe cuál es la real LCP y todas pierden prioridad.
-
-**Resumen rápido:**
-- **LCP** (UNA imagen, primer banner/hero): `eager` + `fetchpriority="high"` + preload.
-- **Todo lo demás above-fold + carruseles + iconos + drawers**: `eager` (sin fetchpriority).
-- **Solo footer y zonas profundas sin carrusel**: `lazy` (con cuidado) o `fetchpriority="low"` (más seguro).
-- **TODO lleva `decoding="async"`.**
-
-## Regla 7 — `<link rel="preload">` con `imagesrcset` (no URL fija)
-
-Para LCP, el preload va con **el mismo srcset/sizes** que el `<img>` real, no una URL hardcoded a 1920. Si no, móvil descarga 1920 vía preload + 750 vía `<img>` = doble fetch.
-
-```liquid
-{# ANTES de <div id="..."> #}
-{%- if first.settings.img != blank -%}
-  <link rel="preload"
-        as="image"
-        fetchpriority="high"
-        imagesrcset="{{ first.settings.img | image_url: width: 750,  format: 'webp' }} 750w,
-                     {{ first.settings.img | image_url: width: 1100, format: 'webp' }} 1100w,
-                     {{ first.settings.img | image_url: width: 1500, format: 'webp' }} 1500w,
-                     {{ first.settings.img | image_url: width: 1920, format: 'webp' }} 1920w"
-        imagesizes="100vw">
-{%- endif -%}
-```
-
-Una sola sección por página debe preloadear — la primera. Preload en sección #4 = waste.
-
-## Regla 8 — Alt text configurable y semántico
-
-```liquid
-✅ alt="{{ block.settings.alt_text | default: block.settings.heading | default: 'Producto' | escape }}"
-❌ alt=""              {# salvo decorativa pura — y entonces es pintura, no <img> #}
-❌ alt="image"
-❌ alt="Banner"        {# mismo para todos = no informa #}
-```
-
-Siempre expón un setting `alt_text` por bloque en el schema.
-
-## Regla 9 — Productos en grid: 400–600, NUNCA 800+
-
-Para product cards en un slider/grid de 3–4 columnas el contenedor real mide ~280–360px. Pedir 800 = 2x desperdicio. **Usa `srcset` 200/400/600 con `sizes` correcto** y deja que el navegador elija.
-
-```liquid
-<img src="{{ product.featured_image | image_url: width: 600, format: 'webp' }}"
-     srcset="{{ product.featured_image | image_url: width: 300, format: 'webp' }} 300w,
-             {{ product.featured_image | image_url: width: 500, format: 'webp' }} 500w,
-             {{ product.featured_image | image_url: width: 700, format: 'webp' }} 700w"
-     sizes="(min-width: 768px) 33vw, 90vw"
-     width="{{ product.featured_image.width }}"
-     height="{{ product.featured_image.height }}"
-     loading="eager" decoding="async"
-     alt="{{ product.featured_image.alt | default: product.title | escape }}">
-```
-
-(Si el grid de productos está dentro de un slider — caso típico de "best sellers" — `eager`. Si está en una sección plana below-the-fold sin carrusel, podés intentar `lazy` con cuidado. Ver Regla 6.)
-
-## Regla 10 — Iconos (icon-bar, shipping, badges, value-props)
-
-Dos cosas distintas que mucha gente olvida:
-
-1. **NO `srcset`**: los iconos pequeños cargan UN solo tamaño (cercano al render real × 2 para retina, tope ~200w).
-2. **`loading="eager"`, no `lazy`**: lazy en iconos crea efecto pop-in (el icono aparece "de la nada" al hacer scroll). Como cada icono pesa ~5–20kb, el byte ahorrado por lazy no compensa la mala UX. Eager los carga junto con el HTML y nunca se ve el flash.
-
-```liquid
-{# Render real: 48px → pide 96 (2x) o 200 si querés holgura #}
-<img src="{{ icon | image_url: width: 200, format: 'webp' }}"
-     width="48" height="48"
-     loading="eager" decoding="async"
-     alt="{{ alt | default: 'Icono' | escape }}">
-```
-
-**Aplica a**: icon-bar, shipping icons, badges, iconos de value-props, iconos de "cómo funciona", logos pequeños del footer. **NO aplica a**: imágenes de producto, fotos de testimoniales, banners — esas siguen las reglas generales de la Regla 6.
-
-## Regla 11 — Videos
-
-- `autoplay muted loop playsinline` — los 4 obligatorios para autoplay en iOS
-- `poster="{{ poster | image_url: width: 1600, format: 'webp' }}"` siempre
-- `preload="metadata"` solo en el primer video; resto `preload="none"`
-
-## Auto-checklist por cada `<img>` que escribas
-
-- [ ] ¿Pasa por `image_url` con `width:` y `format: 'webp'` explícitos?
-- [ ] ¿Tiene `width` y `height` HTML attrs (CLS)?
-- [ ] Si ocupa ancho variable: ¿tiene `srcset` + `sizes`?
-- [ ] Si hay versión desktop/móvil distinta: ¿usa `<picture>` con `<source media>` (NO dos `<img>` con CSS)?
-- [ ] ¿`fetchpriority="high"` SOLO en UNA imagen (la LCP)?
-- [ ] ¿`loading="eager"` por default? ¿`lazy` solo en footer/zonas profundas y NUNCA dentro de carruseles/drawers/popups? (Ver Regla 6.)
-- [ ] Si es LCP: ¿hay `<link rel="preload">` con `imagesrcset` + `imagesizes`?
-- [ ] ¿`alt` configurable y descriptivo?
-- [ ] ¿El width pedido es razonable para el contenedor (no 3840 para un card de 300px)?
-
-Ver `reference/performance.md` para targets completos de LCP/CLS/INP.
+- [ ] ¿`image_url: width: N | image_tag`?
+- [ ] ¿Sin `format:`, sin srcset a mano, sin preload a mano?
+- [ ] ¿`width` razonable para el contexto (tabla Regla 2)?
+- [ ] ¿`sizes` refleja el layout real (tabla Regla 3)?
+- [ ] ¿`loading: 'lazy'` salvo LCP y primeras slides?
+- [ ] ¿`fetchpriority: 'high'` en UNA sola imagen de la página?
+- [ ] Si hay imagen móvil: ¿`<picture>` con `<source media>` y sin `preload`?
+- [ ] ¿`alt` configurable con fallback?

@@ -96,6 +96,8 @@ New-Item -ItemType Directory -Force -Path (Join-Path $skillTarget "reference") |
 
 $skillFiles = @(
   @{ src = "skill/SKILL.md";                          dest = "SKILL.md" },
+  @{ src = "skill/reference/buttons.md";              dest = "reference/buttons.md" },
+  @{ src = "skill/reference/images.md";               dest = "reference/images.md" },
   @{ src = "skill/reference/file-tree.md";            dest = "reference/file-tree.md" },
   @{ src = "skill/reference/performance.md";          dest = "reference/performance.md" },
   @{ src = "skill/reference/section-template.liquid"; dest = "reference/section-template.liquid" },
@@ -264,7 +266,8 @@ if ($ToolsOnly) {
   Write-Host "    Mientras los 2 tags no estén en theme.liquid, el theme funciona"
   Write-Host "    exactamente como antes — Amatora está disponible pero inactivo."
   Write-Host ""
-  Write-Host "    Para configurar la paleta del sistema: editá assets/amatora.css sección 2."
+  Write-Host "    En este modo no hay panel en el customizer: la paleta se edita en assets/amatora.css sección 2."
+  Write-Host "    Para tener el panel 'Configuraciones Amatora', corre la instalación completa (sin -ToolsOnly)."
   return
 }
 
@@ -339,10 +342,11 @@ if (-not $hasAtc) {
 
 Set-FileLF -Dest $themeLiquid -Content $themeContent
 
-# ===== Rescate de colores del theme (muta amatora.css) =====
-# Source of truth de la paleta = assets/amatora.css (sección 2).
-# El installer detecta los colores configurados en el theme y los escribe
-# directamente en las variables CSS de amatora.css ANTES de copiar el archivo.
+# ===== Rescate de colores del theme =====
+# El installer detecta los colores configurados en el theme y los escribe en
+# dos lugares: como defaults de fábrica en assets/amatora.css (sección 2) y
+# como "default" de los settings del panel "Configuraciones Amatora" (más abajo).
+# Así el customizer arranca con la paleta real del cliente.
 Write-Host ""
 Write-Host "=== Rescatando colores del theme ==="
 $rescued = [ordered]@{}
@@ -451,17 +455,53 @@ if (-not (Test-Path $dataPath)) {
 # Escribir amatora.css (con o sin los colores rescatados)
 Set-FileLF -Dest (Join-Path $projectRoot "assets/amatora.css") -Content $amatoraCssContent
 
-# ===== Mergear schema (panel Amatora — sin colores) =====
+# ===== Mergear schema (panel "Configuraciones Amatora") =====
 Write-Host ""
 Write-Host "=== Mergeando settings_schema.json ==="
+$patchContent = Get-AsLF -Path "system/settings_schema.amatora.json"
+
+# Los colores rescatados pasan a ser los "default" del panel.
+if ($rescued -and $rescued.Count -gt 0) {
+  $schemaIdMapping = [ordered]@{
+    'primary'   = @('am_color_primary', 'am_color_primary_hover')
+    'secondary' = @('am_color_secondary', 'am_color_secondary_hover')
+    'text'      = @('am_text_primary', 'am_text_secondary')
+    'bg_light'  = @('am_bg_light')
+  }
+  foreach ($role in $rescued.Keys) {
+    $newColor = $rescued[$role].value
+    foreach ($id in $schemaIdMapping[$role]) {
+      $rxPattern = '("id"\s*:\s*"' + [regex]::Escape($id) + '"[^}]*?"default"\s*:\s*")#[0-9a-fA-F]{3,8}'
+      $patchContent = [regex]::Replace($patchContent, $rxPattern, ('$1' + $newColor))
+    }
+  }
+  Write-Host "==> Colores rescatados aplicados como defaults del panel"
+}
+
 $existingSchema = [System.IO.File]::ReadAllText($schemaPath)
 
-if ($existingSchema -match '"name"\s*:\s*"Amatora') {
-  Write-Host "==> El schema ya tiene un panel 'Amatora —...' — sin cambios"
-  Write-Host "    Si venís de v0.6.x o anterior, el panel viejo tiene settings de colores y botones que YA NO SE USAN."
-  Write-Host "    Eliminá el panel manualmente de config/settings_schema.json y re-corré con -Force para que se agregue el nuevo."
+if ($existingSchema -match '"name"\s*:\s*"(Configuraciones Amatora|Amatora)') {
+  # Instalación previa: se quitan los paneles Amatora viejos y se agrega el actual
+  # (round-trip JSON; el archivo se reformatea, hay backup .bak.$stamp).
+  Write-Host "==> El schema ya tiene un panel Amatora — se reemplaza por 'Configuraciones Amatora'"
+  try {
+    $schemaArr = @($existingSchema | ConvertFrom-Json)
+    $kept = @($schemaArr | Where-Object {
+      -not (($_.name -is [string]) -and ($_.name -eq 'Configuraciones Amatora' -or $_.name -like 'Amatora*'))
+    })
+    $kept += ($patchContent | ConvertFrom-Json)
+    $newSchema = ConvertTo-Json -InputObject $kept -Depth 100
+    # ConvertTo-Json escapa acentos y símbolos como é; los devolvemos legibles
+    $newSchema = [regex]::Replace($newSchema, '\\u([0-9a-fA-F]{4})', {
+      param($m) [string][char][Convert]::ToInt32($m.Groups[1].Value, 16)
+    })
+    Set-FileLF -Dest $schemaPath -Content $newSchema
+    Write-Host "==> Panel 'Configuraciones Amatora' actualizado (settings_schema.json reformateado; backup .bak.$stamp)"
+  } catch {
+    Write-Warning "No pude reemplazar el panel automáticamente: $($_.Exception.Message)"
+    Write-Warning "Borra el panel Amatora viejo de config/settings_schema.json y vuelve a correr con -Force."
+  }
 } else {
-  $patchContent = Get-AsLF -Path "system/settings_schema.amatora.json"
   $lastBracket = $existingSchema.LastIndexOf(']')
   if ($lastBracket -lt 0) {
     throw "config/settings_schema.json no parece un array JSON válido."
@@ -472,7 +512,7 @@ if ($existingSchema -match '"name"\s*:\s*"Amatora') {
   $separator = if ($needsComma) { "," } else { "" }
   $newSchema = "$beforeBracket$separator`n$patchContent`n$afterBracket"
   Set-FileLF -Dest $schemaPath -Content $newSchema
-  Write-Host "==> Panel 'Amatora — Diseño base' agregado al schema (sin colores — viven en amatora.css)"
+  Write-Host "==> Panel 'Configuraciones Amatora' agregado al schema"
 }
 
 # ===== Reporte final =====
@@ -492,11 +532,10 @@ Write-Host "      layout/theme.liquid"
 Write-Host "      config/settings_schema.json"
 if ($rescued -and $rescued.Count -gt 0) {
   Write-Host ""
-  Write-Host "    Colores rescatados del theme y escritos en assets/amatora.css: $($rescued.Count)"
+  Write-Host "    Colores rescatados del theme: $($rescued.Count) (en amatora.css y como defaults del panel)"
 }
 Write-Host ""
 Write-Host "    Próximos pasos:"
 Write-Host "      1. Reiniciar Claude Code en este proyecto."
-Write-Host "      2. Para cambiar la paleta del sistema -> editá assets/amatora.css (sección 2)."
-Write-Host "      3. Para cambiar fuente, slider, botón (radius/tamaño), comportamiento del carrito -> customizer de Shopify, panel 'Amatora — Diseño base'."
-Write-Host "      4. Agregar 'Banner Amatora' a la home como smoke-test."
+Write-Host "      2. Colores, fuentes, botones, sliders y carrito -> customizer de Shopify, panel 'Configuraciones Amatora'."
+Write-Host "      3. Agregar 'Banner Amatora' a la home como smoke-test."

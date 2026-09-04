@@ -1,20 +1,22 @@
 {%- comment -%}
   amatora-tokens.liquid
   ----------------------------------------------------------------------
-  Desde v0.7.0: este snippet NO inyecta colores ni dimensiones de botones.
+  Puente entre el panel "Configuraciones Amatora" del customizer y el CSS.
 
-  Source of truth de la paleta + forma de botones = assets/amatora.css
-  (sección 2 — CONFIGURACIÓN DEL PROYECTO). Para cambiar la marca o el
-  radius de los botones, editá ese archivo directamente.
+  Regla única de precedencia:
+    customizer (este snippet) > assets/amatora.css sección 2 (defaults de fábrica)
 
-  Lo que SÍ hace este snippet:
-    - Carga las fuentes elegidas en el customizer (font_face)
-    - Inyecta --am-font-heading / --am-font-body en :root
+  Lo que hace:
+    - Carga las fuentes elegidas en el customizer (font_face) e inyecta
+      --am-font-heading / --am-font-body
+    - Inyecta los colores del panel como --am-color-* / --am-text-* / --am-bg-* / --am-border
+    - Inyecta la forma de los botones (--btn-radius, --btn-fs, --btn-fw, --btn-py, --btn-px)
     - Inyecta los settings de slider (--sl-gap, --sl-arrow-size, --sl-transition)
-    - Setea window.AmatoraConfig con los defaults de slider que no son CSS vars
+    - Setea window.AmatoraConfig con los defaults que no son CSS vars
+      (dots, flechas, icono custom, comportamiento del carrito)
 
-  Renderizá UNA sola vez en layout/theme.liquid, dentro del <head>,
-  inmediatamente DESPUÉS de cargar amatora.css:
+  Renderízalo UNA sola vez en layout/theme.liquid, dentro del <head>,
+  inmediatamente DESPUÉS de amatora.css (así sus :root ganan):
 
     {{ 'amatora.css' | asset_url | stylesheet_tag }}
     {% render 'amatora-tokens' %}
@@ -23,8 +25,7 @@
 <style>
   {%- comment -%}
     font_face devuelve @font-face { ... } como texto crudo, NO envuelto
-    en <style>. Tiene que vivir dentro de este mismo bloque <style>; si lo
-    dejás suelto en el head, el parser lo empuja al <body> como texto.
+    en <style>. Tiene que vivir dentro de este mismo bloque.
   {%- endcomment -%}
   {%- if settings.am_font_heading != blank %}
   {{ settings.am_font_heading | font_face: font_display: 'swap' }}
@@ -38,14 +39,60 @@
     --am-font-heading: {{ settings.am_font_heading.family }}, {{ settings.am_font_heading.fallback_families }};
     {%- endif %}
     {%- if settings.am_font_body != blank %}
-    --am-font-body:    {{ settings.am_font_body.family }},    {{ settings.am_font_body.fallback_families }};
+    --am-font-body: {{ settings.am_font_body.family }}, {{ settings.am_font_body.fallback_families }};
     {%- endif %}
 
-    {%- comment -%} Sliders — defaults globales del panel {%- endcomment -%}
-    {%- if settings.slider_gap %}
-    --sl-gap:        {{ settings.slider_gap }}px;
+    {%- comment -%} Colores — solo si el merchant los definió {%- endcomment -%}
+    {%- if settings.am_color_primary != blank %}
+    --am-color-primary: {{ settings.am_color_primary }};
     {%- endif %}
-    {%- if settings.slider_arrow_size %}
+    {%- if settings.am_color_primary_hover != blank %}
+    --am-color-primary-hover: {{ settings.am_color_primary_hover }};
+    {%- endif %}
+    {%- if settings.am_color_secondary != blank %}
+    --am-color-secondary: {{ settings.am_color_secondary }};
+    {%- endif %}
+    {%- if settings.am_color_secondary_hover != blank %}
+    --am-color-secondary-hover: {{ settings.am_color_secondary_hover }};
+    {%- endif %}
+    {%- if settings.am_text_primary != blank %}
+    --am-text-primary: {{ settings.am_text_primary }};
+    {%- endif %}
+    {%- if settings.am_text_secondary != blank %}
+    --am-text-secondary: {{ settings.am_text_secondary }};
+    {%- endif %}
+    {%- if settings.am_bg_light != blank %}
+    --am-bg-light: {{ settings.am_bg_light }};
+    {%- endif %}
+    {%- if settings.am_bg_warm != blank %}
+    --am-bg-warm: {{ settings.am_bg_warm }};
+    {%- endif %}
+    {%- if settings.am_border != blank %}
+    --am-border: {{ settings.am_border }};
+    {%- endif %}
+
+    {%- comment -%} Botones — forma y tamaño global {%- endcomment -%}
+    {%- if settings.am_btn_radius != blank %}
+    --btn-radius: {{ settings.am_btn_radius }}px;
+    {%- endif %}
+    {%- if settings.am_btn_fs != blank %}
+    --btn-fs: {{ settings.am_btn_fs }}px;
+    {%- endif %}
+    {%- if settings.am_btn_fw != blank %}
+    --btn-fw: {{ settings.am_btn_fw }};
+    {%- endif %}
+    {%- if settings.am_btn_py != blank %}
+    --btn-py: {{ settings.am_btn_py }}px;
+    {%- endif %}
+    {%- if settings.am_btn_px != blank %}
+    --btn-px: {{ settings.am_btn_px }}px;
+    {%- endif %}
+
+    {%- comment -%} Sliders — defaults globales {%- endcomment -%}
+    {%- if settings.slider_gap != blank %}
+    --sl-gap: {{ settings.slider_gap }}px;
+    {%- endif %}
+    {%- if settings.slider_arrow_size != blank %}
     --sl-arrow-size: {{ settings.slider_arrow_size }}px;
     {%- endif %}
     {%- case settings.slider_transition_speed -%}
@@ -60,17 +107,18 @@
 </style>
 
 {%- comment -%}
-  Defaults globales del slider que NO son CSS variables (estilo de dots,
-  posición de flechas, mostrar/ocultar). amatora.js los lee al inicializar
-  cada [data-amatora-slider]. Si la sección define data-* propios, esos
-  ganan (data-attribute > opts > AmatoraConfig > hardcoded).
+  Defaults que no son CSS variables. amatora.js y amatora-add-to-cart.liquid
+  los leen. Si una sección define data-* propios, esos ganan
+  (data-attribute > opts > AmatoraConfig > hardcoded).
 {%- endcomment -%}
 <script>
   window.AmatoraConfig = window.AmatoraConfig || {};
   window.AmatoraConfig.sliderDotsStyle  = {{ settings.slider_dots_style  | default: 'bar'    | json }};
   window.AmatoraConfig.sliderArrowsPos  = {{ settings.slider_arrows_pos  | default: 'header' | json }};
-  window.AmatoraConfig.sliderShowArrows = {{ settings.slider_show_arrows | default: true     | json }};
-  window.AmatoraConfig.sliderShowDots   = {{ settings.slider_show_dots   | default: true     | json }};
+  window.AmatoraConfig.sliderShowArrows = {{ settings.slider_show_arrows | default: true, allow_false: true | json }};
+  window.AmatoraConfig.sliderShowDots   = {{ settings.slider_show_dots   | default: true, allow_false: true | json }};
+  window.AmatoraConfig.cartOpenDrawer   = {{ settings.am_cart_open_drawer | default: true, allow_false: true | json }};
+  window.AmatoraConfig.cartVariants     = {{ settings.add_to_cart_with_variants | default: 'link_to_product' | json }};
   {%- if settings.slider_arrow_icon != blank %}
   window.AmatoraConfig.sliderArrowIcon  = {{ settings.slider_arrow_icon | image_url: width: 64 | json }};
   {%- endif %}

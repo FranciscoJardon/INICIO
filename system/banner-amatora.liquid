@@ -1,31 +1,20 @@
 {%- if section.blocks.size > 0 -%}
 {%- liquid
-  assign sid       = 'banner-' | append: section.id
-  assign autoplay  = section.settings.autoplay | times: 1000
-  assign first     = section.blocks.first
-  assign is_single = false
-  if section.blocks.size == 1
-    assign is_single = true
-  endif
+  assign sid      = 'banner-' | append: section.id
+  assign autoplay = section.settings.autoplay | times: 1000
 -%}
 
-{%- comment -%}
-  LCP preload: imagesrcset+imagesizes para que el browser elija el width óptimo
-  según el viewport (móvil 750w, desktop 1920w) en vez de forzar 1920 a todos.
-{%- endcomment -%}
-{%- if first.settings.img != blank -%}
-  <link rel="preload" as="image" fetchpriority="high"
-        imagesrcset="{{ first.settings.img | image_url: width: 750,  format: 'webp' }} 750w,
-                     {{ first.settings.img | image_url: width: 1100, format: 'webp' }} 1100w,
-                     {{ first.settings.img | image_url: width: 1500, format: 'webp' }} 1500w,
-                     {{ first.settings.img | image_url: width: 1920, format: 'webp' }} 1920w"
-        imagesizes="100vw">
-{%- endif -%}
+<div id="{{ sid }}" aria-label="{{ section.settings.aria_label | default: 'Banner' | escape }}">
 
-<div id="{{ sid }}" class="banner-am{% if is_single %} banner-am--single{% endif %}" aria-label="{{ section.settings.aria_label | default: 'Banner' | escape }}">
-
-  <div class="banner-am__track-wrap"
-    {%- unless is_single -%}
+  {%- comment -%}
+    MANDATO 1: slider con [data-amatora-slider].
+    - Con 1 solo slide, amatora.js lo marca .is-static (sin flechas ni dots).
+      No hace falta lógica Liquid de "single slide".
+    - Las CSS vars inline (--sl-peek / --sl-gap) hacen que el layout ANTES
+      de que corra el JS sea idéntico al final: la imagen LCP pinta apenas
+      llega, sin esperar a amatora.js.
+  {%- endcomment -%}
+  <div class="banner-am__track"
        data-amatora-slider
        data-variant="banner"
        data-peek="0"
@@ -37,65 +26,61 @@
        data-accent="{{ section.settings.accent_color }}"
        data-autoplay="{{ autoplay }}"
        data-loop="true"
-    {%- endunless -%}>
+       style="--sl-peek: 0px; --sl-gap: 0px;">
 
     {%- for block in section.blocks -%}
-      <div class="banner-am__slide" {{ block.shopify_attributes }}>
+      {%- liquid
+        assign alt = block.settings.alt_text | default: shop.name
+        assign has_cta = false
+        if block.settings.cta_text != blank
+          assign has_cta = true
+        endif
+        assign wrap_in_link = false
+        if block.settings.url != blank and has_cta == false
+          assign wrap_in_link = true
+        endif
+      -%}
+      <div class="relative-amatora w-full-amatora" {{ block.shopify_attributes }}>
 
-        {%- if block.settings.url != blank and block.settings.cta_text == blank -%}
-          {%- assign wrap_in_link = true -%}
-          <a href="{{ block.settings.url }}" class="banner-am__link" aria-label="{{ block.settings.alt_text | default: 'Banner' | escape }}">
-        {%- else -%}
-          {%- assign wrap_in_link = false -%}
+        {%- if wrap_in_link -%}
+          <a href="{{ block.settings.url }}" class="block-amatora w-full-amatora text-decoration-amatora" aria-label="{{ alt | escape }}">
         {%- endif -%}
 
         {%- if block.settings.formato == 'video' -%}
-
-          {%- comment -%}
-            Para video, una sola etiqueta condicional según viewport.
-            (No replicamos el patrón <picture> con <source media> porque <video>
-             no lo soporta nativo; usamos viewport-side check + autoplay attrs.)
-          {%- endcomment -%}
           {%- if block.settings.video != blank -%}
-            <video class="banner-am__media"
+            <video class="block-amatora w-full-amatora h-auto-amatora object-cover-amatora"
                    autoplay muted loop playsinline
                    {% if forloop.first %}preload="metadata"{% else %}preload="none"{% endif %}
-                   {% if block.settings.poster != blank %}poster="{{ block.settings.poster | image_url: width: 1600, format: 'webp' }}"{% endif %}>
+                   {% if block.settings.poster != blank %}poster="{{ block.settings.poster | image_url: width: 1600 }}"{% endif %}>
               {%- for src in block.settings.video.sources -%}
                 <source src="{{ src.url }}" type="{{ src.mime_type }}">
               {%- endfor -%}
             </video>
           {%- endif -%}
 
-        {%- else -%}
-
-          {%- if block.settings.img != blank -%}
-            <picture>
-              {%- if block.settings.img2 != blank -%}
-                <source media="(max-width: 767px)"
-                        srcset="{{ block.settings.img2 | image_url: width: 480,  format: 'webp' }} 480w,
-                                {{ block.settings.img2 | image_url: width: 750,  format: 'webp' }} 750w,
-                                {{ block.settings.img2 | image_url: width: 1080, format: 'webp' }} 1080w"
-                        sizes="100vw"
-                        width="{{ block.settings.img2.width }}"
-                        height="{{ block.settings.img2.height }}">
-              {%- endif -%}
-              <img src="{{ block.settings.img | image_url: width: 1500, format: 'webp' }}"
-                   srcset="{{ block.settings.img | image_url: width: 750,  format: 'webp' }} 750w,
-                           {{ block.settings.img | image_url: width: 1100, format: 'webp' }} 1100w,
-                           {{ block.settings.img | image_url: width: 1500, format: 'webp' }} 1500w,
-                           {{ block.settings.img | image_url: width: 1920, format: 'webp' }} 1920w"
-                   sizes="100vw"
-                   alt="{{ block.settings.alt_text | default: 'Banner' | escape }}"
-                   class="banner-am__media"
-                   width="{{ block.settings.img.width }}"
-                   height="{{ block.settings.img.height }}"
-                   loading="eager"
-                   {% if forloop.first %}fetchpriority="high"{% endif %}
-                   decoding="async">
-            </picture>
-          {%- endif -%}
-
+        {%- elsif block.settings.img != blank -%}
+          {%- comment -%}
+            MANDATO 3: image_url + image_tag. Shopify genera srcset, width/height
+            y el formato (WebP/AVIF) solo. Primer slide = LCP: eager + high
+            (+ preload si no hay imagen móvil aparte). El resto lazy.
+          {%- endcomment -%}
+          <picture>
+            {%- if block.settings.img2 != blank -%}
+              <source media="(max-width: 767px)"
+                      srcset="{{ block.settings.img2 | image_url: width: 750 }} 750w,
+                              {{ block.settings.img2 | image_url: width: 1080 }} 1080w"
+                      sizes="100vw"
+                      width="{{ block.settings.img2.width }}"
+                      height="{{ block.settings.img2.height }}">
+            {%- endif -%}
+            {%- if forloop.first and block.settings.img2 == blank -%}
+              {{ block.settings.img | image_url: width: 2040 | image_tag: class: 'block-amatora w-full-amatora h-auto-amatora object-cover-amatora', sizes: '100vw', alt: alt, loading: 'eager', fetchpriority: 'high', preload: true }}
+            {%- elsif forloop.first -%}
+              {{ block.settings.img | image_url: width: 2040 | image_tag: class: 'block-amatora w-full-amatora h-auto-amatora object-cover-amatora', sizes: '100vw', alt: alt, loading: 'eager', fetchpriority: 'high' }}
+            {%- else -%}
+              {{ block.settings.img | image_url: width: 2040 | image_tag: class: 'block-amatora w-full-amatora h-auto-amatora object-cover-amatora', sizes: '100vw', alt: alt, loading: 'lazy' }}
+            {%- endif -%}
+          </picture>
         {%- endif -%}
 
         {%- if wrap_in_link -%}
@@ -103,11 +88,11 @@
         {%- endif -%}
 
         {%- comment -%}
-          CTA opcional sobre el banner. Cuando hay cta_text, NO envolvemos el media
-          en <a> (sería un link dentro de otro link); el botón es el único navegable.
+          CTA opcional. Cuando hay cta_text NO envolvemos el media en <a>
+          (sería un link dentro de otro link); el botón es el único navegable.
         {%- endcomment -%}
-        {%- if block.settings.cta_text != blank -%}
-          <div class="banner-am__cta-wrap flex-amatora justify-center-amatora">
+        {%- if has_cta -%}
+          <div class="banner-am__cta absolute-amatora left-0-amatora right-0-amatora z-1-amatora flex-amatora justify-center-amatora px-4-amatora">
             <a href="{{ block.settings.url | default: '#' }}" class="btn-primary-amatora btn-block-amatora">
               <span class="btn-label">{{ block.settings.cta_text }}</span>
             </a>
@@ -120,40 +105,15 @@
 </div>
 
 <style>
-  #{{ sid }} .slider-amatora {
-    --sl-radius: 0;
-    --sl-peek: 0px;
-    --sl-gap: 0px;
-  }
+  /* MANDATO 2: solo lo que NO existe como utility. Layout, posición y
+     object-fit van como clases -amatora en el HTML. */
+  #{{ sid }} .banner-am__track { --sl-radius: 0; }
   #{{ sid }} .slider-amatora__viewport { border-radius: 0; }
-  #{{ sid }} .slider-amatora[data-variant="banner"] .slider-amatora__slide { width: 100%; }
 
-  #{{ sid }} .banner-am__slide {
-    position: relative;
-    width: 100%;
-  }
-  #{{ sid }} .banner-am__link {
-    display: block;
-    width: 100%;
-    color: inherit;
-    text-decoration: none;
-  }
-  #{{ sid }} .banner-am__media {
-    display: block;
-    width: 100%;
-    height: auto;
-    object-fit: cover;
-  }
+  /* Offset fuera de la escala */
+  #{{ sid }} .banner-am__cta { bottom: 48px; }
 
-  #{{ sid }} .banner-am__cta-wrap {
-    position: absolute;
-    left: 0; right: 0;
-    bottom: 48px;
-    z-index: 2;
-    padding: 0 16px;
-  }
-
-  /* Dots flotantes al pie del banner */
+  /* Dots flotantes al pie del banner (selector generado por el JS) */
   #{{ sid }} .slider-amatora__dots {
     position: absolute;
     bottom: 20px;
@@ -165,28 +125,11 @@
     margin-top: 0;
   }
 
-  /* Fallback antes de que cargue el JS */
-  #{{ sid }} .banner-am__track-wrap:not(.slider-amatora) .banner-am__slide ~ .banner-am__slide {
-    display: none;
-  }
-
-  /* Cuando solo hay 1 slide: ocultar controles */
-  #{{ sid }}.banner-am--single .slider-amatora__arrows,
-  #{{ sid }}.banner-am--single .slider-amatora__dots {
-    display: none !important;
-  }
-
   {%- unless section.settings.show_arrows_mobile -%}
     @media (max-width: 767px) {
-      #{{ sid }} .slider-amatora[data-arrows-pos="sides"] .slider-amatora__arrows {
-        display: none;
-      }
+      #{{ sid }} .slider-amatora__arrows { display: none; }
     }
   {%- endunless -%}
-
-  @media (prefers-reduced-motion: reduce) {
-    #{{ sid }} .slider-amatora__track { transition: none !important; }
-  }
 </style>
 
 {%- endif -%}
@@ -221,15 +164,12 @@
       "id": "dots_style",
       "label": "Estilo de indicadores",
       "options": [
-        { "value": "bar",                "label": "Barras" },
-        { "value": "circle",             "label": "Círculos" },
-        { "value": "progress",           "label": "Progress (se llena)" },
-        { "value": "progress-segmented", "label": "Progress segmentado" }
+        { "value": "bar",    "label": "Barras" },
+        { "value": "circle", "label": "Círculos" }
       ],
-      "default": "progress-segmented"
+      "default": "bar"
     },
-
-    { "type": "color", "id": "accent_color", "label": "Acento (dots/flechas)", "default": "#FFFFFF" }
+    { "type": "color", "id": "accent_color", "label": "Acento (dots)", "default": "#FFFFFF" }
   ],
   "blocks": [
     {
@@ -251,14 +191,14 @@
           "type": "image_picker",
           "id": "img",
           "label": "Imagen desktop",
-          "info": "Recomendado: 1920×800px",
+          "info": "Recomendado: 2040×850px",
           "visible_if": "{{ block.settings.formato == 'image' }}"
         },
         {
           "type": "image_picker",
           "id": "img2",
-          "label": "Imagen móvil",
-          "info": "Recomendado: 1080×1400px",
+          "label": "Imagen móvil (opcional)",
+          "info": "Recomendado: 1080×1400px. Si la dejas vacía se usa la de desktop.",
           "visible_if": "{{ block.settings.formato == 'image' }}"
         },
         {

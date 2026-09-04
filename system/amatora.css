@@ -945,12 +945,35 @@
    ============================================================ */
 
 
-/* ---------- 28.0 FOUC fix — ocultar el slider mientras el JS no lo ha inicializado ---------- */
-/* Antes del init, los slides aún no están envueltos en .slider-amatora__slide y se verían
-   en su ancho natural ("slide gigante"). Esto previene ese flash. */
+/* ---------- 28.0 Pre-init — layout ANTES de que corra amatora.js ---------- */
+/* No se oculta nada: el contenedor ya se ve como un track (primeras N slides
+   visibles, sin controles). Así la imagen LCP de un banner pinta apenas llega,
+   sin esperar al JS. Una sección puede fijar --sl-visible-sm/md/lg, --sl-gap y
+   --sl-peek inline para que el pre-init sea idéntico al layout final. */
 [data-amatora-slider]:not(.slider-amatora) {
-    opacity: 0;
-    visibility: hidden;
+    --sl-visible: var(--sl-visible-sm, 1.2);
+    display: flex;
+    gap: var(--sl-gap, var(--am-space-4));
+    overflow: hidden;
+}
+[data-amatora-slider]:not(.slider-amatora) > * {
+    flex: 0 0 calc(
+        (100% - var(--sl-gap, var(--am-space-4)) * (var(--sl-visible) - 1))
+        / var(--sl-visible)
+    );
+    min-width: 0;
+}
+[data-amatora-slider][data-variant="banner"]:not(.slider-amatora) > * {
+    flex-basis: calc(100% - var(--sl-peek, 24px));
+}
+@media (min-width: 768px) {
+    [data-amatora-slider]:not(.slider-amatora) { --sl-visible: var(--sl-visible-md, 2); }
+    [data-amatora-slider][data-variant="banner"]:not(.slider-amatora) > * {
+        flex-basis: calc(100% - var(--sl-peek, 48px));
+    }
+}
+@media (min-width: 1024px) {
+    [data-amatora-slider]:not(.slider-amatora) { --sl-visible: var(--sl-visible-lg, 3); }
 }
 
 /* ---------- 28.1 Variables del componente ---------- */
@@ -969,11 +992,6 @@
     /* Transition más suave (antes 0.48s — sentía "duro") */
     --sl-transition:   0.65s cubic-bezier(0.22, 1, 0.36, 1);
     --sl-peek:         48px;
-
-    /* Fade-in al inicializar */
-    opacity: 1;
-    visibility: visible;
-    transition: opacity 0.25s ease;
 
     position: relative;
     width: 100%;
@@ -1065,7 +1083,12 @@
     user-select: none;
     -webkit-user-select: none;
     width: 100%;
-   
+    /* El browser se queda con el scroll vertical; el swipe horizontal es del slider */
+    touch-action: pan-y;
+}
+.slider-amatora__viewport:focus-visible {
+    outline: 2px solid var(--sl-accent);
+    outline-offset: 2px;
 }
 .slider-amatora__viewport.is-dragging {
     cursor: grabbing;
@@ -1170,6 +1193,24 @@
     width: 10px;
     height: 10px;
     transform: scale(1.1);
+}
+
+/* ---------- 28.8b Estático — todos los slides caben en el viewport ---------- */
+/* amatora.js agrega .is-static cuando no hay nada que paginar (1 solo slide,
+   o 3 de 3 en desktop). Sin flechas, sin dots, sin cursor de drag. */
+.slider-amatora.is-static .slider-amatora__arrows,
+.slider-amatora.is-static .slider-amatora__dots {
+    display: none;
+}
+.slider-amatora.is-static .slider-amatora__viewport {
+    cursor: default;
+}
+
+/* Accesibilidad: sin animación de track si el usuario pidió reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+    .slider-amatora__track {
+        transition: none !important;
+    }
 }
 
 /* ---------- 28.9 Responsive del slider (mobile-first) ---------- */

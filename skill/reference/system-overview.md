@@ -5,22 +5,26 @@ Sistema completo de design tokens (`--am-*`) y clases utilitarias (`*-amatora`) 
 **Convenciones:**
 - Prefix `--am-` → tokens en `:root`
 - Suffix `-amatora` → utility classes
-- `md:` → ≥768px / `lg:` → ≥1024px / sin prefix → mobile-first todos los tamaños
+- `md:` → ≥768px / sin prefix → mobile-first, todos los tamaños. **No existen `lg:` ni `xl:`.**
 - BEM con suffix `-am` → CSS scopeado por sección (`#{{ sid }} .nombre-am__elemento`)
 
 ---
 
 ## 1. Tokens (`--am-*`)
 
-### Fuentes (editables por proyecto)
+### Dónde se definen
+
+Los valores de fábrica viven en `amatora.css` sección 2. **El merchant los sobrescribe desde el customizer**, panel "Configuraciones Amatora" (colores, fuentes, botones): `amatora-tokens.liquid` los inyecta en `:root` después del CSS. En una sección nunca hardcodees un color o una fuente: usa el token.
+
+### Fuentes
 ```css
---am-font-heading: ;   /* Reemplazar con fuente heading del proyecto */
---am-font-body:    ;   /* Reemplazar con fuente body del proyecto */
+--am-font-heading   /* Configuraciones Amatora → Tipografía → Fuente de títulos */
+--am-font-body      /* Configuraciones Amatora → Tipografía → Fuente de cuerpo */
 ```
 
 ### Colores
 
-| Token | Valor por defecto | Uso |
+| Token | Valor de fábrica | Uso |
 |---|---|---|
 | `--am-color-primary`         | `#004a3b` | Color de marca principal |
 | `--am-color-primary-hover`   | `#004a3b` | Hover del primary |
@@ -53,7 +57,7 @@ Sistema completo de design tokens (`--am-*`) y clases utilitarias (`*-amatora`) 
 | `--am-space-20` | 80  |
 | `--am-space-25` | 112 |
 
-⚠️ **No existen `5`, `7`, `9`, `11`, `13`, `15`, `18`, `20` (excepto el `20` que vale 80px), `24`.** Si necesitas un valor intermedio, elige el más cercano.
+⚠️ **No existen `5`, `7`, `9`, `11`, `13`, `15`, `18` ni `24`. El `20` vale 80px, no 20px.** Si necesitas un valor intermedio, elige el más cercano. No todas las propiedades tienen todos los pasos: revisa la lista de cada utility abajo antes de usar un número.
 
 ### Leading
 
@@ -78,7 +82,7 @@ Sistema completo de design tokens (`--am-*`) y clases utilitarias (`*-amatora`) 
 - **Justify content:** `justify-{start|center|between|around|evenly|end}-amatora`
 - **Self:** `self-{start|center|end|stretch}-amatora`
 - **Justify items/self:** `justify-items-center-amatora` · `justify-self-{start|center|end}-amatora`
-- **Gap:** `gap-{1|2|3|4|6|8|10|12|14}-amatora` · `gap-x-{1|2|3|4|6|8}-amatora` · `gap-y-{1|2|3|4|6|8}-amatora`
+- **Gap:** `gap-{1|2|3|4|6|8|10|12}-amatora` · `gap-x-{1|2|3|4|6|8}-amatora` · `gap-y-{1|2|3|4|6|8}-amatora`
 
 ### Grid
 - **Columns:** `grid-cols-{1..12}-amatora`
@@ -234,15 +238,31 @@ Sistema completo de design tokens (`--am-*`) y clases utilitarias (`*-amatora`) 
 
 ---
 
-## 5. Responsive — prefijos `md:` y `lg:`
+## 5. Responsive — prefijo `md:` (el único)
 
-`md:` aplica desde 768px, `lg:` desde 1024px. Patrón mobile-first: la clase sin prefijo es la versión móvil; sobrescribes con `md:`/`lg:` para tablet/desktop.
+`md:` aplica desde 768px. Patrón mobile-first: la clase sin prefijo es la versión móvil; sobrescribes con `md:` para tablet y desktop. **No existen `lg:` ni `xl:`**: si los escribes, no hacen nada.
 
-### Disponibles en `md:` (≥768px)
-Colores texto · Display · Flex direction · Grid (cols 1..6, 12 + col-span 1..12) · Gap (1..14) · Padding (p, px, py, pt, pr, pb, pl) · Margin (m, mx, my, mt, mr, mb, ml) · Tipografía (text-sm a text-5xl, text-{left|center|right}) · Width (relativos + px 10..300) · max-w (xs, 100..400) · Height (auto, full, 100..800) · Items/Justify · Self/Justify-self · Position (relative, absolute, fixed, sticky, inset, top, right, bottom, left) · Z-index (1..100) · Centrados absolutos · Order (1..3) · Transform (`md:scale-2-amatora` = scale(1.2))
+### Catálogo exacto de `md:` (142 clases)
 
-### Disponibles en `lg:` (≥1024px)
-Colores texto · Display · Flex direction · Grid (cols 1..6, 12 + col-span 1..12) · Gap (1..8) · Padding (p, px, py, pt, pr, pb, pl) · Margin (m, mx, my, mt, mr, mb, ml) · Tipografía (text-sm a text-5xl) · Width (relativos) · Height (auto, full) · Items/Justify · Z-index (1..100) · Order (1..3) · Transform (`lg:scale-3-amatora` = scale(1.35))
+| Grupo | Disponibles con `md:` |
+|---|---|
+| Colores texto | `text-{black\|white\|primary\|secondary}` |
+| Display | `block` `inline-block` `inline` `flex` `grid` `hidden` |
+| Flex direction | `flex-row` `flex-col` |
+| Grid | `grid-cols-{1..6\|12}` · `col-span-{1..6\|12}` |
+| Gap | `gap-{1\|2\|3\|4\|6\|8\|10\|12}` |
+| Padding | `p-{0\|1\|2\|3\|4\|6\|8}` · `px-{0\|1\|2\|4}` · `py-{1\|2\|4\|6\|8}` · `pt-{4\|25}` · `pr-4` · `pb-4` · `pl-{4\|8\|12}` |
+| Margin | `m-{0\|1\|2\|3\|4\|6\|8}` · `mx-{1\|2\|4\|auto}` · `my-{1\|2\|4}` · `mt-{0\|1\|2\|3\|4\|6\|8\|12}` · `mr-4` · `mb-4` · `ml-4` |
+| Tipografía | `text-{sm\|base\|lg\|xl\|2xl\|3xl\|4xl\|5xl}` · `text-{left\|center\|right}` |
+| Width | `w-{full\|auto\|1/2\|1/3\|2/3\|1/4\|3/4}` · `max-w-{xs\|300\|400}` |
+| Height | `h-{auto\|full\|300\|500}` |
+| Align / Justify | `items-{start\|center\|end}` · `justify-{start\|center\|between\|end}` · `self-{start\|end}` · `justify-self-{start\|end}` |
+| Position | `relative` `absolute` `fixed` `sticky` · `inset-0` `top-0` `right-0` `bottom-0` `bottom-4` `left-0` · `top-50` `left-50` `center` |
+| Z-index | `z-{1\|10\|20\|30\|40\|50\|100}` |
+| Order | `order-{1\|2\|3}` |
+| Transform | `scale-2` (= scale(1.2)) |
+
+Todo lo que no está en esta tabla NO tiene versión `md:` (ej. `md:px-6`, `md:py-12`, `md:text-6xl`, `md:rounded-*`, `md:shadow-*`). Si necesitas un cambio responsive que no existe, resuélvelo con una regla en `<style>` bajo `@media (min-width: 768px)` con scope `#{{ sid }}`.
 
 ---
 
@@ -275,16 +295,12 @@ Solo dos clases base + dos modificadores. Todo lo demás se configura por CSS va
   <a class="btn-primary-amatora">Comprar</a>
 </div>
 
-{# 3. Global en assets/amatora.css (sección 2) #}
-{# Estos valores ya están definidos en :root del CSS. Editar ahí
-   para cambiar el sistema entero. #}
-:root {
-  --btn-radius: 8px;
-  --btn-fs:     14px;
-}
+{# 3. Global: customizer → Configuraciones Amatora → Botones #}
+{# Radio, tamaño de letra, peso y padding. amatora-tokens.liquid los inyecta
+   como --btn-radius, --btn-fs, --btn-fw, --btn-py, --btn-px en :root. #}
 ```
 
-> Desde v0.7.0 los colores y la forma de los botones viven en `assets/amatora.css` sección 2, no en el customizer. Para cambiar el color de marca, editás `--am-color-primary` ahí directamente — los botones lo heredan vía `var(--btn-bg, var(--am-color-primary))`.
+> Desde v0.8.0 los colores y la forma de los botones se configuran en el customizer, panel "Configuraciones Amatora". `assets/amatora.css` sección 2 solo guarda los defaults de fábrica. Los botones heredan el color de marca vía `var(--btn-bg, var(--am-color-primary))`.
 
 **Estados (set por `amatora-add-to-cart.liquid`, render por CSS):**
 

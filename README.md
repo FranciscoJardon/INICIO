@@ -12,12 +12,12 @@ iex (iwr "https://raw.githubusercontent.com/FranciscoJardon/INICIO/main/scripts/
 
 Eso instala **todo lo necesario** en tu theme:
 
-1. **Skill** en `.claude/skills/amatora-theme-builder/` — Claude Code aprende las convenciones de Amatora (3 mandatos, clases utility, optimización de imágenes).
+1. **Skill** en `.claude/skills/amatora-theme-builder/` — Claude Code aprende las convenciones de Amatora (4 mandatos: slider, utilities, imágenes, carrito).
 2. **Sistema** en el theme:
    - `assets/amatora.css`, `amatora.js`, `AMATORA_VERSION`
    - `snippets/amatora-tokens.liquid`, `amatora-add-to-cart.liquid`
    - `sections/banner-amatora.liquid` (sección de prueba)
-   - Panel "Amatora — Diseño base" agregado a `config/settings_schema.json`
+   - Panel "Configuraciones Amatora" (colores, tipografía, botones, sliders, carrito) agregado a `config/settings_schema.json`, con los colores del theme rescatados como defaults
    - Tags insertados en `layout/theme.liquid` (CSS, JS, snippets)
 
 Es **idempotente**: si ya hay tags Amatora, no los duplica. Hace **backups con timestamp** antes de modificar `theme.liquid` y `settings_schema.json`.
@@ -44,7 +44,7 @@ Si el script detecta `assets/AMATORA_VERSION`, aborta. Para sobrescribir igual:
 
 ## Versión
 
-`v0.7.1` — ver [MIGRATIONS.md](MIGRATIONS.md).
+`v0.8.0` — ver [MIGRATIONS.md](MIGRATIONS.md).
 
 ## Estructura
 
@@ -59,8 +59,10 @@ AMATORA-PROCESO/
 ├── skill/
 │   ├── SKILL.md                        ← spec canónico (español, single source of truth)
 │   └── reference/
-│       ├── slider-api.md
-│       ├── system-overview.md
+│       ├── slider-api.md               ← atributos, API JS, AmatoraConfig
+│       ├── system-overview.md          ← catálogo de tokens + utilities (solo prefijo md:)
+│       ├── images.md                   ← image_url + image_tag, loading, <picture>
+│       ├── buttons.md                  ← add-to-cart, drawer del theme, card de producto
 │       ├── performance.md
 │       ├── file-tree.md
 │       └── section-template.liquid
@@ -71,7 +73,7 @@ AMATORA-PROCESO/
     ├── amatora-tokens.liquid           ← snippet de tokens :root (snippets/)
     ├── amatora-add-to-cart.liquid      ← snippet del botón Agregar al carrito (snippets/)
     ├── banner-amatora.liquid           ← sección de banner que se instala como verificación (sections/)
-    └── settings_schema.amatora.json    ← panel "Amatora — Diseño base" para config/
+    └── settings_schema.amatora.json    ← panel "Configuraciones Amatora" para config/
 ```
 
 ## Cómo se consume desde un proyecto Shopify
@@ -190,16 +192,19 @@ Estados (set por `amatora-add-to-cart.liquid`, render por `amatora.css`):
 - `data-state="success"` — "Agregado" por 1.5s.
 - `data-state="error"` — "Intenta de nuevo".
 
+Al agregar, el snippet abre el `<cart-drawer>` / `<cart-notification>` del theme (Dawn y derivados) vía Section Rendering API, con el ítem nuevo y el contador actualizado. Se apaga desde el panel (`am_cart_open_drawer`). Themes sin ese elemento: escuchar `amatora:cart:added`.
+
 Variantes: `settings.add_to_cart_with_variants`:
 - `link_to_product` (default) — manda al PDP, texto cambia a "Ver opciones".
 - `show_variants_inline` — abre drawer (requiere implementar el drawer aparte).
 
-Detalle completo en [skill/SKILL.md](skill/SKILL.md) § "Botón Agregar al carrito — comportamiento estándar".
+Detalle completo en [skill/reference/buttons.md](skill/reference/buttons.md).
 
 ## Pendientes
 
 - [x] ~~`git init` + push a remote~~ — publicado en https://github.com/FranciscoJardon/INICIO.
 - [x] ~~Script `install.ps1` todo-en-uno con rescate de colores del theme~~ — v0.3.0.
+- [ ] Probar v0.8.0 en un theme Dawn real: panel "Configuraciones Amatora", rescate de colores como defaults, drawer al agregar al carrito, `install.ps1 -Force` sobre un theme con el panel viejo.
 - [ ] Probar `install.ps1` en un theme Dawn limpio (verificar tabla de rescate de colores).
 - [ ] Probar `install.ps1 -Force` en un theme custom de un cliente actual con secciones existentes.
 - [ ] Drawer de variantes para activar `show_variants_inline`.

@@ -1,133 +1,160 @@
-# Botones Amatora — Referencia completa
+# Botones y carrito — Referencia completa
 
-Las clases base + modificadores y el contrato `--btn-*` están en `SKILL.md`. Acá vive el detalle del patrón **opcional** de add-to-cart con feedback visual (spinner / checkmark / error).
+Las clases base, los modificadores y el contrato `--btn-*` están en `SKILL.md`. Aquí vive el detalle del **Mandato 4**: el contrato de agregar al carrito, cómo se abre el drawer del theme, el patrón de card de producto y los eventos.
 
-## Add-to-cart con feedback visual — patrón OPCIONAL
+## 1. Estados visuales — controlados por CSS en amatora.css
 
-Es una recomendación, no un mandato. El theme puede seguir usando su propio botón "Agregar al carrito" sin tocar nada de esto. Pero si querés que los botones de toda la tienda compartan el mismo feedback (spinner durante el fetch, "Agregado" verde por 1.5s, error rojo al fallar), Amatora trae el snippet `amatora-add-to-cart.liquid` que lo hace con event delegation — un solo listener global cubre todos los botones del documento.
-
-### 1. Estados visuales — controlados por CSS en amatora.css
-
-4 estados, manejados por el atributo `data-state`. El CSS de cada estado vive en `amatora.css` — la sección no escribe CSS de loader, ni el JS toca `style.*`.
+4 estados, manejados por el atributo `data-state`. El CSS de cada estado vive en `amatora.css`: la sección no escribe CSS de loader, ni el JS toca `style.*`.
 
 | `data-state`        | Qué se ve                                                  |
 |---------------------|------------------------------------------------------------|
 | (ausente) o `idle`  | Botón normal: "Agregar al carrito"                         |
-| `loading`           | Spinner reemplaza el texto. Click bloqueado, sin opacidad. |
-| `success`           | Checkmark + "Agregado". Persiste 1.5s, vuelve a `idle`.    |
-| `error`             | Icono ⚠ + "Intenta de nuevo". Persiste hasta el próximo click. |
+| `loading`           | Spinner reemplaza el texto. Click bloqueado.               |
+| `success`           | "Agregado". Persiste 1.5s, vuelve a `idle`.                |
+| `error`             | "Intenta de nuevo". Persiste hasta el próximo click.       |
 
-🚨 **El loader es REAL.** Refleja el estado del fetch a `/cart/add.js`: `data-state="loading"` se setea ANTES del fetch y se quita en el `.then()` / `.catch()`. Si la red está lenta, el spinner dura lo que dura la red. Prohibido `setTimeout(..., 800)` para "que se vea cargando un rato". La única excepción es el timer de 1.5s que mantiene `success` visible DESPUÉS de que el fetch ya respondió (eso es UX feedback, no loader).
+🚨 **El loader es REAL.** Refleja el fetch a `/cart/add`: `loading` se pone ANTES del fetch y se quita cuando responde. Prohibido `setTimeout(..., 800)` para "que se vea cargando". La única excepción es el timer de 1.5s que mantiene `success` visible DESPUÉS de la respuesta (es feedback, no loader).
 
-### 2. Estructura HTML obligatoria
+## 2. HTML obligatorio
 
-El `<span class="btn-label">` es necesario para que el spinner pueda ocultarlo sin tirar layout shift:
+El `<span class="btn-label">` es necesario para que el spinner lo oculte sin layout shift:
 
 ```liquid
-<button class="btn-primary-amatora"
+<button type="button" class="btn-primary-amatora"
         data-add-to-cart
-        data-variant-id="{{ product.selected_or_first_available_variant.id }}">
+        data-variant-id="{{ product.selected_or_first_available_variant.id }}"
+        data-quantity="1">
   <span class="btn-label">Agregar al carrito</span>
 </button>
 ```
 
-### 3. Lógica — un solo snippet, no JS por sección
+`data-quantity` es opcional (default 1). `type="button"` evita que un `<form>` envolvente haga submit.
 
-`amatora.js` no se toca. La lógica vive en `snippets/amatora-add-to-cart.liquid` que se renderiza UNA vez en `theme.liquid` (antes de `</body>`):
+## 3. Lógica — un solo snippet, nunca fetch por sección
+
+`amatora.js` no se toca. La lógica vive en `snippets/amatora-add-to-cart.liquid`, renderizado UNA vez en `theme.liquid` antes de `</body>`:
 
 ```liquid
-{# layout/theme.liquid — antes de </body> #}
 {% render 'amatora-add-to-cart' %}
 ```
 
-El snippet usa **event delegation** — un solo listener captura clicks en cualquier `[data-add-to-cart]` del documento, incluso los inyectados por AJAX o por la Section Rendering API. No se duplica JS por sección, no se rompe en re-renders parciales.
+Usa **event delegation**: un solo listener en `document` cubre todos los `[data-add-to-cart]`, incluso los inyectados por AJAX o por la Section Rendering API.
 
-**Contrato del snippet:**
-- Click en `[data-add-to-cart]` con `data-variant-id` → `data-state="loading"` → `fetch('/cart/add.js')`.
-- Éxito → `data-state="success"` por 1.5s → `idle`. Dispatcha `amatora:cart:added` en `document` para que el cart drawer del theme se entere.
-- Error → `data-state="error"`. Vuelve a `idle` en el próximo click.
+### Cómo abre el drawer del theme
 
-### 4. Productos con variantes — configurable
+El snippet no trae un drawer propio: usa el del theme. En Dawn y todos sus derivados el carrito es un custom element `<cart-drawer>` (o `<cart-notification>`) que expone `getSectionsToRender()` y `renderContents()`. El snippet:
 
-Si un producto tiene más de una variante, NO podés agregar al carrito sin saber cuál. Dos comportamientos posibles, el merchant elige desde el customizer (`settings.add_to_cart_with_variants`):
+1. Busca `document.querySelector('cart-notification') || document.querySelector('cart-drawer')`.
+2. Manda a `/cart/add` el `id`, `quantity` y, si encontró el elemento, `sections` (ids de las secciones del carrito) y `sections_url`.
+3. Con la respuesta llama `cart.renderContents(json)`: **el drawer se abre con el ítem nuevo y el contador del header se actualiza**, igual que el botón nativo del PDP.
+
+Se desactiva desde el customizer: Configuraciones Amatora → Carrito → "Abrir el carrito al agregar". Si está apagado, solo se muestra el estado `success` y se emite el evento.
+
+### Themes que no son Dawn
+
+Si el theme no tiene `<cart-drawer>` ni `<cart-notification>`, el snippet igual agrega el producto, muestra `success` y emite `amatora:cart:added`. Engancha ahí el drawer del theme (ver §7) y dilo explícitamente en tu respuesta.
+
+## 4. Productos con variantes — configurable
+
+Con más de una variante no se puede agregar sin saber cuál. El merchant elige en el customizer (`settings.add_to_cart_with_variants`):
 
 | Setting                       | Comportamiento                                                                                       | Cuándo elegirlo                              |
 |-------------------------------|------------------------------------------------------------------------------------------------------|----------------------------------------------|
-| `link_to_product` *(default)* | El botón pasa a `<a href="{{ product.url }}">` — manda al PDP donde el cliente elige variante.       | Catálogos chicos, productos con muchas opciones, merchants que no quieren JS extra. |
-| `show_variants_inline`        | El botón abre un drawer/modal con selector de variantes; el botón final del drawer agrega al carrito. | Productos con 2-3 variantes simples (talles, colores), foco en conversión.          |
+| `link_to_product` *(default)* | El botón pasa a `<a href="{{ product.url }}">`: manda al PDP donde el cliente elige variante.        | Catálogos chicos, productos con muchas opciones. |
+| `show_variants_inline`        | El botón abre un drawer/modal con selector de variantes; el botón final del drawer agrega al carrito. | Productos con 2-3 variantes simples (talle, color). |
 
-🚨 **Cuando linkea al PDP, el texto del botón cambia.** Decirle "Agregar al carrito" a algo que en realidad navega es UX rota.
+🚨 **Cuando linkea al PDP, el texto del botón cambia.** Decir "Agregar al carrito" a algo que navega es UX rota.
 
 | Caso                                              | Texto correcto              |
 |---------------------------------------------------|-----------------------------|
 | Sin variantes (o solo la default) → agrega directo | "Agregar al carrito"        |
-| Con variantes + `link_to_product`                 | "Ver opciones" / "Elegir"   |
+| Con variantes + `link_to_product`                 | "Ver opciones"              |
 | Con variantes + `show_variants_inline`            | "Agregar al carrito"        |
+| Sin stock                                         | "Agotado" (`disabled`)      |
 
-**Patrón Liquid:**
+## 5. Card de producto estándar — `snippets/product-card-amatora.liquid`
+
+Cada vez que el usuario pida una card de producto (o un grid/slider de productos), parte de este patrón. Todo con utilities; sin `<style>` en el snippet (se renderiza N veces).
 
 ```liquid
-{%- assign behavior = settings.add_to_cart_with_variants | default: 'link_to_product' -%}
+{%- comment -%}
+  snippets/product-card-amatora.liquid
+  Uso: {% render 'product-card-amatora', product: product, loading: 'lazy' %}
+{%- endcomment -%}
+{%- liquid
+  assign p_img       = product.featured_image
+  assign behavior    = settings.add_to_cart_with_variants | default: 'link_to_product'
+  assign img_loading = loading | default: 'lazy'
+-%}
+<div class="flex-amatora flex-col-amatora gap-3-amatora">
 
-{%- if product.has_only_default_variant -%}
-  {# una sola variante: agregar directo #}
-  <button class="btn-primary-amatora"
-          data-add-to-cart
-          data-variant-id="{{ product.selected_or_first_available_variant.id }}">
-    <span class="btn-label">Agregar al carrito</span>
-  </button>
-
-{%- elsif behavior == 'show_variants_inline' -%}
-  <button class="btn-primary-amatora" data-open-variants="{{ product.handle }}">
-    <span class="btn-label">Agregar al carrito</span>
-  </button>
-  {# render del drawer/modal de variantes acá #}
-
-{%- else -%}
-  {# default: link al PDP #}
-  <a class="btn-primary-amatora" href="{{ product.url }}">
-    <span class="btn-label">Ver opciones</span>
+  <a href="{{ product.url }}" class="block-amatora overflow-hidden-amatora rounded-xl-amatora">
+    {%- if p_img != blank -%}
+      {{ p_img | image_url: width: 800 | image_tag: class: 'w-full-amatora h-auto-amatora aspect-9-amatora object-cover-amatora', sizes: '(min-width: 768px) 25vw, 50vw', alt: p_img.alt, loading: img_loading }}
+    {%- endif -%}
   </a>
-{%- endif -%}
+
+  <a href="{{ product.url }}" class="text-base-amatora font-medium-amatora text-primary-amatora text-decoration-amatora">
+    {{ product.title }}
+  </a>
+  <span class="text-sm-amatora text-muted-amatora">{{ product.price | money }}</span>
+
+  {%- if product.available == false -%}
+    <button type="button" class="btn-primary-amatora" disabled>
+      <span class="btn-label">Agotado</span>
+    </button>
+  {%- elsif product.has_only_default_variant -%}
+    <button type="button" class="btn-primary-amatora"
+            data-add-to-cart
+            data-variant-id="{{ product.selected_or_first_available_variant.id }}">
+      <span class="btn-label">Agregar al carrito</span>
+    </button>
+  {%- elsif behavior == 'show_variants_inline' -%}
+    <button type="button" class="btn-primary-amatora" data-open-variants="{{ product.handle }}">
+      <span class="btn-label">Agregar al carrito</span>
+    </button>
+  {%- else -%}
+    <a href="{{ product.url }}" class="btn-primary-amatora">
+      <span class="btn-label">Ver opciones</span>
+    </a>
+  {%- endif -%}
+
+</div>
 ```
 
-**Setting para `config/settings_schema.json`:**
+En un grid o slider de productos, las primeras 3 cards van con `loading: 'eager'` y el resto `'lazy'` (ver `images.md` Regla 4).
 
-```json
-{
-  "type": "select",
-  "id": "add_to_cart_with_variants",
-  "label": "Productos con variantes",
-  "info": "Qué hace el botón cuando el producto tiene más de una variante.",
-  "options": [
-    { "value": "link_to_product",      "label": "Mandar a la página del producto" },
-    { "value": "show_variants_inline", "label": "Mostrar variantes en un drawer" }
-  ],
-  "default": "link_to_product"
-}
-```
+## 6. Eventos
 
-### 5. Eventos custom para que el cart drawer del theme reaccione
-
-El snippet dispatcha estos eventos en `document`:
+El snippet dispatcha en `document`:
 
 | Evento                  | Cuándo                          | `event.detail` |
 |-------------------------|---------------------------------|----------------|
-| `amatora:cart:added`    | Después de un fetch exitoso     | `{ item, button }` — `item` es la respuesta de `/cart/add.js`, `button` el `<button>` clickeado |
+| `amatora:cart:added`    | Después de un fetch exitoso     | `{ item, button, cart }`: `item` es la respuesta de `/cart/add`, `button` el elemento clickeado, `cart` el `<cart-drawer>`/`<cart-notification>` usado (o `null`) |
 | `amatora:cart:error`    | Después de un fetch fallido     | `{ error, button }` |
 
-Tu cart drawer puede escucharlos para abrirse / actualizar el contador / mostrar el ítem nuevo:
+## 7. Integrar un theme que no es Dawn
 
-```js
-document.addEventListener('amatora:cart:added', (e) => {
-  // abrir el drawer del theme y refrescar el contador
-});
+Escucha el evento y abre el drawer con lo que el theme exponga. Ejemplo genérico que refresca el contador y abre un drawer por clase:
+
+```liquid
+{# snippets/amatora-cart-bridge.liquid — render una vez antes de </body> #}
+<script>
+  document.addEventListener('amatora:cart:added', async () => {
+    const cart = await fetch('/cart.js').then((r) => r.json());
+    document.querySelectorAll('[data-cart-count]').forEach((el) => { el.textContent = cart.item_count; });
+    document.querySelector('.cart-drawer')?.classList.add('is-open');
+  });
+</script>
 ```
 
-### 6. Self-check del botón add-to-cart
+Adapta el selector y el método de apertura al theme concreto. Si el theme expone un evento propio (`cart:refresh`, `cart:open`), dispáralo desde aquí.
 
-- [ ] ¿Tiene `<span class="btn-label">` adentro? (el spinner lo oculta sin layout shift)
-- [ ] ¿`data-add-to-cart` + `data-variant-id` presentes cuando agrega directo?
-- [ ] Si tiene variantes: ¿respeta `settings.add_to_cart_with_variants`? ¿El texto cambia a "Ver opciones" cuando linkea al PDP?
-- [ ] ¿`amatora.js` quedó intacto? ¿La lógica está en `snippets/amatora-add-to-cart.liquid`?
-- [ ] ¿Ningún `setTimeout` simulando carga? El loader debe terminar exactamente cuando el fetch resuelve.
+## 8. Self-check del botón add-to-cart
+
+- [ ] ¿Tiene `<span class="btn-label">` adentro?
+- [ ] ¿`type="button"` + `data-add-to-cart` + `data-variant-id` cuando agrega directo?
+- [ ] Si tiene variantes: ¿respeta `settings.add_to_cart_with_variants`? ¿El texto cambia a "Ver opciones" cuando linkea?
+- [ ] ¿Sin `fetch('/cart/add')` en la sección? ¿La lógica está solo en `amatora-add-to-cart.liquid`?
+- [ ] ¿Ningún `setTimeout` simulando carga?
+- [ ] Si el theme no es Dawn: ¿dijiste cómo enganchar el drawer al evento?

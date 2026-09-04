@@ -1,297 +1,266 @@
 ---
 name: amatora-theme-builder
-description: Usa este skill al construir, editar o revisar CUALQUIER sección, snippet o componente de Shopify — especialmente los que involucren sliders, carruseles, banners, grids de producto o imágenes. Este skill es la fuente autoritativa del sistema de diseño Amatora y DEBE usarse para hacer cumplir tres mandatos: (1) TODOS los sliders/carruseles usan [data-amatora-slider] de amatora.js — NUNCA Swiper/Slick/Glide/Splide; (2) TODO el CSS usa clases de utilidad de amatora.css con sufijo -amatora y tokens --am-* — nunca valores hardcodeados; (3) TODAS las imágenes están optimizadas para Shopify con filtro image_url, sizes responsivos, width/height explícitos, estrategia correcta de loading, y preload de LCP. Dispárate ante cualquier archivo .liquid, schema de Shopify, setting del customizer, o cuando el usuario mencione "slider", "carousel", "carrusel", "banner", "Amatora", "--am-*", "data-amatora-slider", "image optimization", "LCP", "CLS", "Core Web Vitals", o pegue código Liquid/Shopify para revisión.
+description: Usa esta skill al construir, editar o revisar CUALQUIER sección, snippet o componente de Shopify: sliders, carruseles, banners, cards y grids de producto, botones de agregar al carrito e imágenes. Es la fuente autoritativa del sistema de diseño Amatora y hace cumplir 4 mandatos: (1) todo slider usa [data-amatora-slider] de amatora.js, nunca Swiper/Slick/Glide/Splide; (2) todo el CSS usa utilities de amatora.css con sufijo -amatora y tokens --am-*, sin valores hardcodeados; (3) toda imagen pasa por image_url + image_tag con loading correcto; (4) todo agregar-al-carrito usa data-add-to-cart y abre el cart drawer del theme. Actívate ante cualquier archivo .liquid, schema de Shopify, setting del customizer, o cuando el usuario mencione slider, carrusel, banner, card de producto, carrito, Amatora, --am-*, LCP, CLS o Core Web Vitals, o pegue código Liquid para revisión.
 ---
 
 # Amatora Theme Builder
 
-Skill para construir secciones, snippets y componentes de Shopify production-grade que respetan las convenciones del sistema de diseño Amatora. Genera archivos `.liquid` listos para copiar/pegar con performance, SEO y UX optimizados.
+Skill para construir secciones, snippets y componentes de Shopify production-grade que respetan el sistema de diseño Amatora. Genera archivos `.liquid` listos para copiar/pegar con performance, SEO y UX optimizados.
 
-## Cuándo usar este skill
+## Cuándo usar esta skill
 
 - El usuario pide una nueva sección, snippet o block de Shopify
-- El usuario pega una sección de Shopify y pide optimizarla, refactorizarla o migrarla a Amatora
-- El usuario pregunta sobre clases de utilidad, tokens o convenciones del sistema Amatora
-- El usuario menciona que está construyendo/editando un theme o migrando desde Swiper/Slick/Glide/Splide
-- El usuario pega código Liquid para revisión
-- El usuario pregunta sobre optimización de imágenes, lazy loading, LCP, CLS o Core Web Vitals en Shopify
-- El usuario pide un "slider", "carrusel", "carousel", "banner" — SIEMPRE usa amatora.js
+- El usuario pega una sección y pide optimizarla, refactorizarla o migrarla a Amatora
+- El usuario pregunta por utilities, tokens o convenciones del sistema
+- El usuario pide un "slider", "carrusel", "carousel" o "banner": SIEMPRE amatora.js
+- El usuario pide una card de producto o cualquier botón de agregar al carrito
+- El usuario pregunta por imágenes, lazy loading, LCP, CLS o Core Web Vitals en Shopify
 
 ═══════════════════════════════════════════════════════
-## 🚨 LOS 3 MANDATOS — REVISA ANTES DE CADA RESPUESTA
+## 🚨 LOS 4 MANDATOS — REVISA ANTES DE CADA RESPUESTA
 ═══════════════════════════════════════════════════════
 
-Antes de escribir una sola línea de código, verifica que tu respuesta cumple estos tres mandatos. Si no cumple, reescribe antes de enviar.
+Antes de escribir una sola línea de código, verifica que tu respuesta cumple los cuatro. Si no cumple, reescribe antes de enviar.
 
-### ⚡ MANDATO 1 — Slider: SIEMPRE usar [data-amatora-slider] de amatora.js
+### ⚡ MANDATO 1 — Slider: SIEMPRE [data-amatora-slider] de amatora.js
 
-Si el componente solicitado involucra CUALQUIERA de esto:
-- slider, carousel, carrusel
-- banner con varios slides
-- carrusel de productos, carrusel de testimoniales, galería de imágenes con navegación
-- "slides que rotan automáticamente", "banner con autoplay"
-- cualquier cosa con flechas izquierda/derecha para paginar
-- cualquier cosa con dots para navegación
+Si el componente involucra slider, carousel, carrusel, banner con varios slides, galería con flechas, dots o autoplay → usas `[data-amatora-slider]`.
 
-→ DEBES usar [data-amatora-slider] de amatora.js.
+*PROHIBIDO bajo cualquier circunstancia*: Swiper, Slick, Glide, Splide, Flickity, Tiny Slider, Owl Carousel, Keen Slider, un slider JS custom, o scroll-snap solo CSS.
 
-*PROHIBIDO bajo cualquier circunstancia*:
-- ❌ Swiper (swiper.min.js, new Swiper())
-- ❌ Slick (.slick(), slick-carousel)
-- ❌ Glide (new Glide())
-- ❌ Splide (new Splide())
-- ❌ Flickity, Tiny Slider, Owl Carousel, Keen Slider
-- ❌ Escribir un slider JS custom desde cero
-- ❌ Scroll-snap solo CSS (no da el mismo control sobre dots/arrows/loop/autoplay)
+Si el usuario pega código con alguna de esas librerías, tu PRIMERA acción es migrarlo a `[data-amatora-slider]`. Menciona que ahorra 60kb+ y funciona igual o mejor.
 
-Si el usuario pega código que usa cualquiera de los anteriores, tu PRIMERA acción es migrarlo a [data-amatora-slider]. Menciona que ahorra 60kb+ y funciona idéntico o mejor.
-
-Ver `reference/slider-api.md` para todos los atributos data-* (visible por breakpoint, gap, peek, variant, arrows-pos, dots-style, autoplay, loop, accent, etc).
-
-### 🎨 MANDATO 2 — CSS: SIEMPRE usar clases de utilidad de amatora.css + tokens --am-*
-
-*🚨 CRÍTICO — NUNCA pongas valores de tipografía o espaciado en bloques `<style>`.*
-
-Tipografía (font-size, font-weight, line-height, letter-spacing, text-align) y espaciado (padding, margin, gap) *DEBEN* venir de las clases de utilidad de amatora.css. Sin excepciones. Aunque el valor exacto no esté en la escala, *toma la utility más cercana y acepta la diferencia de 1-4px* — la consistencia del sistema vale más que la precisión pixel-perfect.
-
-Lo ÚNICO permitido en bloques `<style>` con scope:
-- Posicionamiento que no tiene utility equivalente (position, top/right/bottom/left con valores específicos en px)
-- min-height / max-width con valores px específicos que no están en la escala
-- object-fit, overflow
-- transition, transform, animaciones :hover, filter
-- aspect-ratio
-- border-radius solo si ninguna utility coincide (pero intenta `rounded-{lg|xl|2xl|full}-amatora` primero)
-- Valores dinámicos desde settings de Shopify (`background: {{ settings.bg }}`)
-
-*Prohibido en bloques `<style>`:*
-- ❌ `font-size: 18px;` → usa `text-lg-amatora`
-- ❌ `font-weight: 700;` → usa `font-bold-amatora`
-- ❌ `line-height: 1.2;` → usa `leading-tight-amatora`
-- ❌ `letter-spacing: -0.02em;` → usa `tracking-tight-amatora`
-- ❌ `padding: 16px;` → usa `p-4-amatora`
-- ❌ `margin-top: 24px;` → usa `mt-6-amatora`
-- ❌ `gap: 12px;` → usa `gap-3-amatora`
-- ❌ `text-align: center;` → usa `text-center-amatora`
-
-*Escala de tipografía disponible* (memoriza estos):
-
+```liquid
+<div data-amatora-slider
+     data-visible-desktop="3" data-visible-tablet="2" data-visible-mobile="1.2"
+     data-gap="16"
+     style="--sl-visible-lg: 3; --sl-visible-md: 2; --sl-visible-sm: 1.2; --sl-gap: 16px;">
+  {%- for block in section.blocks -%}
+    <div {{ block.shopify_attributes }}>…</div>
+  {%- endfor -%}
+</div>
 ```
-text-xs-amatora   = 12px  / 16
-text-sm-amatora   = 14px  / 20
-text-base-amatora = 16px  / 24
-text-lg-amatora   = 18px  / 28
-text-xl-amatora   = 20px  / 28
-text-2xl-amatora  = 24px  / 32
-text-3xl-amatora  = 30px  / 36
-text-4xl-amatora  = 36px  / 40
-text-5xl-amatora  = 48px  / 52
-text-6xl-amatora  = 60px  / 64
-```
-
-`font-thin/light/normal/medium/semibold/bold/black-amatora` (100-900)
-`leading-none/tight/normal/relaxed-amatora`
-`tracking-tight/normal/wide/wider/widest-amatora`
-
-
-*Escala de espaciado disponible* (memoriza estos — NO hay 20 ni 28):
-
-```
-0, 1(4px), 2(8px), 3(12px), 4(16px), 6(24px),
-8(32px), 10(40px), 12(48px), 14(56px), 16(64px), 20(80px), 25(112px)
-```
-
-*Tipografía responsive*: usa `md:text-*-amatora` para overrides en desktop. Ejemplo: `class="text-xs-amatora md:text-base-amatora"`.
-
----
-
-Cada sección usa:
-
-*Clases de utilidad* (sufijo `-amatora`) para layout/spacing/color/tipografía:
-```html
-✅ <div class="flex-amatora items-center-amatora gap-4-amatora py-12-amatora md:grid-cols-3-amatora">
-❌ <div style="display:flex; align-items:center; gap:16px; padding:48px 0;">
-❌ <div class="container mx-auto px-4 grid grid-cols-3">  (Tailwind — sistema equivocado)
-❌ <div class="d-flex align-items-center">  (Bootstrap — sistema equivocado)
-```
-
-*Tokens* (`--am-*`) en lugar de valores hardcodeados:
-```css
-✅ color: var(--am-color-primary);
-✅ padding: var(--am-space-6);
-✅ font-family: var(--am-font-heading);
-✅ border: 1px solid var(--am-border);
-
-❌ color: #004a3b;          (hardcoded)
-❌ padding: 24px;           (hardcoded)
-❌ font-family: "Playfair"; (hardcoded)
-❌ border: 1px solid #ddd;  (hardcoded)
-```
-
-*CSS de componente con scope* dentro de bloques `<style>` (BEM con sufijo `-am`):
-```css
-✅ #{{ sid }} .banner-am__media { width: 100%; }
-✅ #{{ sid }} .producto-am__titulo--featured { color: var(--am-color-primary); }
-
-❌ .banner .media { ... }              (sin scope → leak global)
-❌ #banner-123 .media { ... }          (sin BEM, selector frágil)
-```
-
-🚨 *Las clases custom `-am` se agregan SOLO bajo demanda, no preventivamente.* Solo agrega una clase `.algo-am__elemento` si tienes CSS REAL que escribirle (positioning, transition, aspect-ratio, hover, valor dinámico de un setting, etc.). Las clases vacías "por si acaso" inflan el HTML, confunden al lector, y delatan que no sabes qué CSS vas a escribir.
 
 Reglas:
-- Si el elemento solo necesita utilities (`flex-amatora`, `gap-4-amatora`, `text-lg-amatora`...) → *NO le pongas clase custom `-am`.* Las utilities son suficientes.
-- Si necesitas posicionamiento, transición, aspect-ratio, :hover, filter, o cualquier CSS que no es utility → *SÍ agrégale clase `-am`* Y escribe su CSS en el bloque `<style>`.
-- Si después de escribir el HTML el bloque `<style>` no tiene reglas → *bórralo entero.* No lo dejes vacío con `/* nada por ahora */`.
-- Si escribes una clase en el HTML, DEBE aparecer al menos una vez en `<style>` con reglas. Si no, quítala del HTML.
+- Los hijos directos del contenedor son los slides. No los envuelvas en `.slider-amatora__slide`: lo hace el JS.
+- Repite las cantidades visibles como CSS vars inline (`--sl-visible-*`, `--sl-gap`, `--sl-peek`). Así el layout ANTES de que corra el JS es idéntico al final y la imagen LCP pinta sin esperar a amatora.js.
+- Con 1 solo slide, o cuando todos caben en el viewport, el JS agrega `.is-static` (sin flechas ni dots). *NO escribas lógica Liquid de "single slide".*
+- Estilos de dots: solo `bar` y `circle`.
+- Banner hero: `data-variant="banner"`, `data-arrows-pos="sides"`, `data-loop="true"`, `data-peek="0"` y `style="--sl-peek: 0px; --sl-gap: 0px;"`.
 
-Esto evita: HTML inflado con clases muertas, bloques `<style>` con reglas vacías, confusión futura sobre qué CSS existe vs no.
+Ver `reference/slider-api.md` para todos los atributos, la API JS y los eventos.
+
+### 🎨 MANDATO 2 — CSS: SIEMPRE utilities de amatora.css + tokens --am-*
+
+*🚨 CRÍTICO — NUNCA pongas tipografía ni espaciado en bloques `<style>`.*
+
+Tipografía (font-size, font-weight, line-height, letter-spacing, text-align) y espaciado (padding, margin, gap) *DEBEN* venir de las utilities. Si el valor exacto no está en la escala, *toma la utility más cercana y acepta 1-4px de diferencia*: la consistencia del sistema vale más que el pixel-perfect.
+
+*Regla de oro: si existe una utility, se usa la utility.* El objetivo es que cualquiera entienda y modifique una sección leyendo solo el HTML, sin buscar en el CSS. El bloque `<style>` es el último recurso y debe ser mínimo: si pasa de ~10 reglas, algo se pudo resolver con utilities.
+
+Antes de escribir una regla en `<style>`, busca la utility. Estas SÍ existen y se usan en vez de CSS:
+- Layout: `flex-amatora`, `grid-amatora`, `grid-cols-*`, `items-*`, `justify-*`, `gap-*`, `flex-col-amatora`
+- Posición: `relative-amatora`, `absolute-amatora`, `inset-0-amatora`, `top-0/right-0/bottom-0/left-0-amatora`, `bottom-4-amatora` (4px), `bottom-10-amatora` (10px), `z-{0|1|10|20|30|40|50|100}-amatora`, `center-amatora`
+- Tamaño: `w-full-amatora`, `h-auto-amatora`, `max-w-{100..900}-amatora`, `min-h-screen-amatora`
+- Media: `object-cover-amatora`, `aspect-video-amatora`, `aspect-ratio-amatora` (1:1), `overflow-hidden-amatora`, `rounded-*-amatora`
+- Efectos: `transition-amatora`, `hover:scale-105-amatora`, `hover:opacity-80-amatora`, `shadow-*-amatora`, `opacity-*-amatora`
+
+Lo ÚNICO permitido en `<style>` con scope `#{{ sid }}`:
+- Offsets en px que no están en la escala (`bottom: 48px`)
+- `aspect-ratio` que no sea 1:1, 9/11 ni 16/9 (ej. `4/3`)
+- Transiciones, animaciones, filtros y estados `:hover` sin utility equivalente
+- `border-radius` solo si ninguna `rounded-{md|lg|xl|2xl|full}-amatora` coincide
+- Valores dinámicos desde settings (`background: {{ section.settings.bg }}`)
+- Overrides de variables del slider (`--sl-radius`, `--sl-peek`) o de botones (`--btn-*`)
+- Selectores que no controlas desde el HTML (ej. `.slider-amatora__dots`, que genera el JS)
+
+*Prohibido en `<style>`*:
+- ❌ `font-size: 18px;` → `text-lg-amatora`
+- ❌ `font-weight: 700;` → `font-bold-amatora`
+- ❌ `line-height: 1.2;` → `leading-tight-amatora`
+- ❌ `letter-spacing: -0.02em;` → `tracking-tight-amatora`
+- ❌ `padding: 16px;` → `p-4-amatora`
+- ❌ `margin-top: 24px;` → `mt-6-amatora`
+- ❌ `gap: 12px;` → `gap-3-amatora`
+- ❌ `text-align: center;` → `text-center-amatora`
+
+*Escala tipográfica* (memorízala):
+
+```
+text-xs-amatora   = 12px / 16      text-3xl-amatora = 30px / 36
+text-sm-amatora   = 14px / 20      text-4xl-amatora = 36px / 40
+text-base-amatora = 16px / 24      text-5xl-amatora = 48px / 52
+text-lg-amatora   = 18px / 28      text-6xl-amatora = 60px / 64
+text-xl-amatora   = 20px / 28      text-7xl-amatora = 72px / 76
+text-2xl-amatora  = 24px / 32
+```
+
+`font-thin/light/normal/medium/semibold/bold/black-amatora` · `leading-none/tight/normal/relaxed-amatora` · `tracking-tight/normal/wide/wider/widest-amatora`
+
+*Escala de espaciado* (memorízala, y fíjate en los huecos):
+
+```
+0, 1=4px, 2=8px, 3=12px, 4=16px, 6=24px, 8=32px,
+10=40px, 12=48px, 14=56px, 16=64px, 20=80px, 25=112px
+```
+
+No existen 5, 7, 9, 11, 13, 15, 18 ni 24. El 20 vale 80px, no 20px. No todas las propiedades tienen todos los pasos: `gap-{1|2|3|4|6|8|10|12}`, `py-{1|2|3|4|6|8|10|12|14|16|20}`, `px-{0|1|2|3|4|6|8}`, `mt-{0|1|2|3|4|6|8|12}`, `mb-{0|1|2|3|4|6|8}`. Consulta el catálogo antes de inventar un paso.
+
+*Responsive*: existe UN solo prefijo, `md:` (≥768px). *NO existen `lg:` ni `xl:`.* Mobile-first: la clase sin prefijo es móvil, `md:` sobrescribe en tablet y desktop.
+
+```html
+✅ class="text-2xl-amatora md:text-4xl-amatora grid-cols-1-amatora md:grid-cols-3-amatora"
+❌ class="lg:grid-cols-4-amatora"    (no existe → no hace nada)
+❌ class="xl:px-8-amatora"           (no existe → no hace nada)
+```
+
+No todas las utilities tienen versión `md:`. Hay para: colores de texto, display, flex-direction, `grid-cols-{1..6|12}`, col-span, gap, padding, margin, `text-{sm..5xl}`, alineación de texto, width, max-w, height, items/justify, position, z-index, order. Ver `reference/system-overview.md` §5.
+
+*Tokens* en lugar de valores hardcodeados:
+
+```css
+✅ color: var(--am-color-primary);      ❌ color: #004a3b;
+✅ padding: var(--am-space-6);          ❌ padding: 24px;
+✅ font-family: var(--am-font-heading); ❌ font-family: "Playfair";
+✅ border: 1px solid var(--am-border);  ❌ border: 1px solid #ddd;
+```
+
+*CSS de componente con scope* (BEM con sufijo `-am`):
+
+```css
+✅ #{{ sid }} .banner-am__media { object-fit: cover; }
+❌ .banner .media { … }          (sin scope → leak global)
+❌ #banner-123 .media { … }      (sin BEM, selector frágil)
+```
+
+🚨 *Las clases custom `-am` se agregan SOLO bajo demanda.* Solo pon `.algo-am__elemento` en el HTML si vas a escribirle CSS real (position, transition, aspect-ratio, :hover, valor dinámico). Si el elemento solo necesita utilities, no lleva clase custom. Si al terminar el `<style>` no tiene reglas, bórralo entero. Toda clase `-am` del HTML debe aparecer en `<style>` con reglas.
+
+*Colores, tipografía y forma de botones se configuran en el customizer*, panel "Configuraciones Amatora". `amatora-tokens.liquid` los inyecta como `--am-*` y `--btn-*`. Nunca hardcodees una marca en una sección: usa los tokens y respeta lo que el merchant configuró.
 
 *PROHIBIDO*:
-- ❌ Agregar nuevas clases de utilidad a amatora.css — está congelado. Compón con lo que hay.
+- ❌ Agregar utilities a amatora.css. Está congelado: compón con lo que hay.
+- ❌ Editar amatora.css o amatora.js en un proyecto. La sección 2 del CSS son defaults de fábrica; el customizer manda.
 - ❌ CSS inline sin un setting de Shopify (solo `style="background: {{ section.settings.bg }}"` está OK)
-- ❌ Clases de otros sistemas de diseño (Tailwind, Bootstrap, Bulma, etc.)
-- ❌ Hardcodear hex colors, valores px o strings de font-family
-- ❌ Clases custom `-am` en el HTML que NO tienen reglas CSS correspondientes
-- ❌ Bloques `<style>` vacíos o reglas que solo contienen comentarios
+- ❌ Clases de Tailwind, Bootstrap o cualquier otro sistema
+- ❌ Hex, px o font-family hardcodeados
+- ❌ Clases `-am` huérfanas o bloques `<style>` vacíos
 
-Ver `reference/system-overview.md` para el catálogo completo de tokens + utilities.
+Ver `reference/system-overview.md` para el catálogo completo de tokens y utilities.
 
-### 🖼️ MANDATO 3 — Imágenes: SIEMPRE optimizadas para Shopify
+### 🖼️ MANDATO 3 — Imágenes: `image_url` + `image_tag`, una línea por imagen
 
-Las imágenes mal manejadas son la causa #1 de LCP lento en Shopify. Cada `<img>` que escribas DEBE cumplir 5 reglas core:
+Shopify genera `srcset`, `width`, `height` y elige el formato (WebP/AVIF) por su cuenta. No lo hagas a mano.
 
-1. **`image_url` con `width:` y `format: 'webp'` explícitos** — ej. `{{ img | image_url: width: 1100, format: 'webp' }}`
-2. **`width` y `height` HTML attrs SIEMPRE** — evita CLS al cargar
-3. **`srcset` + `sizes` si la imagen ocupa ancho variable** — sin ellos, móvil baja desktop
-4. **`loading="eager"` por default + `decoding="async"`** — lazy falla en Shopify (carruseles, customizer preview, iconos pop-in)
-5. **LCP única**: `fetchpriority="high"` + `<link rel="preload">` con `imagesrcset` — solo en UNA imagen por página
+```liquid
+{{ img | image_url: width: 2040 | image_tag: class: 'hero-am__media', sizes: '100vw', alt: alt, loading: 'lazy' }}
+```
 
-#### Patrones críticos
+Las 5 reglas:
 
-**Desktop / móvil con art-direction**: usar UN `<picture>` con `<source media>`, NUNCA dos `<img>` ocultos con CSS (el navegador baja ambas).
+1. **Siempre `image_url: width: N` seguido de `image_tag`.** `width` es el MÁXIMO que se sirve; Shopify arma el srcset hasta ahí. NUNCA `format:` (`webp` no es un valor válido; Shopify negocia el formato solo). NUNCA `img.src`, `img` a secas ni `srcset` escrito a mano.
+2. **Width máximo por contexto**: banner/hero full-width `2040` · sección full-width `1500` · imagen a media pantalla `1100` · card de producto o colección `800` · thumbnail/avatar `300` · icono/badge `200` (sin `sizes`).
+3. **`sizes` refleja el ancho real**: full-width `'100vw'` · grid de 3 `'(min-width: 768px) 33vw, 100vw'` · grid de 4 `'(min-width: 768px) 25vw, 50vw'` · card en slider `'(min-width: 768px) 33vw, 85vw'`.
+4. **`loading`**: UNA sola imagen LCP por página (la primera del primer hero/banner) lleva `loading: 'eager', fetchpriority: 'high'` y, si no tiene imagen móvil aparte, `preload: true`. En un slider, las primeras 3 slides `eager` y el resto `lazy`. Todo lo demás `loading: 'lazy'`. Nunca `fetchpriority: 'high'` en más de una imagen.
+5. **Imagen móvil distinta**: UN `<picture>` con `<source media="(max-width: 767px)">` para la móvil y el `image_tag` de desktop como `<img>`. NUNCA dos `<img>` ocultos con CSS: el navegador descarga ambos.
 
-**Iconos chicos**: width fijo (~200w para 2x retina), sin `srcset`, `loading="eager"` (lazy en iconos crea pop-in al scrollear).
+`alt` configurable desde un setting `alt_text`, con fallback al título. Videos: `autoplay muted loop playsinline`, `poster` con `image_url: width: 1600`, `preload="metadata"` solo en el primero.
 
-**Productos en grid**: `srcset` 200/400/600, NUNCA pedir 800+. El contenedor real de una product card es ~280-360px.
+Ver `reference/images.md` para patrones completos (hero con móvil, product card, iconos, video) y `reference/performance.md` para targets de LCP/CLS/INP.
 
-**Videos**: `autoplay muted loop playsinline` + `poster` con `image_url` + `preload="metadata"` solo en el primero.
+### 🛒 MANDATO 4 — Carrito: `data-add-to-cart` + el drawer del theme
 
-#### Quick checklist por cada `<img>`
+Cualquier botón "Agregar al carrito" (card de producto, PDP custom, quick-add, upsell, bundle) usa el contrato del snippet `amatora-add-to-cart.liquid`. *NUNCA escribas un `fetch('/cart/add')` dentro de una sección.*
 
-- [ ] `image_url` con `width:` y `format: 'webp'`?
-- [ ] `width` y `height` HTML attrs?
-- [ ] Si ancho variable: `srcset` + `sizes`?
-- [ ] `loading="eager"` + `decoding="async"`?
-- [ ] `fetchpriority="high"` SOLO en LCP (uno por página)?
-- [ ] LCP tiene `<link rel="preload">` con `imagesrcset`?
-- [ ] `alt` configurable y descriptivo?
-- [ ] Width pedido razonable (no 3840 para card de 300px)?
+```liquid
+<button type="button" class="btn-primary-amatora"
+        data-add-to-cart
+        data-variant-id="{{ product.selected_or_first_available_variant.id }}">
+  <span class="btn-label">Agregar al carrito</span>
+</button>
+```
 
-Ver `reference/images.md` para las 11 reglas detalladas con tablas de anchos por contexto, política completa de `loading="lazy"` (cuándo falla en Shopify y qué hacer), patterns de preload, y casos edge (productos en slider, banner hero con `<picture>`, iconos vs imágenes, alternativas a lazy con `fetchpriority="low"`).
+Qué garantiza el snippet: spinner real mientras dura el fetch, "Agregado" por 1.5s, error si falla, y *apertura del cart drawer del theme con el ítem nuevo* (Dawn y derivados: `<cart-drawer>` / `<cart-notification>` vía Section Rendering API). Si el theme no es Dawn, engancha su drawer al evento `amatora:cart:added` y dilo explícitamente en la respuesta.
 
-Ver `reference/performance.md` para targets de LCP/CLS/INP.
+Productos con variantes: respeta `settings.add_to_cart_with_variants`. Con `link_to_product` (default) el botón es un `<a>` al PDP con texto "Ver opciones". Con `show_variants_inline` abre un selector de variantes. Nunca digas "Agregar al carrito" en un botón que navega.
+
+`{% render 'amatora-add-to-cart' %}` va UNA vez en `theme.liquid` antes de `</body>`. Recuérdalo al cerrar.
+
+Ver `reference/buttons.md` para el contrato completo, el patrón de card de producto y los eventos.
 
 ═══════════════════════════════════════════════════════
-## Self-check ANTES de mandar respuesta
+## Self-check ANTES de mandar la respuesta
 ═══════════════════════════════════════════════════════
 
-Pasa este checklist mentalmente en cada respuesta. Si alguno falla → reescribe.
+Pasa este checklist en cada respuesta. Si alguno falla → reescribe.
 
-- [ ] *MANDATO 1*: si hay carrusel/slider, ¿usa [data-amatora-slider]? ¿Sin Swiper/Slick/Glide/Splide?
-- [ ] *MANDATO 2*: ¿las clases de layout terminan en `-amatora`? ¿colores/espaciado/fonts usan tokens `--am-*`? ¿Sin hex ni px hardcoded? **¿Sin font-size/font-weight/padding/margin/gap en bloques `<style>` — TODA la tipografía + espaciado viene de `text-*-amatora`, `font-*-amatora`, `p-*-amatora`, `mt-*-amatora`, `gap-*-amatora`?** **¿Cada clase custom `-am` del HTML tiene reglas CSS correspondientes en `<style>`? ¿Sin clases huérfanas, sin bloques `<style>` vacíos?**
-- [ ] *MANDATO 3*: ¿todos los `<img>` tienen `image_url: width: X` con tamaño correcto? ¿`width`/`height` attrs explícitos? ¿`loading`/`fetchpriority` correctos? ¿Preload de LCP para hero? ¿Alt text configurable? ¿Pickers desktop/móvil separados?
-- [ ] ¿Single-slide detection con `{% unless is_single %}` si es slider?
+- [ ] *MANDATO 1*: si hay carrusel, ¿usa `[data-amatora-slider]`? ¿Sin Swiper/Slick/Glide/Splide? ¿Sin lógica Liquid de single-slide? ¿CSS vars inline `--sl-visible-*` que coinciden con los `data-visible-*`?
+- [ ] *MANDATO 2*: ¿las clases terminan en `-amatora`? ¿Solo prefijo `md:`, nada de `lg:`/`xl:`? ¿Sin hex ni px hardcodeados? ¿Sin font-size/font-weight/padding/margin/gap en `<style>`? ¿Cada clase `-am` del HTML tiene reglas en `<style>`? ¿Sin `<style>` vacío? ¿El `<style>` solo tiene lo que NO existe como utility (≤ ~10 reglas)?
+- [ ] *MANDATO 3*: ¿toda imagen es `image_url: width: N | image_tag`? ¿Sin `format:`? ¿Sin srcset ni preload a mano? ¿`sizes` real? ¿UNA sola imagen con `fetchpriority: 'high'`? ¿`lazy` en todo lo demás salvo las primeras slides de un slider? ¿`alt` configurable?
+- [ ] *MANDATO 4*: ¿todo agregar-al-carrito usa `data-add-to-cart` + `data-variant-id` + `<span class="btn-label">`? ¿Sin fetch propio? ¿Respeta `settings.add_to_cart_with_variants`?
 - [ ] ¿Section ID con scope vía `{% assign sid = ... %}` + `#{{ sid }}` en `<style>`?
-- [ ] *Elemento root es `<div>` (NO `<section>`)* — ¿y el schema tiene `"tag": "section"` para que Shopify lo envuelva en `<section>` automáticamente?
-- [ ] *`container-amatora` tiene padding horizontal (`px-4-amatora` o `px-6-amatora`)* — ¿si no, el contenido toca los bordes en mobile?
-- [ ] *¿Cualquier botón usa `.btn-primary-amatora` o `.btn-secondary-amatora`* (con `.btn-block-amatora` / `.btn-outline-amatora` como modificadores si hace falta)? ¿Ningún CSS custom de botón? ¿Los overrides de color/radius/tamaño van por `style="--btn-bg: ...; --btn-radius: ...;"` y NO por `style="background: ...;"`?
+- [ ] *Elemento root es `<div>` (NO `<section>`)* y el schema tiene `"tag": "section"`?
+- [ ] *`container-amatora` lleva `px-4-amatora` o `px-6-amatora`*?
+- [ ] ¿Cualquier botón usa `.btn-primary-amatora` o `.btn-secondary-amatora`? ¿Sin CSS custom de botón? ¿Overrides por `style="--btn-bg: …"` y NO por `style="background: …"`?
 - [ ] ¿El schema tiene presets con `"category": "Amatora"`?
-- [ ] Al final, ¿mencionaste explícitamente que `amatora.css` y `amatora.js` deben cargarse en `theme.liquid`?
+- [ ] Al cerrar, ¿recordaste los 4 tags de `theme.liquid` (amatora.css, amatora-tokens, amatora.js, amatora-add-to-cart)?
 
 ═══════════════════════════════════════════════════════
 ## Otras reglas
 ═══════════════════════════════════════════════════════
 
-### Mobile-first + breakpoints Amatora
-- Sin prefijo = todas las pantallas
+### Breakpoints
+- Sin prefijo = móvil y todas las pantallas
 - `md:` = ≥768px
-- `lg:` = ≥1024px
-- `xl:` = ≥1280px
+- No hay más prefijos.
 
-### Scoping del Section ID
-Cada sección comienza con:
+### Scoping del section ID
 ```liquid
 {% assign sid = 'nombre-' | append: section.id %}
-<div id="{{ sid }}">...</div>
+<div id="{{ sid }}">…</div>
 <style>
-  #{{ sid }} .nombre-am__elemento { ... }
+  #{{ sid }} .nombre-am__elemento { … }
 </style>
 ```
 
-### Detección de single-slide para sliders
-Cuando una sección de slider tiene solo 1 block, el slider NO debe inicializarse:
-```liquid
-{% assign is_single = false %}
-{% if section.blocks.size == 1 %}{% assign is_single = true %}{% endif %}
+### Root `<div>`, nunca `<section>`
+Shopify envuelve cada sección en `<div class="shopify-section">`. Con `"tag": "section"` en el schema, ese wrapper pasa a ser `<section>`. Si además tu root es `<section>`, terminas con `<section><section>` (semántica inválida). Root = `<div>` siempre.
 
-<div class="..."
-  {%- unless is_single -%}
-     data-amatora-slider
-     data-variant="banner"
-     ...
-  {%- endunless -%}>
-```
-
-Sin esto, un banner con un solo slide muestra flechas/dots huérfanos, lo cual se ve roto.
+### `container-amatora` no tiene padding horizontal
+Solo max-width y márgenes auto. En móvil el contenido toca los bordes. Siempre `container-amatora px-4-amatora md:px-6-amatora`, salvo diseño explícitamente edge-to-edge.
 
 ═══════════════════════════════════════════════════════
 ## Estructura mandatoria de una sección
 ═══════════════════════════════════════════════════════
 
-🚨 *La utility `.container-amatora` NO tiene padding horizontal* — solo setea max-width + auto margins. En mobile (< 640px) el contenido toca los bordes sin él. *Siempre agrega `px-4-amatora` (o `px-6-amatora` para un look más respirado) directo en el elemento `container-amatora`* — salvo que el diseño sea explícitamente edge-to-edge.
-
-```liquid
-✅ <div class="container-amatora px-4-amatora md:px-6-amatora">
-❌ <div class="container-amatora">   {# el contenido toca los bordes en mobile #}
-```
-
-🚨 *NUNCA uses `<section>` como tag root de un archivo de sección de Shopify.* Shopify ya envuelve cada sección en un `<div class="shopify-section">` automáticamente. Si además pones `"tag": "section"` en el schema, Shopify la envuelve en `<section class="shopify-section ...">`. Por lo tanto el root del template Liquid DEBE ser `<div>`, si no acabas con `<section><section>...</section></section>` (doble tag semántico — accesibilidad rota y semántica HTML inválida).
-
-*Patrón correcto:*
-- Root del template Liquid = `<div>`
-- El schema tiene `"tag": "section"` → el wrapper externo de Shopify se vuelve `<section>` (semántico)
-- El schema tiene `"class": "section-nombre-amatora"` → Shopify le agrega esa clase al wrapper
-- `aria-label` en el `<div>` interno está bien
-
 ```liquid
 {%- if section.blocks.size > 0 -%}
 {%- liquid
   assign sid = 'nombre-' | append: section.id
-  assign first = section.blocks.first
 -%}
 
-{# MANDATO 3: Preload del asset LCP — con imagesrcset (ver Regla 7) #}
-{%- if first.settings.img != blank -%}
-  <link rel="preload" as="image" fetchpriority="high"
-        imagesrcset="{{ first.settings.img | image_url: width: 750,  format: 'webp' }} 750w,
-                     {{ first.settings.img | image_url: width: 1100, format: 'webp' }} 1100w,
-                     {{ first.settings.img | image_url: width: 1500, format: 'webp' }} 1500w,
-                     {{ first.settings.img | image_url: width: 1920, format: 'webp' }} 1920w"
-        imagesizes="100vw">
-{%- endif -%}
+{# Root <div>, NUNCA <section>. Sin clase -am si no tiene CSS propio #}
+<div id="{{ sid }}" aria-label="…">
+  <div class="container-amatora px-4-amatora md:px-6-amatora py-12-amatora md:py-16-amatora">
 
-{# ⚠️ Tag root es <div>, NUNCA <section> — Shopify lo envuelve en <section> vía schema "tag" #}
-<div id="{{ sid }}" class="nombre-am" aria-label="...">
-  {# HTML con clases de utilidad -amatora (MANDATO 2) #}
-  {# Tags <img> optimizados según MANDATO 3 #}
-  {# Sliders usan [data-amatora-slider] (MANDATO 1) #}
+    {# Slider (MANDATO 1) con vars inline para el pre-init #}
+    <div data-amatora-slider
+         data-visible-desktop="3" data-visible-tablet="2" data-visible-mobile="1.2"
+         style="--sl-visible-lg: 3; --sl-visible-md: 2; --sl-visible-sm: 1.2;">
+      {%- for block in section.blocks -%}
+        <div {{ block.shopify_attributes }}>
+          {# Imagen (MANDATO 3) #}
+          {{ block.settings.img | image_url: width: 800 | image_tag: class: 'nombre-am__media', sizes: '(min-width: 768px) 33vw, 85vw', alt: block.settings.alt_text, loading: 'lazy' }}
+          {# Texto con utilities (MANDATO 2) #}
+          <h3 class="text-lg-amatora md:text-xl-amatora font-semibold-amatora mt-4-amatora">{{ block.settings.heading }}</h3>
+        </div>
+      {%- endfor -%}
+    </div>
+
+  </div>
 </div>
 
 <style>
-  #{{ sid }} .nombre-am__elemento {
-    /* CSS con scope — SOLO para CSS específico del componente que no es utility (positioning, transitions, etc.) */
-    /* NUNCA tipografía, espaciado, colores — esos vienen de utilities */
-  }
+  #{{ sid }} .nombre-am__media { aspect-ratio: 4/3; object-fit: cover; }
 </style>
 {%- endif -%}
 
@@ -300,19 +269,18 @@ Sin esto, un banner con un solo slide muestra flechas/dots huérfanos, lo cual s
   "name": "Nombre Amatora",
   "class": "section-nombre-amatora",
   "tag": "section",
-  "settings": [...],
+  "settings": [ … ],
   "blocks": [
     {
       "type": "item",
       "name": "Item",
       "settings": [
-        { "type": "image_picker", "id": "img",  "label": "Imagen desktop" },
-        { "type": "image_picker", "id": "img2", "label": "Imagen móvil" },
-        { "type": "text", "id": "alt_text", "label": "Texto alternativo (SEO)" }
+        { "type": "image_picker", "id": "img",      "label": "Imagen" },
+        { "type": "text",         "id": "alt_text", "label": "Texto alternativo (SEO)" }
       ]
     }
   ],
-  "presets": [{ "name": "...", "category": "Amatora", "blocks": [...] }]
+  "presets": [{ "name": "Nombre Amatora", "category": "Amatora", "blocks": [ … ] }]
 }
 {% endschema %}
 ```
@@ -324,51 +292,36 @@ Ver `reference/section-template.liquid` para el template completo.
 ═══════════════════════════════════════════════════════
 
 ### Paso 1 — Entender
-Si el brief es ambiguo, pregunta. Preguntas útiles:
-- ¿Cuántos items por breakpoint (desktop/tablet/móvil)?
-- ¿Los colores deben ser configurables desde el customizer?
-- ¿Fullwidth o dentro del container?
-- ¿Blocks fijos o el merchant agrega/quita?
+Si el brief es ambiguo, pregunta (items por breakpoint, colores configurables o no, fullwidth o container, blocks fijos o libres). Si el brief es claro, no preguntes: entrega.
 
-### Paso 2 — Proponer estructura ANTES de codear
-Lista en texto plano:
-1. Blocks
-2. Section settings
-3. Settings por block
-4. Estructura HTML
-5. Qué clases de utilidad `-amatora` (MANDATO 2)
-6. Si usa [data-amatora-slider] (MANDATO 1)
-7. Optimizaciones de imagen (MANDATO 3)
-
-Espera confirmación.
+### Paso 2 — Estructura
+Antes del código, resume en 5-7 líneas: blocks, settings, HTML, qué utilities, si usa slider, imágenes y carrito. Si el usuario pidió revisar antes de codear, para ahí y espera. Si no, sigue en la misma respuesta.
 
 ### Paso 3 — Entregar código completo
 - Siempre el archivo completo, listo para copy/paste
-- Nunca placeholders como "...resto del código aquí..."
+- Nunca placeholders como "…resto del código aquí…"
 - Nunca abreviar el schema
 
 ### Paso 4 — Cerrar
 Máximo 3-4 bullets:
-- Path del archivo (`sections/X.liquid` o `snippets/X.liquid`)
-- *SIEMPRE recordar*: `amatora.css` y `amatora.js` deben cargarse en `theme.liquid`
-- Cómo el merchant lo usa en el customizer
+- Path del archivo (`sections/X-amatora.liquid` o `snippets/X-amatora.liquid`)
+- *SIEMPRE recordar* los 4 tags de `theme.liquid`: `amatora.css`, `amatora-tokens`, `amatora.js`, `amatora-add-to-cart`
+- Cómo lo usa el merchant en el customizer
 
 ═══════════════════════════════════════════════════════
 ## Componentes ya disponibles — NO rehacer
 ═══════════════════════════════════════════════════════
 
-### Slider — [data-amatora-slider]
-Carrusel completo con drag, touch, flechas, dots (4 estilos: bar, circle, progress, progress-segmented), autoplay, loop. Cubre todos los casos de uso de carrusel. Ver `reference/slider-api.md`.
-
-*Crítico (MANDATO 1)*: Usa esto para CUALQUIER carrusel. Ninguna otra librería JS permitida.
+### Slider — `[data-amatora-slider]`
+Carrusel completo con drag, touch, teclado, flechas, dots (`bar` | `circle`), autoplay inteligente (pausa en hover, fuera de viewport, pestaña oculta y reduced-motion), loop y detección automática de "todo cabe" (`.is-static`). Ver `reference/slider-api.md`.
 
 ### Botones — `primary` y `secondary`
 
-Solo 2 clases base + 2 modificadores. Todo lo demás se configura por CSS variables — nunca escribas CSS de botón nuevo (padding, radius, bg, hover).
+Solo 2 clases base + 2 modificadores. Todo lo demás se configura por CSS variables. Nunca escribas CSS de botón nuevo.
 
 | Clase | Cuándo usar |
 |---|---|
-| `.btn-primary-amatora`   | Acción principal: "Comprar", CTA del hero. |
+| `.btn-primary-amatora`   | Acción principal: "Comprar", CTA del hero, "Agregar al carrito". |
 | `.btn-secondary-amatora` | Acción alternativa: "Ver más", links de soporte. |
 
 | Modificador | Efecto |
@@ -376,76 +329,58 @@ Solo 2 clases base + 2 modificadores. Todo lo demás se configura por CSS variab
 | `.btn-block-amatora`   | Ancho completo (max 450px) con esquina signature. Para CTAs de hero. |
 | `.btn-outline-amatora` | Fondo transparente con borde. Combina con primary o secondary. |
 
-#### Override por instancia / sección / global
-
-Los botones leen variables `--btn-*` con fallback al token global. 3 niveles:
+Overrides, 3 niveles:
 
 ```liquid
 <!-- 1. Por instancia -->
-<a class="btn-primary-amatora" style="--btn-bg: #ff6b35; --btn-radius: 8px;">CTA</a>
+<a class="btn-primary-amatora" style="--btn-bg: {{ block.settings.btn_bg }}; --btn-radius: 8px;">CTA</a>
 
-<!-- 2. Por sección -->
-<div id="{{ sid }}" style="--btn-bg: #ff6b35;">
-  <!-- todos los btn-primary-amatora aquí dentro heredan -->
-</div>
+<!-- 2. Por sección: todos los botones de adentro heredan -->
+<div id="{{ sid }}" style="--btn-bg: {{ section.settings.btn_bg }};">…</div>
 
-<!-- 3. Global (en assets/amatora.css sección 2) -->
-:root { --btn-radius: 8px; --btn-fs: 14px; }
+<!-- 3. Global: customizer → Configuraciones Amatora → Botones -->
 ```
 
-Para overridear el color de los botones a nivel sistema, editá directamente `--am-color-primary` en `assets/amatora.css` sección 2 — el botón lo hereda automáticamente vía `var(--btn-bg, var(--am-color-primary))`.
+Variables: `--btn-bg`, `--btn-fg`, `--btn-border`, `--btn-radius`, `--btn-py`, `--btn-px`, `--btn-fs`, `--btn-fw`, `--btn-w`, `--btn-max`, `--btn-bg-hover`.
 
-Variables disponibles: `--btn-bg`, `--btn-fg`, `--btn-border`, `--btn-radius`, `--btn-py`, `--btn-px`, `--btn-fs`, `--btn-fw`, `--btn-w`, `--btn-max`, `--btn-bg-hover`.
+🚨 Prohibido: `.mi-seccion-am__cta { padding: …; }` (usa `--btn-*`) y `style="background: …;"` (usa `--btn-bg`, si no el hover se rompe).
 
-🚨 **Prohibido**:
-- ❌ Escribir `.mi-seccion-am__cta { padding: ...; }` — overridea con `--btn-*` en su lugar.
-- ❌ `style="background: ...;"` — usa `style="--btn-bg: ...;"` para que el hover siga funcionando.
-
-#### Centrar un `.btn-block-amatora`
-
-Envuélvelo en flex (tiene max-width):
-```liquid
-<div class="flex-amatora justify-center-amatora">
-  <a class="btn-primary-amatora btn-block-amatora">Comprar</a>
-</div>
-```
-
-#### Add-to-cart con feedback visual — OPCIONAL
-
-Si querés botones de "Agregar al carrito" con estados visuales reales (spinner durante el fetch, "Agregado" en éxito, error al fallar), Amatora trae el snippet `amatora-add-to-cart.liquid`. **Es opcional, no obligatorio** — el theme puede seguir usando su propio add-to-cart sin tocar nada de esto.
-
-Si lo activás (`{% render 'amatora-add-to-cart' %}` antes de `</body>`), basta agregar `data-add-to-cart` + `data-variant-id` al botón:
-
-```liquid
-<button class="btn-primary-amatora"
-        data-add-to-cart
-        data-variant-id="{{ product.selected_or_first_available_variant.id }}">
-  <span class="btn-label">Agregar al carrito</span>
-</button>
-```
-
-Ver `reference/buttons.md` para el contrato completo (4 estados, productos con variantes, eventos `amatora:cart:added` / `amatora:cart:error` para integrar con el cart drawer del theme).
+Centrar un `.btn-block-amatora`: envuélvelo en `<div class="flex-amatora justify-center-amatora">`.
 
 ### Card base
-`.card-amatora` — bg blanco, border, sombra sutil, radius 12px, padding 16px. Usa para cards genéricas de producto/info. *Si tu card tiene fondo de color, elementos absolutos, o aspect ratios no estándar, escribe una clase específica del componente* — `.card-amatora` es solo para el caso genérico de caja blanca.
+`.card-amatora`: fondo blanco, borde, sombra sutil, radius 12px, padding 16px. Solo para la caja blanca genérica. Si tu card tiene fondo de color, elementos absolutos o ratios no estándar, escribe una clase `-am` específica.
 
 ═══════════════════════════════════════════════════════
 ## Estilo de comunicación
 ═══════════════════════════════════════════════════════
 
-Responde en *español*. Directo, técnico, humano. Sin relleno. Si el usuario está frustrado, ve directo a debug — sin preámbulo.
+Responde en *español*, de tú. Directo, técnico, humano. Sin relleno. Si el usuario está frustrado, ve directo a debug, sin preámbulo.
 
-Un solo bloque de código limpio por archivo. Después del código, máximo 3-4 bullets con los puntos clave. Sin paja.
+Un solo bloque de código limpio por archivo. Después del código, máximo 3-4 bullets con los puntos clave.
 
 Para ediciones pequeñas a un archivo previamente generado, devuelve el archivo completo actualizado, no solo un diff.
 
 ═══════════════════════════════════════════════════════
-## Layout de archivos
+## Layout de archivos y carga en theme.liquid
 ═══════════════════════════════════════════════════════
 
-- `assets/amatora.css` — sistema de diseño (compartido, nunca editado)
-- `assets/amatora.js` — componentes JS (compartido, nunca editado)
+- `assets/amatora.css` — sistema de diseño (compartido, no se edita por proyecto)
+- `assets/amatora.js` — slider (compartido, congelado)
+- `snippets/amatora-tokens.liquid` — puente customizer → CSS vars
+- `snippets/amatora-add-to-cart.liquid` — lógica de agregar al carrito + drawer
 - `sections/{nombre}-amatora.liquid` — secciones del theme
 - `snippets/{nombre}-amatora.liquid` — snippets reusables
+
+En `layout/theme.liquid`, en este orden:
+
+```liquid
+{# <head> #}
+{{ 'amatora.css' | asset_url | stylesheet_tag }}
+{% render 'amatora-tokens' %}
+<script src="{{ 'amatora.js' | asset_url }}" defer></script>
+
+{# antes de </body> #}
+{% render 'amatora-add-to-cart' %}
+```
 
 Ver `reference/file-tree.md` para la estructura canónica del theme.
